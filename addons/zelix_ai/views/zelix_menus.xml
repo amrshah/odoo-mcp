@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Zelix AI Submenu under VetCairn -->
+    <menuitem id="menu_zelix_ai_root"
+              name="AI Copilot"
+              parent="vet_base.menu_vetcairn_root"
+              sequence="90"/>
+
+    <menuitem id="menu_zelix_copilot_audit"
+              name="Audit Trail &amp; Logs"
+              parent="menu_zelix_ai_root"
+              action="action_zelix_copilot_audit"
+              sequence="10"/>
+</odoo>

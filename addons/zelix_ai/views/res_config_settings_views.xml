@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_zelix_ai" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.zelix_ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="95"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Zelix AI Copilot" string="Zelix AI Copilot" name="zelix_ai">
+                    <block title="Zelix AI Copilot &amp; BitNet Configuration" name="zelix_ai_config">
+                        <setting string="Zelix Copilot Backend URL" help="URL endpoint for the Zelix Copilot FastAPI service">
+                            <field name="zelix_backend_url" placeholder="http://zelix_copilot:8010"/>
+                        </setting>
+                        <setting string="BitNet SLM Model" help="Active 1-bit LLM path identifier">
+                            <field name="zelix_bitnet_model" placeholder="/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf"/>
+                        </setting>
+                        <setting string="Auto Record Context" help="Automatically pass active patient and view context to the Copilot">
+                            <field name="zelix_auto_context"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,42 @@
+.o_zelix_systray_container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+
+    .o_zelix_systray_btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 100%;
+        padding: 6px 12px;
+        color: rgba(255, 255, 255, 0.9);
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s ease-in-out;
+
+        .o_zelix_icon {
+            color: #f59e0b; /* Amber spark */
+            font-size: 0.95rem;
+        }
+
+        .o_zelix_label {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        &:hover, &:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
+        }
+
+        &:active {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+    }
+}

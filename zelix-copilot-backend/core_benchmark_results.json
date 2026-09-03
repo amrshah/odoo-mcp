@@ -1,0 +1,136 @@
+{
+  "Gemma-3-1B-it (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 3274.2,
+      "tok_per_sec": 46.7,
+      "schema_valid": true,
+      "parsed": {
+        "subjective": "Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.",
+        "objective": "Mucous membranes are pink and moist, capillary refill time is 1.5 seconds, heart rate 115 bpm, regular rhythm, femoral pulses strong, temperature is 102.1 F, abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "content_preview": "```json\n{\"subjective\": \"Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.\", \"objective\": \"Mucous membranes are pink and moist, capillary refill time is 1.5 sec"
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 670.3,
+      "tok_per_sec": 91.0,
+      "schema_valid": true,
+      "parsed": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg oral tablets",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "take with food"
+      },
+      "content_preview": "```json\n{\"medication_name\": \"Amoxicillin-Clavulanate\", \"dosage\": \"250mg oral tablets\", \"route\": \"oral\", \"frequency\": \"twice daily\", \"duration\": \"7 days\", \"instructions\": \"take with food\"}\n```"
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 654.4,
+      "tok_per_sec": 90.2,
+      "schema_valid": false,
+      "parsed": {
+        "is_contradictory": false,
+        "error_type": "Dosage",
+        "explanation": "The dosage of Carprofen is 75mg BID (once daily) for 14 days. This is a standard and generally acceptable dosage."
+      },
+      "content_preview": "```json\n{\"is_contradictory\": false, \"error_type\": \"Dosage\", \"explanation\": \"The dosage of Carprofen is 75mg BID (once daily) for 14 days. This is a standard and generally acceptable dosage.\"}\n```"
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 5829.6,
+      "tok_per_sec": 126.1,
+      "schema_valid": true,
+      "parsed": null,
+      "content_preview": "Okay, let\u2019s break down this case and identify the top 3 differential diagnoses, considering the clinical presentation. Here\u2019s a structured analysis, focusing on the key findings and potential causes:\n"
+    }
+  },
+  "Qwen-3.5-4B (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 26463.3,
+      "tok_per_sec": 38.7,
+      "schema_valid": false,
+      "parsed": null,
+      "content_preview": ""
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 25296.6,
+      "tok_per_sec": 40.5,
+      "schema_valid": false,
+      "parsed": null,
+      "content_preview": ""
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 33539.8,
+      "tok_per_sec": 30.5,
+      "schema_valid": false,
+      "parsed": null,
+      "content_preview": ""
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 33570.4,
+      "tok_per_sec": 30.5,
+      "schema_valid": false,
+      "parsed": null,
+      "content_preview": ""
+    }
+  },
+  "Qwen-2.5-7B (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 48169.8,
+      "tok_per_sec": 3.8,
+      "schema_valid": true,
+      "parsed": {
+        "subjective": "The owner reports that Max has had reduced appetite and vomited twice in the last 24 hours, and appears lethargic.",
+        "objective": "Mucous membranes are pink and moist, with a capillary refill time of 1.5 seconds. Heart rate is 115 bpm, regular rhythm, and femoral pulses are strong. Temperature is 102.1 F. Abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis is suspected based on the clinical signs and exam findings.",
+        "plan": "Administer Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "content_preview": "{\"subjective\": \"The owner reports that Max has had reduced appetite and vomited twice in the last 24 hours, and appears lethargic.\", \"objective\": \"Mucous membranes are pink and moist, with a capillary"
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 25574.1,
+      "tok_per_sec": 2.1,
+      "schema_valid": true,
+      "parsed": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "with food"
+      },
+      "content_preview": "{\"medication_name\": \"Amoxicillin-Clavulanate\", \"dosage\": \"250mg\", \"route\": \"oral\", \"frequency\": \"twice daily\", \"duration\": \"7 days\", \"instructions\": \"with food\"}"
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 17727.2,
+      "tok_per_sec": 4.3,
+      "schema_valid": true,
+      "parsed": {
+        "is_contradictory": true,
+        "error_type": "Frequency and Dosage Contradiction",
+        "explanation": "The order specifies a dose of 75mg once daily in the evening (BID), but the dosage is 1 tablet, which is typically 75mg. This is contradictory as BID implies twice daily, not once daily."
+      },
+      "content_preview": "{\"is_contradictory\": true, \"error_type\": \"Frequency and Dosage Contradiction\", \"explanation\": \"The order specifies a dose of 75mg once daily in the evening (BID), but the dosage is 1 tablet, which is "
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 16488.6,
+      "tok_per_sec": 23.1,
+      "schema_valid": true,
+      "parsed": null,
+      "content_preview": "### Differential Diagnoses for the 8-Year-Old Neutered Male Golden Retriever\n\n1. **Gastric Dilatation-Volvulus (GDV)**\n   - **Justification**: The patient's acute onset of abdominal distension, unprod"
+    }
+  }
+}

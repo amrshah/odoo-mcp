@@ -1,0 +1,275 @@
+{
+  "BitNet-1.58b-2B (Alamia Remote)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 31072.3,
+      "tokens_per_sec": 6.5,
+      "schema_valid": false,
+      "parsed_data": {
+        "subjective": "Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.",
+        "objective": {
+          "mucous membranes": "pink and moist",
+          "capillary refill time": "1.5 seconds",
+          "heart rate": "115 bpm, regular rhythm",
+          "femoral pulses": "strong",
+          "temperature": "102.1 F",
+          "abdominal palpation": "mild cranial epigastric discomfort, no palpable foreign body or organomegaly"
+        },
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": {
+          "medication": "oral Metronidazole 250mg BID for 5 days",
+          "diet": "bland diet for 3 days"
+        }
+      },
+      "raw_content": "```json\n{\n  \"subjective\": \"Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.\",\n  \"objective\": {\n    \"mucous membranes\": \"pink and moist\",\n    \"capillary refill time\": \"1.5 seconds\",\n    \"heart rate\": \"115 bpm, regular rhythm\",\n    \"femoral pulses\": \"strong\",\n",
+      "error": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 11459.7,
+      "tokens_per_sec": 5.6,
+      "schema_valid": false,
+      "parsed_data": {
+        "medication_1": "Amoxicillin-Clavulanate",
+        "dosage_1": "250mg",
+        "route_1": "oral tablets",
+        "frequency_1": "twice daily",
+        "duration_1": "7 days",
+        "instructions_1": "with food"
+      },
+      "raw_content": "{\"medication_1\": \"Amoxicillin-Clavulanate\", \"dosage_1\": \"250mg\", \"route_1\": \"oral tablets\", \"frequency_1\": \"twice daily\", \"duration_1\": \"7 days\", \"instructions_1\": \"with food\"}",
+      "error": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 11881.9,
+      "tokens_per_sec": 4.9,
+      "schema_valid": false,
+      "parsed_data": {
+        "is_contradictory": false,
+        "error_type": null,
+        "explanation": "The frequency and dosage instructions are consistent. The patient is to take the carprofen tablet once daily in the evening for 14 days."
+      },
+      "raw_content": "```json\n{\n  \"is_contradictory\": false,\n  \"error_type\": null,\n  \"explanation\": \"The frequency and dosage instructions are consistent. The patient is to take the carprofen tablet once daily in the evening for 14 days.\"\n}\n```",
+      "error": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 29515.1,
+      "tokens_per_sec": 8.4,
+      "schema_valid": false,
+      "parsed_data": null,
+      "raw_content": "1. **Peritonitis**: The clinical signs of acute abdominal distension, unproductive retching, restlessness, tachycardia, and weak femoral pulses are highly suggestive of peritonitis. This condition is characterized by inflammation or infection in the abdomen that can lead to severe pain and systemic ",
+      "error": null
+    }
+  },
+  "Gemma-3-1B-it (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 3784.6,
+      "tokens_per_sec": 40.4,
+      "schema_valid": true,
+      "parsed_data": {
+        "subjective": "Max has had reduced appetite and vomited twice over the last 24 hours, he seems lethargic.",
+        "objective": "Mucous membranes are pink and moist, capillary refill time is 1.5 seconds, heart rate 115 bpm, regular rhythm, femoral pulses strong, temperature is 102.1 F, abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "raw_content": "```json\n{\"subjective\": \"Max has had reduced appetite and vomited twice over the last 24 hours, he seems lethargic.\", \"objective\": \"Mucous membranes are pink and moist, capillary refill time is 1.5 seconds, heart rate 115 bpm, regular rhythm, femoral pulses strong, temperature is 102.1 F, abdominal p",
+      "error": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 1744.1,
+      "tokens_per_sec": 35.0,
+      "schema_valid": true,
+      "parsed_data": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg oral tablets",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "take with food"
+      },
+      "raw_content": "```json\n{\"medication_name\": \"Amoxicillin-Clavulanate\", \"dosage\": \"250mg oral tablets\", \"route\": \"oral\", \"frequency\": \"twice daily\", \"duration\": \"7 days\", \"instructions\": \"take with food\"}\n```",
+      "error": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 1706.7,
+      "tokens_per_sec": 36.9,
+      "schema_valid": false,
+      "parsed_data": {
+        "is_contradictory": false,
+        "error_type": "Dosage inconsistency",
+        "explanation": "The order specifies a BID (twice daily) dose, but the dosage is 75mg.  This is a contradiction as the dose is not twice daily."
+      },
+      "raw_content": "```json\n{\"is_contradictory\": false, \"error_type\": \"Dosage inconsistency\", \"explanation\": \"The order specifies a BID (twice daily) dose, but the dosage is 75mg.  This is a contradiction as the dose is not twice daily.\"}\n```",
+      "error": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 19079.5,
+      "tokens_per_sec": 44.4,
+      "schema_valid": true,
+      "parsed_data": null,
+      "raw_content": "Okay, let\u2019s break down this presentation and identify the top 3 differential diagnoses. Here\u2019s a structured analysis, considering the clinical signs and potential underlying causes, presented in a clear and organized manner:\n\n**Differential Diagnoses \u2013 8-Year-Old Neutered Male Golden Retriever with ",
+      "error": null
+    }
+  },
+  "Qwen-2.5-Coder-1.5B (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 5468.3,
+      "tokens_per_sec": 39.1,
+      "schema_valid": true,
+      "parsed_data": {
+        "subjective": "Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.",
+        "objective": "Mucous membranes are pink and moist. Capillary refill time is 1.5 seconds. Heart rate 115 bpm, regular rhythm. Femoral pulses strong. Temperature is 102.1 F. Abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Based on the exam, this looks like acute dietary indiscretion or mild gastroenteritis. I recommend Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days.",
+        "plan": "Maropitant 16mg injection today, bland diet for 3 days, oral Metronidazole 250mg BID for 5 days."
+      },
+      "raw_content": "```json\n{\n  \"subjective\": \"Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.\",\n  \"objective\": \"Mucous membranes are pink and moist. Capillary refill time is 1.5 seconds. Heart rate 115 bpm, regular rhythm. Femoral pulses strong. Temperature is 102.1 F. Abdomi",
+      "error": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 1556.9,
+      "tokens_per_sec": 46.9,
+      "schema_valid": true,
+      "parsed_data": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg",
+        "route": "oral tablets",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "Take with food to help reduce stomach irritation."
+      },
+      "raw_content": "```json\n{\n  \"medication_name\": \"Amoxicillin-Clavulanate\",\n  \"dosage\": \"250mg\",\n  \"route\": \"oral tablets\",\n  \"frequency\": \"twice daily\",\n  \"duration\": \"7 days\",\n  \"instructions\": \"Take with food to help reduce stomach irritation.\"\n}\n```",
+      "error": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 1636.7,
+      "tokens_per_sec": 45.8,
+      "schema_valid": false,
+      "parsed_data": {
+        "is_contradictory": false,
+        "error_type": "",
+        "explanation": "The prescription is clear and follows standard dosage instructions for Carprofen. The frequency (BID, or once daily) and dosage (75mg) are both correctly specified. There are no contradictions or dangerous errors in this order."
+      },
+      "raw_content": "```json\n{\n  \"is_contradictory\": false,\n  \"error_type\": \"\",\n  \"explanation\": \"The prescription is clear and follows standard dosage instructions for Carprofen. The frequency (BID, or once daily) and dosage (75mg) are both correctly specified. There are no contradictions or dangerous errors in this or",
+      "error": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 6107.1,
+      "tokens_per_sec": 53.7,
+      "schema_valid": false,
+      "parsed_data": null,
+      "raw_content": "Based on the clinical signs provided, the most likely differential diagnoses for this patient are:\n\n1. **Gastroenteritis**: This is a common cause of acute abdominal distension in dogs, often accompanied by vomiting and diarrhea. The presence of unproductive retching and restlessness suggests that t",
+      "error": null
+    }
+  },
+  "Qwen-3.5-4B (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 23506.2,
+      "tokens_per_sec": 43.6,
+      "schema_valid": true,
+      "parsed_data": {
+        "subjective": "Patient presents with reduced appetite, vomiting twice in the last 24 hours, and lethargy.",
+        "objective": "Mucous membranes pink and moist; Capillary refill time 1.5 seconds; Heart rate 115 bpm regular rhythm; Femoral pulses strong; Temperature 102.1 F; Abdominal palpation reveals mild cranial epigastric discomfort, no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Administer Maropitant 16mg injection today; Bland diet for 3 days; Oral Metronidazole 250mg BID for 5 days."
+      },
+      "raw_content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Role: Expert veterinary medical scribe.\n    *   Task: Extract a structured SOAP note from the provided consultation dialogue.\n    *   Output Format: Valid JSON only.\n    *   Schema: `{\"subjective\": \"...\", \"objective\": \"...\", \"assessment\": \"...\"",
+      "error": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 33528.1,
+      "tokens_per_sec": 30.5,
+      "schema_valid": false,
+      "parsed_data": null,
+      "raw_content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   Input: A doctor's directive (\"Please prescribe Amoxicillin-Clavulanate 250mg oral tablets for Max, 1 tablet twice daily with food for 7 days.\").\n    *   Task: Extract the prescription proposal from the directive.\n    *   Output Format: Valid JS",
+      "error": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 31028.6,
+      "tokens_per_sec": 28.1,
+      "schema_valid": true,
+      "parsed_data": {
+        "is_contradictory": true,
+        "error_type": "Conflicting Frequency Instructions",
+        "explanation": "BID stands for twice daily, which directly contradicts the parenthetical instruction specifying 'once daily in the evening'."
+      },
+      "raw_content": "{\n  \"is_contradictory\": true,\n  \"error_type\": \"Conflicting Frequency Instructions\",\n  \"explanation\": \"BID stands for twice daily, which directly contradicts the parenthetical instruction specifying 'once daily in the evening'.\"\n}",
+      "error": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 54677.5,
+      "tokens_per_sec": 18.7,
+      "schema_valid": true,
+      "parsed_data": null,
+      "raw_content": "Thinking Process:\n\n1.  **Analyze the Request:**\n    *   **Role:** Senior Veterinary Clinician.\n    *   **Task:** Provide top 3 differential diagnoses with justification based on clinical signs.\n    *   **Format:** Structured format.\n    *   **Patient:** 8-year-old neutered male Golden Retriever.\n   ",
+      "error": null
+    }
+  },
+  "Qwen-2.5-Coder-7B (Local Ollama)": {
+    "TC1_SOAP_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 17330.6,
+      "tokens_per_sec": 9.6,
+      "schema_valid": true,
+      "parsed_data": {
+        "subjective": "Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.",
+        "objective": "Mucous membranes are pink and moist. Capillary refill time is 1.5 seconds. Heart rate 115 bpm, regular rhythm. Femoral pulses strong. Temperature is 102.1 F. Abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "raw_content": "{\n  \"subjective\": \"Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.\",\n  \"objective\": \"Mucous membranes are pink and moist. Capillary refill time is 1.5 seconds. Heart rate 115 bpm, regular rhythm. Femoral pulses strong. Temperature is 102.1 F. Abdominal palp",
+      "error": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "success": true,
+      "elapsed_ms": 10073.2,
+      "tokens_per_sec": 6.2,
+      "schema_valid": true,
+      "parsed_data": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "with food"
+      },
+      "raw_content": "{\n  \"medication_name\": \"Amoxicillin-Clavulanate\",\n  \"dosage\": \"250mg\",\n  \"route\": \"oral\",\n  \"frequency\": \"twice daily\",\n  \"duration\": \"7 days\",\n  \"instructions\": \"with food\"\n}",
+      "error": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "success": true,
+      "elapsed_ms": 16900.3,
+      "tokens_per_sec": 3.8,
+      "schema_valid": true,
+      "parsed_data": {
+        "is_contradictory": true,
+        "error_type": "Frequency and dosage mismatch",
+        "explanation": "The prescription instructs to take the medication 'BID' (twice daily), but specifies 'once daily in the evening'. These instructions are contradictory."
+      },
+      "raw_content": "```json\n{\n  \"is_contradictory\": true,\n  \"error_type\": \"Frequency and dosage mismatch\",\n  \"explanation\": \"The prescription instructs to take the medication 'BID' (twice daily), but specifies 'once daily in the evening'. These instructions are contradictory.\"\n}\n```",
+      "error": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "success": true,
+      "elapsed_ms": 10462.8,
+      "tokens_per_sec": 47.3,
+      "schema_valid": true,
+      "parsed_data": null,
+      "raw_content": "### Differential Diagnosis 1: Bloat (Gastric Dilatation-Volvulus, GDV)\n**Justification:**\n- **Acute Abdominal Distension:** GDV is characterized by a sudden, rapid expansion of the stomach, which can cause severe abdominal distension.\n- **Unproductive Retching:** This is a common sign in GDV as the ",
+      "error": null
+    }
+  }
+}

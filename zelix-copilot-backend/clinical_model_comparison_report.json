@@ -1,0 +1,234 @@
+{
+  "Gemma 3 1B": {
+    "TC1_SOAP_EXTRACTION": {
+      "pass": true,
+      "wall_time_ms": 14765.2,
+      "tokens_per_sec": 10.4,
+      "prompt_tokens": 232,
+      "output_tokens": 153,
+      "thinking_tokens": 0,
+      "raw_content": "```json\n{\"subjective\": \"Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.\", \"objective\": \"Mucous membranes are pink and moist, capillary refill time is 1.5 seconds, heart rate 115 bpm, regular rhythm, femoral pulses strong, temperature is 102.1 F, abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.\",",
+      "parsed_json": {
+        "subjective": "Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.",
+        "objective": "Mucous membranes are pink and moist, capillary refill time is 1.5 seconds, heart rate 115 bpm, regular rhythm, femoral pulses strong, temperature is 102.1 F, abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "failure_reason": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "pass": true,
+      "wall_time_ms": 661.1,
+      "tokens_per_sec": 92.3,
+      "prompt_tokens": 103,
+      "output_tokens": 61,
+      "thinking_tokens": 0,
+      "raw_content": "```json\n{\"medication_name\": \"Amoxicillin-Clavulanate\", \"dosage\": \"250mg oral tablets\", \"route\": \"oral\", \"frequency\": \"twice daily\", \"duration\": \"7 days\", \"instructions\": \"take with food\"}\n```",
+      "parsed_json": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg oral tablets",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "take with food"
+      },
+      "failure_reason": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "pass": false,
+      "wall_time_ms": 734.5,
+      "tokens_per_sec": 96.7,
+      "prompt_tokens": 100,
+      "output_tokens": 71,
+      "thinking_tokens": 0,
+      "raw_content": "```json\n{\"is_contradictory\": false, \"error_type\": \"Dosage\", \"explanation\": \"The dosage of Carprofen is 75mg BID (once daily). The instructions state 1 tablet, which is a dose of 75mg. This is consistent and does not present a contradiction.\"}\n```",
+      "parsed_json": {
+        "is_contradictory": false,
+        "error_type": "Dosage",
+        "explanation": "The dosage of Carprofen is 75mg BID (once daily). The instructions state 1 tablet, which is a dose of 75mg. This is consistent and does not present a contradiction."
+      },
+      "failure_reason": "Missed contradiction (is_contradictory=False): The dosage of Carprofen is 75mg BID (once daily). The instructions state 1 table"
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "pass": true,
+      "wall_time_ms": 5628.8,
+      "tokens_per_sec": 130.2,
+      "prompt_tokens": 78,
+      "output_tokens": 733,
+      "thinking_tokens": 0,
+      "raw_content": "Okay, let\u2019s break down this case and identify the top 3 differential diagnoses, considering the clinical presentation. Here\u2019s a structured analysis, focusing on the key findings and potential causes:\n\n**1.  Gastric Dilatation and Perforation (GDP)**\n\n*   **Justification:** This is arguably the *most likely* diagnosis given the acute abdominal distension, unproductive retching, restlessness, tachyc",
+      "parsed_json": null,
+      "failure_reason": null
+    }
+  },
+  "Qwen 3.5 4B": {
+    "TC1_SOAP_EXTRACTION": {
+      "pass": false,
+      "wall_time_ms": 26876.2,
+      "tokens_per_sec": 38.1,
+      "prompt_tokens": 242,
+      "output_tokens": 1024,
+      "thinking_tokens": 540,
+      "raw_content": "",
+      "parsed_json": null,
+      "failure_reason": "Failed to parse valid JSON from output"
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "pass": false,
+      "wall_time_ms": 16922.1,
+      "tokens_per_sec": 60.5,
+      "prompt_tokens": 104,
+      "output_tokens": 1024,
+      "thinking_tokens": 533,
+      "raw_content": "",
+      "parsed_json": null,
+      "failure_reason": "Failed to parse valid JSON from output"
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "pass": false,
+      "wall_time_ms": 16581.7,
+      "tokens_per_sec": 61.8,
+      "prompt_tokens": 100,
+      "output_tokens": 1024,
+      "thinking_tokens": 580,
+      "raw_content": "{\n  \"is_contradictory\": true,\n  \"error_type\": \"Frequency contradiction\",\n  \"",
+      "parsed_json": null,
+      "failure_reason": "Missed contradiction (is_contradictory=None): {\n  \"is_contradictory\": true,\n  \"error_type\": \"Frequency contradiction\",\n  \""
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "pass": true,
+      "wall_time_ms": 16571.6,
+      "tokens_per_sec": 61.8,
+      "prompt_tokens": 85,
+      "output_tokens": 1024,
+      "thinking_tokens": 514,
+      "raw_content": "",
+      "parsed_json": null,
+      "failure_reason": null
+    }
+  },
+  "Qwen 2.5 7B Instruct": {
+    "TC1_SOAP_EXTRACTION": {
+      "pass": true,
+      "wall_time_ms": 10353.4,
+      "tokens_per_sec": 25.4,
+      "prompt_tokens": 237,
+      "output_tokens": 263,
+      "thinking_tokens": 0,
+      "raw_content": "{\"subjective\": \"The owner reported that Max has had reduced appetite and vomited twice in the past 24 hours, and appears lethargic. During the examination, the doctor noted that the mucous membranes were pink and moist, with a capillary refill time of 1.5 seconds. The heart rate was 115 bpm, with a regular rhythm, and the femoral pulses were strong. The temperature was 102.1 F. Abdominal palpation",
+      "parsed_json": {
+        "subjective": "The owner reported that Max has had reduced appetite and vomited twice in the past 24 hours, and appears lethargic. During the examination, the doctor noted that the mucous membranes were pink and moist, with a capillary refill time of 1.5 seconds. The heart rate was 115 bpm, with a regular rhythm, and the femoral pulses were strong. The temperature was 102.1 F. Abdominal palpation revealed mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "objective": "Mucous membranes: Pink and moist; Capillary refill time: 1.5 seconds; Heart rate: 115 bpm, regular rhythm; Femoral pulses: Strong; Temperature: 102.1 F; Abdominal examination: Mild cranial epigastric discomfort, no palpable foreign body or organomegaly.",
+        "assessment": "The symptoms and examination findings suggest acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Recommend Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "failure_reason": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "pass": true,
+      "wall_time_ms": 1354.8,
+      "tokens_per_sec": 39.9,
+      "prompt_tokens": 101,
+      "output_tokens": 54,
+      "thinking_tokens": 0,
+      "raw_content": "{\"medication_name\": \"Amoxicillin-Clavulanate\", \"dosage\": \"250mg\", \"route\": \"oral\", \"frequency\": \"twice daily\", \"duration\": \"7 days\", \"instructions\": \"with food\"}",
+      "parsed_json": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "with food"
+      },
+      "failure_reason": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "pass": true,
+      "wall_time_ms": 1646.9,
+      "tokens_per_sec": 41.3,
+      "prompt_tokens": 97,
+      "output_tokens": 68,
+      "thinking_tokens": 0,
+      "raw_content": "{\"is_contradictory\": true, \"error_type\": \"Frequency and Dosage Contradiction\", \"explanation\": \"The order specifies BID (twice daily) but also states 'once daily in the evening,' which is contradictory. Additionally, BID typically means twice daily, not once daily in the evening.\"}",
+      "parsed_json": {
+        "is_contradictory": true,
+        "error_type": "Frequency and Dosage Contradiction",
+        "explanation": "The order specifies BID (twice daily) but also states 'once daily in the evening,' which is contradictory. Additionally, BID typically means twice daily, not once daily in the evening."
+      },
+      "failure_reason": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "pass": true,
+      "wall_time_ms": 8369.9,
+      "tokens_per_sec": 48.4,
+      "prompt_tokens": 84,
+      "output_tokens": 405,
+      "thinking_tokens": 0,
+      "raw_content": "### Differential Diagnoses for the 8-Year-Old Neutered Male Golden Retriever\n\n1. **Gastric Dilatation-Volvulus (GDV)**\n   - **Justification**: The patient presents with acute abdominal distension, unproductive retching, and tachycardia, which are classic signs of GDV. GDV is more common in large, deep-chested breeds like Golden Retrievers. The presence of restlessness and weak femoral pulses furth",
+      "parsed_json": null,
+      "failure_reason": null
+    }
+  },
+  "DeepSeek R1 14B": {
+    "TC1_SOAP_EXTRACTION": {
+      "pass": true,
+      "wall_time_ms": 119833.4,
+      "tokens_per_sec": 4.0,
+      "prompt_tokens": 227,
+      "output_tokens": 476,
+      "thinking_tokens": 212,
+      "raw_content": "```json\n{\n  \"subjective\": \"Owner reports Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.\",\n  \"objective\": \"Mucous membranes are pink and moist. Capillary refill time is 1.5 seconds. Heart rate 115 bpm, regular rhythm. Femoral pulses strong. Temperature is 102.1 F. Abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body",
+      "parsed_json": {
+        "subjective": "Owner reports Max has had reduced appetite and vomited twice over the last 24 hours. He seems lethargic.",
+        "objective": "Mucous membranes are pink and moist. Capillary refill time is 1.5 seconds. Heart rate 115 bpm, regular rhythm. Femoral pulses strong. Temperature is 102.1 F. Abdominal palpation reveals mild cranial epigastric discomfort, but no palpable foreign body or organomegaly.",
+        "assessment": "Acute dietary indiscretion or mild gastroenteritis.",
+        "plan": "Maropitant 16mg injection today, a bland diet for 3 days, and oral Metronidazole 250mg BID for 5 days."
+      },
+      "failure_reason": null
+    },
+    "TC2_PRESCRIPTION_EXTRACTION": {
+      "pass": true,
+      "wall_time_ms": 38859.8,
+      "tokens_per_sec": 8.7,
+      "prompt_tokens": 91,
+      "output_tokens": 340,
+      "thinking_tokens": 191,
+      "raw_content": "```json\n{\n  \"medication_name\": \"Amoxicillin-Clavulanate\",\n  \"dosage\": \"250mg\",\n  \"route\": \"oral\",\n  \"frequency\": \"twice daily\",\n  \"duration\": \"7 days\",\n  \"instructions\": \"with food\"\n}\n```",
+      "parsed_json": {
+        "medication_name": "Amoxicillin-Clavulanate",
+        "dosage": "250mg",
+        "route": "oral",
+        "frequency": "twice daily",
+        "duration": "7 days",
+        "instructions": "with food"
+      },
+      "failure_reason": null
+    },
+    "TC3_CONTRADICTION_DETECTION": {
+      "pass": true,
+      "wall_time_ms": 57316.4,
+      "tokens_per_sec": 8.7,
+      "prompt_tokens": 87,
+      "output_tokens": 501,
+      "thinking_tokens": 332,
+      "raw_content": "```json\n{\n  \"is_contradictory\": true,\n  \"error_type\": \"dosage_frequency_conflict\",\n  \"explanation\": \"The prescription indicates 'BID' (twice daily) but specifies 'once daily in the evening,' creating a contradiction. This could lead to underdosing or overdosing.\"\n}\n```",
+      "parsed_json": {
+        "is_contradictory": true,
+        "error_type": "dosage_frequency_conflict",
+        "explanation": "The prescription indicates 'BID' (twice daily) but specifies 'once daily in the evening,' creating a contradiction. This could lead to underdosing or overdosing."
+      },
+      "failure_reason": null
+    },
+    "TC4_DIFFERENTIAL_REASONING": {
+      "pass": true,
+      "wall_time_ms": 121725.5,
+      "tokens_per_sec": 8.4,
+      "prompt_tokens": 74,
+      "output_tokens": 1024,
+      "thinking_tokens": 645,
+      "raw_content": "**Top Three Differential Diagnoses for the 8-Year-Old Neutered Male Golden Retriever**\n\n1. **Gastric Dilatation-Volvulus (GDV):**\n   - **Justification:** GDV is a critical condition where the stomach bloats and twists, leading to acute abdominal distension, unproductive retching, and signs of shock. It is common in large breeds like Golden Retrievers and requires immediate veterinary intervention.",
+      "parsed_json": null,
+      "failure_reason": null
+    }
+  }
+}

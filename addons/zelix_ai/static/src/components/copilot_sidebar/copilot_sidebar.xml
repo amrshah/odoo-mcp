@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="zelix_ai.CopilotSidebar">
+        <div t-if="copilotState.isOpen" class="o_zelix_copilot_sidebar shadow-lg">
+            <!-- Header with Dynamic Role Indicator -->
+            <div class="o_zelix_header d-flex justify-content-between align-items-center p-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary px-2 py-1 text-white fw-bold"><i class="fa fa-bolt text-warning me-1"/> BitNet 1.58b</span>
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold text-white fs-6 lh-sm">Zelix AI Copilot</span>
+                        <span class="text-warning fw-semibold" style="font-size: 0.78rem;" t-esc="copilotState.userRoleTitle"/>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-light border-0 text-white" t-on-click="onClose" title="Close Sidebar">
+                    <i class="fa fa-times fa-lg"/>
+                </button>
+            </div>
+
+            <!-- Active Record Context Indicator -->
+            <div t-if="copilotState.activeModel" class="o_zelix_context_bar px-3 py-2 d-flex align-items-center gap-2 small">
+                <i class="fa fa-link text-primary fw-bold"/>
+                <span class="text-dark fw-bold">Active Context:</span>
+                <span class="badge bg-dark text-white fw-bold" t-esc="copilotState.activeModel"/>
+                <t t-if="copilotState.activeRecordId">
+                    <span class="badge bg-white text-dark border border-dark fw-bold">#<t t-esc="copilotState.activeRecordId"/></span>
+                </t>
+            </div>
+
+            <!-- Dynamic Quick Action Chips with FontAwesome Icons -->
+            <div class="o_zelix_quick_actions px-3 py-2 d-flex gap-2 overflow-auto">
+                <t t-foreach="copilotState.quickActions" t-as="action" t-key="action.label">
+                    <button class="btn btn-sm o_zelix_chip text-nowrap rounded-pill"
+                            t-on-click="() => this.onActionChipClick(action.prompt)">
+                        <i t-if="action.icon" t-attf-class="fa {{action.icon}} me-1"/>
+                        <t t-esc="action.label"/>
+                    </button>
+                </t>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="o_zelix_messages_container p-3 flex-grow-1 overflow-auto">
+                <t t-foreach="copilotState.messages" t-as="msg" t-key="msg.id">
+                    <div t-attf-class="o_zelix_message mb-3 d-flex flex-column {{ msg.sender === 'user' ? 'align-items-end' : 'align-items-start' }}">
+                        <div t-attf-class="o_zelix_bubble p-3 rounded-3 {{ msg.sender === 'user' ? 'o_zelix_bubble_user' : 'o_zelix_bubble_assistant' }}">
+                            <div class="small fw-bold mb-1 d-flex justify-content-between align-items-center">
+                                <span class="o_zelix_sender_name"><t t-esc="msg.sender === 'user' ? 'You' : 'Zelix AI'"/></span>
+                                <span class="ms-3 o_zelix_msg_time"><t t-esc="msg.timestamp"/></span>
+                            </div>
+                            <div class="o_zelix_bubble_content" t-out="renderFormatted(msg.text)"/>
+
+                            <!-- Render Action Cards if proposed -->
+                            <t t-if="msg.actionCards.length">
+                                <div class="mt-2 pt-2 border-top">
+                                    <t t-foreach="msg.actionCards" t-as="card" t-key="card.action_id">
+                                        <ActionCard card="card"/>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+                <t t-if="copilotState.isLoading">
+                    <div class="d-flex align-items-center gap-2 p-2 o_zelix_loading_box rounded-2">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status"/>
+                        <span class="fw-semibold text-dark small">Zelix AI is reasoning with BitNet SLM...</span>
+                    </div>
+                </t>
+
+                <div t-ref="chatEnd"/>
+            </div>
+
+            <!-- Input Footer -->
+            <div class="o_zelix_footer p-3 border-top bg-white">
+                <div class="input-group">
+                    <textarea class="form-control o_zelix_textarea"
+                              rows="2"
+                              placeholder="Ask Zelix AI or paste consultation notes... (Enter to send)"
+                              t-model="state.inputValue"
+                              t-on-keydown="onKeyDown"
+                              t-att-disabled="copilotState.isLoading"/>
+                    <button class="btn btn-primary o_zelix_send_btn px-3 d-flex align-items-center justify-content-center"
+                            t-on-click="onSend"
+                            t-att-disabled="copilotState.isLoading || !state.inputValue">
+                        <i class="fa fa-paper-plane text-white"/>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

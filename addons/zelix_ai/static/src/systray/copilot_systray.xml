@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="zelix_ai.CopilotSystrayItem">
+        <div class="o_zelix_systray_container">
+            <button class="o_zelix_systray_btn"
+                    t-on-click="onClick"
+                    title="Zelix AI Clinical Copilot (BitNet 1-Bit SLM)">
+                <i class="fa fa-bolt o_zelix_icon"/>
+                <span class="o_zelix_label">Zelix AI</span>
+                <t t-if="copilotState.isLoading">
+                    <span class="spinner-grow spinner-grow-sm text-warning ms-1" role="status"/>
+                </t>
+            </button>
+
+            <!-- Global Copilot Sidebar Drawer -->
+            <CopilotSidebar/>
+        </div>
+    </t>
+</templates>

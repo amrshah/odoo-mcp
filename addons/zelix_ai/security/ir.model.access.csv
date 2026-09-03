@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zelix_copilot_audit_user,zelix.copilot.audit.user,model_zelix_copilot_audit,base.group_user,1,1,1,0
+access_zelix_copilot_audit_manager,zelix.copilot.audit.manager,model_zelix_copilot_audit,base.group_system,1,1,1,1
