@@ -2,34 +2,105 @@
 <templates xml:space="preserve">
     <t t-name="zelix_ai.CopilotSidebar">
         <div t-if="copilotState.isOpen" class="o_zelix_copilot_sidebar shadow-lg">
-            <!-- Header with Dynamic Role Indicator -->
+            <!-- Header (Screen 1-7 Visual Theme) -->
             <div class="o_zelix_header d-flex justify-content-between align-items-center p-3">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary px-2 py-1 text-white fw-bold"><i class="fa fa-bolt text-warning me-1"/> BitNet 1.58b</span>
+                    <div class="o_zelix_logo_icon d-flex align-items-center justify-content-center rounded-circle bg-white text-primary fw-bold" style="width: 32px; height: 32px;">
+                        <i class="fa fa-paw fs-6 text-primary"/>
+                    </div>
                     <div class="d-flex flex-column">
-                        <span class="fw-bold text-white fs-6 lh-sm">Zelix AI Copilot</span>
-                        <span class="text-warning fw-semibold" style="font-size: 0.78rem;" t-esc="copilotState.userRoleTitle"/>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-white fs-6 lh-sm">Zelix AI Copilot</span>
+                            <span class="badge bg-success bg-opacity-75 text-white px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">
+                                <i class="fa fa-circle text-success-emphasis me-1" style="font-size: 0.55rem;"/> Active
+                            </span>
+                        </div>
+                        <span class="text-light text-opacity-75 fw-normal" style="font-size: 0.75rem;" t-esc="copilotState.userRoleTitle || 'Clinical Assistant'"/>
                     </div>
                 </div>
-                <button class="btn btn-sm btn-outline-light border-0 text-white" t-on-click="onClose" title="Close Sidebar">
-                    <i class="fa fa-times fa-lg"/>
-                </button>
+                <div class="d-flex align-items-center gap-1">
+                    <button class="btn btn-sm btn-outline-light border-0 text-white p-1" t-on-click="onClearHistory" title="Clear Conversation">
+                        <i class="fa fa-rotate-left"/>
+                    </button>
+                    <button class="btn btn-sm btn-outline-light border-0 text-white p-1" t-on-click="onClose" title="Close Sidebar">
+                        <i class="fa fa-times fa-lg"/>
+                    </button>
+                </div>
             </div>
 
-            <!-- Active Record Context Indicator -->
-            <div t-if="copilotState.activeModel" class="o_zelix_context_bar px-3 py-2 d-flex align-items-center gap-2 small">
-                <i class="fa fa-link text-primary fw-bold"/>
-                <span class="text-dark fw-bold">Active Context:</span>
-                <span class="badge bg-dark text-white fw-bold" t-esc="copilotState.activeModel"/>
-                <t t-if="copilotState.activeRecordId">
-                    <span class="badge bg-white text-dark border border-dark fw-bold">#<t t-esc="copilotState.activeRecordId"/></span>
+            <!-- Contextual Top Cards Section (Screens 1, 2, 3, 7) -->
+            <div class="o_zelix_context_card_section p-3 bg-white border-bottom shadow-sm">
+                <!-- Case A: Patient Record View (Screen 2 Contextual Box & Checklist) -->
+                <t t-if="copilotState.patientContext">
+                    <div class="o_zelix_patient_card p-2 rounded-3 border bg-light mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-dark small"><i class="fa fa-id-card me-1 text-primary"/> Patient Context</span>
+                            <span class="badge bg-primary text-white" t-esc="copilotState.patientContext.identifier || 'PAT'"/>
+                        </div>
+                        <p class="mb-1 text-dark" style="font-size: 0.8rem; line-height: 1.35;">
+                            <strong><t t-esc="copilotState.patientContext.name"/></strong> is a <t t-esc="copilotState.patientContext.age || 'adult'"/> <t t-esc="copilotState.patientContext.breed || copilotState.patientContext.species"/>. 
+                            <t t-if="copilotState.patientContext.notes">
+                                <span class="text-secondary d-block mt-0.5"><t t-esc="copilotState.patientContext.notes"/></span>
+                            </t>
+                        </p>
+                    </div>
+
+                    <!-- AI Suggestions Checklist (Screen 2) -->
+                    <div class="o_zelix_checklist p-2 rounded border" style="background-color: #f8fafc;">
+                        <div class="fw-bold text-dark mb-1" style="font-size: 0.76rem;"><i class="fa fa-sparkles text-warning me-1"/> AI Recommendations:</div>
+                        <ul class="list-unstyled mb-2 ps-1" style="font-size: 0.76rem;">
+                            <li class="text-dark mb-1"><i class="fa fa-check-circle text-success me-1"/> Review recent laboratory &amp; CBC findings</li>
+                            <li class="text-dark mb-1"><i class="fa fa-check-circle text-success me-1"/> Assess hydration &amp; vital signs</li>
+                            <li class="text-dark"><i class="fa fa-check-circle text-success me-1"/> Consider antiemetic protocol if vomiting persists</li>
+                        </ul>
+                        <button class="btn btn-sm btn-primary w-100 fw-bold py-1" style="font-size: 0.78rem;" t-on-click="() => this.onActionChipClick('Start consultation and prepare SOAP note for ' + (copilotState.patientContext.name || 'this patient'))">
+                            <i class="fa fa-stethoscope me-1"/> Start Consultation
+                        </button>
+                    </div>
+                </t>
+
+                <!-- Case B: Dashboard / General View (Screen 1 Triage & Priorities) -->
+                <t t-else="">
+                    <div class="o_zelix_priorities_block">
+                        <div class="small fw-bold text-dark mb-2 d-flex justify-content-between align-items-center">
+                            <span>Today's Priorities &amp; Insights</span>
+                            <span class="badge bg-light text-dark border">Live</span>
+                        </div>
+
+                        <!-- 🔴 Clinical Priority -->
+                        <div class="o_zelix_priority_item p-2 rounded-2 mb-2 border-start border-3 border-danger bg-danger bg-opacity-10">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-danger" style="font-size: 0.76rem;"><i class="fa fa-exclamation-circle me-1"/> Clinical Priority</span>
+                                <button class="btn btn-xs btn-outline-danger py-0 px-2 fw-semibold" style="font-size: 0.7rem;" t-on-click="() => this.onActionChipClick('Review pending lab results and critical cases.')">Review</button>
+                            </div>
+                            <span class="text-dark d-block mt-1" style="font-size: 0.76rem;">CBC lab results &amp; critical cases require physician review.</span>
+                        </div>
+
+                        <!-- 🟡 Operational Items -->
+                        <div class="o_zelix_priority_item p-2 rounded-2 mb-2 border-start border-3 border-warning bg-warning bg-opacity-10">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-warning-emphasis" style="font-size: 0.76rem;"><i class="fa fa-clock-o me-1"/> Operational Queue</span>
+                                <button class="btn btn-xs btn-outline-dark py-0 px-2 fw-semibold" style="font-size: 0.7rem;" t-on-click="() => this.onActionChipClick('Give me an operational summary of today appointments and clinic activity.')">View All</button>
+                            </div>
+                            <span class="text-dark d-block mt-1" style="font-size: 0.76rem;">Prescriptions awaiting approval &amp; scheduled visits today.</span>
+                        </div>
+
+                        <!-- 🟢 AI Insight -->
+                        <div class="o_zelix_priority_item p-2 rounded-2 border-start border-3 border-success bg-success bg-opacity-10">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-success" style="font-size: 0.76rem;"><i class="fa fa-lightbulb-o me-1"/> Preventive Insight</span>
+                                <button class="btn btn-xs btn-outline-success py-0 px-2 fw-semibold" style="font-size: 0.7rem;" t-on-click="() => this.onActionChipClick('Check overdue vaccinations and preventive reminders.')">Check</button>
+                            </div>
+                            <span class="text-dark d-block mt-1" style="font-size: 0.76rem;">Vaccination &amp; post-op recall reminders due this week.</span>
+                        </div>
+                    </div>
                 </t>
             </div>
 
             <!-- Dynamic Quick Action Chips with FontAwesome Icons -->
-            <div class="o_zelix_quick_actions px-3 py-2 d-flex gap-2 overflow-auto">
+            <div class="o_zelix_quick_actions px-3 py-2 d-flex gap-2 overflow-auto bg-light border-bottom">
                 <t t-foreach="copilotState.quickActions" t-as="action" t-key="action.label">
-                    <button class="btn btn-sm o_zelix_chip text-nowrap rounded-pill"
+                    <button class="btn btn-sm o_zelix_chip text-nowrap rounded-pill shadow-xs"
                             t-on-click="() => this.onActionChipClick(action.prompt)">
                         <i t-if="action.icon" t-attf-class="fa {{action.icon}} me-1"/>
                         <t t-esc="action.label"/>
@@ -41,14 +112,14 @@
             <div class="o_zelix_messages_container p-3 flex-grow-1 overflow-auto">
                 <t t-foreach="copilotState.messages" t-as="msg" t-key="msg.id">
                     <div t-attf-class="o_zelix_message mb-3 d-flex flex-column {{ msg.sender === 'user' ? 'align-items-end' : 'align-items-start' }}">
-                        <div t-attf-class="o_zelix_bubble p-3 rounded-3 {{ msg.sender === 'user' ? 'o_zelix_bubble_user' : 'o_zelix_bubble_assistant' }}">
+                        <div t-attf-class="o_zelix_bubble p-3 rounded-3 shadow-sm {{ msg.sender === 'user' ? 'o_zelix_bubble_user' : 'o_zelix_bubble_assistant' }}">
                             <div class="small fw-bold mb-1 d-flex justify-content-between align-items-center">
                                 <span class="o_zelix_sender_name"><t t-esc="msg.sender === 'user' ? 'You' : 'Zelix AI'"/></span>
                                 <span class="ms-3 o_zelix_msg_time"><t t-esc="msg.timestamp"/></span>
                             </div>
                             <div class="o_zelix_bubble_content" t-out="renderFormatted(msg.text)"/>
 
-                            <!-- Render Action Cards if proposed -->
+                            <!-- Render Action Cards if proposed (Screen 5 & 6) -->
                             <t t-if="msg.actionCards.length">
                                 <div class="mt-2 pt-2 border-top">
                                     <t t-foreach="msg.actionCards" t-as="card" t-key="card.action_id">
@@ -61,29 +132,38 @@
                 </t>
 
                 <t t-if="copilotState.isLoading">
-                    <div class="d-flex align-items-center gap-2 p-2 o_zelix_loading_box rounded-2">
+                    <div class="d-flex align-items-center gap-2 p-2 o_zelix_loading_box rounded-2 bg-white shadow-sm border">
                         <div class="spinner-border spinner-border-sm text-primary" role="status"/>
-                        <span class="fw-semibold text-dark small">Zelix AI is reasoning with BitNet SLM...</span>
+                        <span class="fw-semibold text-dark small">Zelix AI is analyzing with local SLM...</span>
                     </div>
                 </t>
 
                 <div t-ref="chatEnd"/>
             </div>
 
-            <!-- Input Footer -->
+            <!-- Input Footer (Screen 1-7 Integrated Voice Dictation & Adaptive Prompt) -->
             <div class="o_zelix_footer p-3 border-top bg-white">
-                <div class="input-group">
-                    <textarea class="form-control o_zelix_textarea"
+                <div class="input-group align-items-center">
+                    <button class="btn btn-outline-secondary p-2 me-1 rounded-circle d-flex align-items-center justify-content-center"
+                            t-attf-class="{{ state.isListening ? 'btn-danger text-white pulse-recording' : 'btn-outline-secondary text-dark' }}"
+                            t-on-click="toggleSpeechInput"
+                            title="Ambient Voice Dictation">
+                        <i class="fa fa-microphone"/>
+                    </button>
+                    <textarea class="form-control o_zelix_textarea rounded-3"
                               rows="2"
-                              placeholder="Ask Zelix AI or paste consultation notes... (Enter to send)"
+                              t-att-placeholder="getInputPlaceholder()"
                               t-model="state.inputValue"
                               t-on-keydown="onKeyDown"
                               t-att-disabled="copilotState.isLoading"/>
-                    <button class="btn btn-primary o_zelix_send_btn px-3 d-flex align-items-center justify-content-center"
+                    <button class="btn btn-primary o_zelix_send_btn ms-1 px-3 rounded-3 d-flex align-items-center justify-content-center"
                             t-on-click="onSend"
                             t-att-disabled="copilotState.isLoading || !state.inputValue">
                         <i class="fa fa-paper-plane text-white"/>
                     </button>
+                </div>
+                <div t-if="state.isListening" class="small text-danger fw-bold mt-1 d-flex align-items-center gap-1">
+                    <i class="fa fa-circle text-danger animate-pulse"/> Listening for clinical speech...
                 </div>
             </div>
         </div>

@@ -76,8 +76,12 @@ export class CopilotSidebar extends Component {
         this.copilotState = useState(this.copilot.state);
         this.state = useState({
             inputValue: "",
+            isListening: false,
         });
         this.chatEndRef = useRef("chatEnd");
+        this.recognition = null;
+
+        this.initSpeechRecognition();
 
         onMounted(() => {
             this.scrollToBottom();
@@ -86,6 +90,64 @@ export class CopilotSidebar extends Component {
         onPatched(() => {
             this.scrollToBottom();
         });
+    }
+
+    initSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            this.recognition = new SpeechRecognition();
+            this.recognition.continuous = true;
+            this.recognition.interimResults = true;
+            this.recognition.lang = "en-US";
+
+            this.recognition.onresult = (event) => {
+                let transcript = "";
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                if (transcript) {
+                    this.state.inputValue = (this.state.inputValue ? this.state.inputValue + " " : "") + transcript;
+                }
+            };
+
+            this.recognition.onerror = () => {
+                this.state.isListening = false;
+            };
+
+            this.recognition.onend = () => {
+                this.state.isListening = false;
+            };
+        }
+    }
+
+    toggleSpeechInput() {
+        if (!this.recognition) {
+            alert("Speech recognition is not supported in this browser.");
+            return;
+        }
+
+        if (this.state.isListening) {
+            this.recognition.stop();
+            this.state.isListening = false;
+        } else {
+            try {
+                this.recognition.start();
+                this.state.isListening = true;
+            } catch (e) {
+                console.warn("Speech recognition error:", e);
+                this.state.isListening = false;
+            }
+        }
+    }
+
+    getInputPlaceholder() {
+        if (this.copilotState.patientContext?.name) {
+            return `Ask about ${this.copilotState.patientContext.name}... (Enter to send)`;
+        }
+        if (this.copilotState.activeModel === "hms.visit" || this.copilotState.activeModel === "vet.encounter") {
+            return "Dictate consultation note or prescribe medicine...";
+        }
+        return "Ask Zelix AI or request clinical summary... (Enter to send)";
     }
 
     renderFormatted(text) {
@@ -99,13 +161,25 @@ export class CopilotSidebar extends Component {
     }
 
     onClose() {
+        if (this.state.isListening && this.recognition) {
+            this.recognition.stop();
+            this.state.isListening = false;
+        }
         this.copilot.closeSidebar();
+    }
+
+    onClearHistory() {
+        this.copilot.clearHistory();
     }
 
     async onSend() {
         if (!this.state.inputValue || !this.state.inputValue.trim()) return;
         const msg = this.state.inputValue;
         this.state.inputValue = "";
+        if (this.state.isListening && this.recognition) {
+            this.recognition.stop();
+            this.state.isListening = false;
+        }
         await this.copilot.sendMessage(msg);
     }
 

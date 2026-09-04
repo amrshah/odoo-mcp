@@ -4,28 +4,57 @@
     right: 0 !important;
     bottom: 0 !important;
     height: 100vh !important;
-    width: 440px !important;
+    width: 460px !important;
     max-width: 100vw !important;
-    background-color: #f1f5f9 !important; /* Soft Slate-100 */
+    background-color: #f8fafc !important; /* Slate-50 */
     z-index: 99999 !important;
     display: flex !important;
     flex-direction: column !important;
     animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     border-left: 1px solid #cbd5e1 !important;
-    box-shadow: -6px 0 25px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: -6px 0 30px rgba(15, 23, 42, 0.18) !important;
     pointer-events: auto !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 
-    /* Header */
+    /* Header (Screen 1-7 Theme: Deep Slate/Purple Gradient) */
     .o_zelix_header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
-        border-bottom: 2px solid #3b82f6 !important;
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1e293b 100%) !important;
+        border-bottom: 2px solid #6366f1 !important;
+
+        .o_zelix_logo_icon {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
     }
 
-    /* Active Context Bar */
-    .o_zelix_context_bar {
-        background-color: #e2e8f0 !important;
-        border-bottom: 1px solid #cbd5e1 !important;
-        color: #0f172a !important;
+    /* Top Context Card & Triage Section (Screens 1, 2, 3, 7) */
+    .o_zelix_context_card_section {
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+
+        .o_zelix_patient_card {
+            background-color: #f1f5f9 !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        .o_zelix_checklist {
+            border: 1px solid #e2e8f0 !important;
+            background-color: #f8fafc !important;
+
+            li {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+        }
+
+        /* Priority Cards (Screen 1 & Screen 7) */
+        .o_zelix_priority_item {
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            &:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            }
+        }
     }
 
     /* Action Chips */
@@ -36,18 +65,19 @@
 
         .o_zelix_chip {
             background-color: #ffffff !important;
-            border: 1.5px solid #2563eb !important;
-            color: #1e40af !important;
-            font-weight: 700 !important;
-            font-size: 0.82rem !important;
+            border: 1.5px solid #6366f1 !important;
+            color: #4338ca !important;
+            font-weight: 600 !important;
+            font-size: 0.8rem !important;
             padding: 3px 12px !important;
             transition: all 0.15s ease-in-out !important;
 
             &:hover {
-                background-color: #2563eb !important;
+                background-color: #4f46e5 !important;
+                border-color: #4f46e5 !important;
                 color: #ffffff !important;
                 transform: translateY(-1px);
-                box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+                box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
             }
         }
     }
@@ -58,20 +88,21 @@
         flex-direction: column;
         flex-grow: 1;
         overflow-y: auto;
+        background-color: #f8fafc;
     }
 
     /* Bubble Styles */
     .o_zelix_bubble {
         word-break: break-word;
-        max-width: 90%;
+        max-width: 92%;
         line-height: 1.5;
     }
 
     /* User Bubble */
     .o_zelix_bubble_user {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+        box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
 
         .o_zelix_sender_name {
             color: #ffffff !important;
@@ -80,12 +111,12 @@
 
         .o_zelix_msg_time {
             color: rgba(255, 255, 255, 0.8) !important;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
         }
 
         .o_zelix_bubble_content {
             color: #ffffff !important;
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             white-space: pre-wrap;
         }
     }
@@ -93,23 +124,23 @@
     /* Assistant Bubble */
     .o_zelix_bubble_assistant {
         background-color: #ffffff !important;
-        color: #0f172a !important; /* Rich Dark Slate/Black */
+        color: #0f172a !important; /* Deep dark slate for 100% readability */
         border: 1px solid #cbd5e1 !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 
         .o_zelix_sender_name {
-            color: #0f172a !important;
+            color: #1e1b4b !important;
             font-weight: 800;
         }
 
         .o_zelix_msg_time {
-            color: #475569 !important; /* High contrast slate-600 */
-            font-size: 0.75rem;
+            color: #64748b !important;
+            font-size: 0.72rem;
         }
 
         .o_zelix_bubble_content {
-            color: #0f172a !important; /* Deep black text for full readability */
-            font-size: 0.92rem;
+            color: #0f172a !important;
+            font-size: 0.88rem;
             line-height: 1.55;
             font-weight: 400;
 
@@ -139,7 +170,7 @@
                     list-style-type: circle;
                     margin-top: 0.15rem;
                     margin-bottom: 0.15rem;
-                    font-size: 0.86rem;
+                    font-size: 0.84rem;
                 }
             }
 
@@ -152,13 +183,56 @@
                 padding: 1px 4px;
                 border-radius: 4px;
             }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 6px;
+                margin-bottom: 6px;
+                font-size: 0.82rem;
+
+                th, td {
+                    border: 1px solid #e2e8f0;
+                    padding: 4px 6px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f1f5f9;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    /* Action Card Styles (Screens 5 & 6) */
+    .o_zelix_action_card {
+        background-color: #ffffff;
+        border-color: #cbd5e1;
+
+        .card-header {
+            background: #f8fafc;
+        }
+
+        .o_zelix_param_grid {
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        .o_zelix_safety_checks {
+            border: 1px solid #bbf7d0;
+            background-color: #f0fdf4;
+        }
+
+        .o_zelix_exec_tracker {
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
         }
     }
 
     /* Loading Box */
     .o_zelix_loading_box {
-        background-color: #e0f2fe !important;
-        border: 1px solid #bae6fd !important;
+        background-color: #e0e7ff !important;
+        border: 1px solid #c7d2fe !important;
     }
 
     /* Footer & Input */
@@ -170,26 +244,26 @@
             background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1.5px solid #94a3b8 !important;
-            font-size: 0.92rem !important;
+            font-size: 0.88rem !important;
 
             &::placeholder {
                 color: #64748b !important;
             }
 
             &:focus {
-                border-color: #2563eb !important;
-                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+                border-color: #4f46e5 !important;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
             }
         }
 
         .o_zelix_send_btn {
-            background-color: #2563eb !important;
-            border: 1.5px solid #2563eb !important;
+            background-color: #4f46e5 !important;
+            border: 1.5px solid #4f46e5 !important;
             font-weight: 700 !important;
 
             &:hover {
-                background-color: #1d4ed8 !important;
-                border-color: #1d4ed8 !important;
+                background-color: #4338ca !important;
+                border-color: #4338ca !important;
             }
 
             &:disabled {
@@ -201,6 +275,7 @@
     }
 }
 
+/* Animations */
 @keyframes slideInRight {
     from {
         transform: translateX(100%);
@@ -208,4 +283,29 @@
     to {
         transform: translateX(0);
     }
+}
+
+@keyframes pulseRecordingGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.pulse-recording {
+    animation: pulseRecordingGlow 1.5s infinite !important;
+}
+
+@keyframes animatePulseText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.animate-pulse {
+    animation: animatePulseText 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

@@ -1,32 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="zelix_ai.ActionCard">
-        <div class="o_zelix_action_card card my-2 shadow-sm border-2 border-primary">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3 border-bottom">
-                <span class="badge bg-primary text-white text-uppercase fw-bold" t-esc="props.card.action_type || 'Action'"/>
-                <span class="badge bg-secondary text-white fw-semibold" t-esc="props.card.target_model"/>
-            </div>
-            <div class="card-body p-3 bg-white">
-                <h6 class="card-title mb-1 text-dark fw-bold fs-6" t-esc="props.card.title"/>
-                <p class="card-text text-dark small mb-3" style="color: #334155 !important;" t-esc="props.card.description"/>
-
+        <div class="o_zelix_action_card card my-2 shadow-sm rounded-3 overflow-hidden border">
+            <!-- Header -->
+            <div class="card-header d-flex justify-content-between align-items-center py-2 px-3"
+                 style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary text-white text-uppercase fw-bold" style="font-size: 0.72rem;" t-esc="props.card.action_type || 'Action'"/>
+                    <span class="fw-bold text-dark small" t-esc="props.card.title"/>
+                </div>
                 <t t-if="props.card.status === 'executed'">
-                    <div class="alert alert-success py-2 px-3 mb-0 small text-center fw-bold border-success">
-                        <i class="fa fa-check-circle me-1"/> Executed &amp; Persisted into Odoo
-                    </div>
+                    <span class="badge bg-success text-white"><i class="fa fa-check me-1"/> Verified</span>
                 </t>
                 <t t-elif="props.card.status === 'rejected'">
-                    <div class="alert alert-secondary py-2 px-3 mb-0 small text-center fw-bold">
-                        <i class="fa fa-times-circle me-1"/> Proposal Dismissed
-                    </div>
+                    <span class="badge bg-secondary text-white">Dismissed</span>
                 </t>
                 <t t-else="">
-                    <div class="d-flex justify-content-end gap-2 mt-2">
-                        <button class="btn btn-sm btn-outline-dark fw-semibold px-3" t-on-click="onReject">
-                            <i class="fa fa-times me-1"/> Dismiss
+                    <span class="badge bg-warning text-dark fw-bold"><i class="fa fa-clock-o me-1"/> Review Required</span>
+                </t>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body p-3 bg-white">
+                <p class="card-text text-dark small mb-2" t-esc="props.card.description"/>
+
+                <!-- Parameters Grid for Prescription / Orders -->
+                <t t-if="props.card.payload">
+                    <div class="o_zelix_param_grid bg-light p-2 rounded mb-2 border small">
+                        <div class="row g-2">
+                            <t t-if="props.card.payload.medication">
+                                <div class="col-6">
+                                    <span class="text-muted d-block" style="font-size: 0.75rem;">Medication</span>
+                                    <strong class="text-dark" t-esc="props.card.payload.medication"/>
+                                </div>
+                            </t>
+                            <t t-if="props.card.payload.dosage">
+                                <div class="col-3">
+                                    <span class="text-muted d-block" style="font-size: 0.75rem;">Dose</span>
+                                    <strong class="text-dark" t-esc="props.card.payload.dosage"/>
+                                </div>
+                            </t>
+                            <t t-if="props.card.payload.route">
+                                <div class="col-3">
+                                    <span class="text-muted d-block" style="font-size: 0.75rem;">Route</span>
+                                    <strong class="text-dark" t-esc="props.card.payload.route"/>
+                                </div>
+                            </t>
+                            <t t-if="props.card.payload.frequency">
+                                <div class="col-6">
+                                    <span class="text-muted d-block" style="font-size: 0.75rem;">Frequency</span>
+                                    <strong class="text-dark" t-esc="props.card.payload.frequency"/>
+                                </div>
+                            </t>
+                            <t t-if="props.card.payload.duration">
+                                <div class="col-6">
+                                    <span class="text-muted d-block" style="font-size: 0.75rem;">Duration</span>
+                                    <strong class="text-dark" t-esc="props.card.payload.duration"/>
+                                </div>
+                            </t>
+                            <t t-if="props.card.payload.instructions">
+                                <div class="col-12 border-top pt-1 mt-1">
+                                    <span class="text-muted d-block" style="font-size: 0.75rem;">Instructions</span>
+                                    <span class="text-dark" t-esc="props.card.payload.instructions"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Safety Verification Checks (Screen 5) -->
+                <div t-if="props.card.status !== 'executed' &amp;&amp; props.card.status !== 'rejected'" class="o_zelix_safety_checks p-2 rounded mb-2" style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
+                    <div class="fw-bold text-success mb-1" style="font-size: 0.75rem;"><i class="fa fa-shield me-1"/> AI Safety &amp; Interaction Checks:</div>
+                    <div class="d-flex flex-wrap gap-2 small" style="font-size: 0.75rem;">
+                        <span class="text-success"><i class="fa fa-check-circle me-1"/> Dose Range</span>
+                        <span class="text-success"><i class="fa fa-check-circle me-1"/> Species Safe</span>
+                        <span class="text-success"><i class="fa fa-check-circle me-1"/> No Allergies</span>
+                        <span class="text-success"><i class="fa fa-check-circle me-1"/> Drug Interactions</span>
+                    </div>
+                </div>
+
+                <!-- Executed Verification Tracker (Screen 6) -->
+                <t t-if="props.card.status === 'executed'">
+                    <div class="o_zelix_exec_tracker bg-light p-2 rounded border mb-2 small">
+                        <div class="fw-bold text-dark mb-1" style="font-size: 0.78rem;"><i class="fa fa-list-check me-1"/> Action Execution Pipeline:</div>
+                        <ul class="list-unstyled mb-0 ps-1" style="font-size: 0.75rem;">
+                            <li class="text-success mb-1"><i class="fa fa-check-circle me-1"/> 1. Create Record (<t t-esc="props.card.target_model"/>) — <strong class="text-dark">Completed</strong></li>
+                            <li class="text-success mb-1"><i class="fa fa-check-circle me-1"/> 2. Write Data via MCP ORM — <strong class="text-dark">Completed</strong></li>
+                            <li class="text-success mb-1"><i class="fa fa-check-circle me-1"/> 3. Verify in Odoo Database — <strong class="text-dark">Verified</strong></li>
+                            <li class="text-success"><i class="fa fa-check-circle me-1"/> 4. Audit Log Recorded — <strong class="text-dark">Persisted</strong></li>
+                        </ul>
+                    </div>
+                    <div class="alert alert-success py-2 px-3 mb-0 small d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-success"><i class="fa fa-check-circle me-1"/> Action Completed Successfully</span>
+                        <button class="btn btn-xs btn-outline-success fw-bold" t-on-click="onViewInOdoo">
+                            View Record <i class="fa fa-arrow-right ms-1"/>
+                        </button>
+                    </div>
+                </t>
+
+                <!-- Rejected Status -->
+                <t t-elif="props.card.status === 'rejected'">
+                    <div class="alert alert-secondary py-2 px-3 mb-0 small text-center fw-bold">
+                        <i class="fa fa-times-circle me-1"/> Proposal Dismissed by Clinician
+                    </div>
+                </t>
+
+                <!-- Action Buttons (Screen 5) -->
+                <t t-else="">
+                    <div class="d-flex justify-content-end gap-2 mt-2 pt-2 border-top">
+                        <button class="btn btn-sm btn-outline-secondary px-3" t-on-click="onReject">
+                            Cancel
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning px-2" t-on-click="onRequestChanges" title="Modify Dose or Route">
+                            <i class="fa fa-pencil me-1"/> Request Changes
                         </button>
                         <button class="btn btn-sm btn-success text-white fw-bold px-3 shadow-sm" t-on-click="onApprove">
-                            <i class="fa fa-check me-1"/> Approve &amp; Save
+                            <i class="fa fa-check me-1"/> Approve &amp; Issue
                         </button>
                     </div>
                 </t>
