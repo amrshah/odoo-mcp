@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Collections: every open visit with money outstanding -->
+    <record id="view_visit_collections_list" model="ir.ui.view">
+        <field name="name">hms.visit.collections</field>
+        <field name="model">hms.visit</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <list string="Collections" class="hms_list" decoration-danger="held" decoration-success="billing_state == 'paid'">
+                <field name="name"/><field name="patient_id"/><field name="department_id"/><field name="doctor_id"/>
+                <field name="billing_state" widget="badge" decoration-danger="billing_state in ('unpaid','unbilled')" decoration-warning="billing_state == 'partial'" decoration-success="billing_state == 'paid'"/>
+                <field name="approved_discount"/><field name="discount_pending" widget="boolean_toggle" readonly="1" string="Approval pending"/>
+                <field name="amount_charged" sum="Charged"/><field name="amount_paid" sum="Paid"/><field name="amount_due" sum="Due"/>
+                <field name="held" column_invisible="1"/><field name="currency_id" column_invisible="1"/>
+                <button name="action_request_discount" type="object" string="Discount" icon="fa-percent" class="btn-link" invisible="discount_pending or billing_state == 'paid'"/>
+                <button name="action_register_payment" type="object" string="Collect" icon="fa-money" class="btn-link text-success" invisible="billing_state not in ('unbilled','unpaid','partial') or discount_pending"/>
+                <button name="action_whatsapp_bill" type="object" string="WhatsApp" icon="fa-whatsapp" class="btn-link" invisible="billing_state == 'none'"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_collections" model="ir.actions.act_window">
+        <field name="name">Collections</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_visit_collections_list"/>
+        <field name="search_view_id" ref="view_visit_search"/>
+        <field name="domain">[('billing_state', '!=', 'none')]</field>
+        <field name="context">{'search_default_unpaid': 1}</field>
+    </record>
+
+    <record id="view_charge_list" model="ir.ui.view">
+        <field name="name">hms.charge.list</field>
+        <field name="model">hms.charge</field>
+        <field name="arch" type="xml">
+            <list class="hms_list">
+                <field name="create_date" string="When"/><field name="patient_id"/><field name="visit_id"/><field name="source"/><field name="description"/><field name="quantity"/><field name="price_unit"/><field name="amount" sum="Total"/><field name="invoiced" widget="boolean_toggle" readonly="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_charges" model="ir.actions.act_window">
+        <field name="name">Charges Ledger</field>
+        <field name="res_model">hms.charge</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_group_source': 1}</field>
+    </record>
+    <record id="view_charge_search" model="ir.ui.view">
+        <field name="name">hms.charge.search</field>
+        <field name="model">hms.charge</field>
+        <field name="arch" type="xml">
+            <search><field name="patient_id"/><filter name="uninvoiced" string="Not yet billed" domain="[('invoiced', '=', False)]"/>
+            <group><filter name="group_source" string="Source" context="{'group_by': 'source'}"/><filter name="group_visit" string="Visit" context="{'group_by': 'visit_id'}"/></group></search>
+        </field>
+    </record>
+
+    <!-- Bills = account.move filtered to hospital visits, with WhatsApp button -->
+    <record id="view_move_form_hms" model="ir.ui.view">
+        <field name="name">account.move.form.hms</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_hms_whatsapp" type="object" string="WhatsApp bill" icon="fa-whatsapp" invisible="not hms_patient_id"/>
+                <button name="action_hms_print_bill" type="object" string="Print hospital bill" icon="fa-print" invisible="not hms_patient_id"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="hms_patient_id" invisible="not hms_patient_id" readonly="1"/>
+                <field name="hms_visit_id" invisible="not hms_visit_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="action_hospital_bills" model="ir.actions.act_window">
+        <field name="name">Hospital Bills</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('hms_visit_id', '!=', False)]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+    </record>
+</odoo>

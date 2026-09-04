@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root -->
+    <menuitem id="menu_hms_root" name="Hospital" sequence="1" web_icon="stratos_hms,static/description/icon.png" groups="stratos_hms.group_hms_user"/>
+
+    <!-- Command Centre (management) -->
+    <menuitem id="menu_hms_command" name="Command Centre" parent="menu_hms_root" action="action_hms_command_center" sequence="1" groups="stratos_hms.group_hms_hod,stratos_hms.group_hms_manager"/>
+
+    <!-- Front Desk -->
+    <menuitem id="menu_hms_frontdesk" name="Front Desk" parent="menu_hms_root" sequence="10" groups="stratos_hms.group_hms_receptionist,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_queue" name="Patient Queue" parent="menu_hms_frontdesk" action="action_visit_queue" sequence="1"/>
+    <menuitem id="menu_hms_register" name="Register Visit" parent="menu_hms_frontdesk" action="action_visit_register" sequence="2"/>
+    <menuitem id="menu_hms_patients" name="Patients" parent="menu_hms_frontdesk" action="action_patient" sequence="3"/>
+    <menuitem id="menu_hms_board" name="Journey Board" parent="menu_hms_frontdesk" action="action_visit_board" sequence="4"/>
+    <menuitem id="menu_hms_held" name="Held Files" parent="menu_hms_frontdesk" action="action_visit_held" sequence="5"/>
+    <menuitem id="menu_hms_collections" name="Collections" parent="menu_hms_frontdesk" action="action_collections" sequence="6"/>
+    <menuitem id="menu_hms_bills" name="Bills" parent="menu_hms_frontdesk" action="action_hospital_bills" sequence="7"/>
+    <menuitem id="menu_hms_consents" name="Consents" parent="menu_hms_frontdesk" action="action_consents" sequence="8"/>
+    <menuitem id="menu_hms_admit_desk" name="Admit &amp; Bed Board" parent="menu_hms_frontdesk" action="action_bed_board" sequence="9"/>
+
+    <!-- Nurse Station -->
+    <menuitem id="menu_hms_nurse" name="Nurse Station" parent="menu_hms_root" sequence="20" groups="stratos_hms.group_hms_nurse,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_nurse_queue" name="Triage Queue" parent="menu_hms_nurse" action="action_visit_nurse" sequence="1"/>
+    <menuitem id="menu_hms_vitals" name="Vitals Log" parent="menu_hms_nurse" action="action_vitals" sequence="2"/>
+    <menuitem id="menu_hms_mar" name="Treatment Board (MAR)" parent="menu_hms_nurse" action="action_mar_board" sequence="3"/>
+    <menuitem id="menu_hms_ward_nurse" name="Ward Board" parent="menu_hms_nurse" action="action_admissions" sequence="4"/>
+    <menuitem id="menu_hms_handoffs" name="Shift Handoffs" parent="menu_hms_nurse" action="action_handoffs" sequence="5"/>
+
+    <!-- Doctors -->
+    <menuitem id="menu_hms_doctor" name="Consults" parent="menu_hms_root" sequence="30" groups="stratos_hms.group_hms_doctor,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_my_queue" name="My Queue" parent="menu_hms_doctor" action="action_visit_my_queue" sequence="1"/>
+    <menuitem id="menu_hms_consults" name="Consultations" parent="menu_hms_doctor" action="action_consults" sequence="2"/>
+    <menuitem id="menu_hms_results" name="Results to Acknowledge" parent="menu_hms_doctor" action="action_results_inbox" sequence="3"/>
+    <menuitem id="menu_hms_my_inpatients" name="My Inpatients" parent="menu_hms_doctor" action="action_my_inpatients" sequence="4"/>
+    <menuitem id="menu_hms_patients_doc" name="Patients" parent="menu_hms_doctor" action="action_patient" sequence="5"/>
+    <menuitem id="menu_hms_ai_rules" name="✦ My Learned Rules" parent="menu_hms_doctor" action="action_ai_rules" sequence="6"/>
+
+    <!-- Laboratory &amp; Imaging -->
+    <menuitem id="menu_hms_lab" name="Laboratory" parent="menu_hms_root" sequence="40" groups="stratos_hms.group_hms_lab,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_lab_worklist" name="Worklist" parent="menu_hms_lab" action="action_lab_worklist" sequence="1"/>
+    <menuitem id="menu_hms_imaging" name="Imaging &amp; Procedures" parent="menu_hms_lab" action="action_imaging_worklist" sequence="2"/>
+    <menuitem id="menu_hms_critical" name="Critical Value Calls" parent="menu_hms_lab" action="action_critical_calls" sequence="3"/>
+    <menuitem id="menu_hms_tests" name="Test Catalogue" parent="menu_hms_lab" action="action_tests" sequence="4"/>
+
+    <!-- Pharmacy -->
+    <menuitem id="menu_hms_pharmacy" name="Pharmacy" parent="menu_hms_root" sequence="50" groups="stratos_hms.group_hms_pharmacist,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_pharmacy_queue" name="Verification Queue" parent="menu_hms_pharmacy" action="action_pharmacy_queue" sequence="1"/>
+    <menuitem id="menu_hms_formulary" name="Formulary" parent="menu_hms_pharmacy" action="action_drugs" sequence="2"/>
+
+    <!-- Wards / Theatre / Blood bank -->
+    <menuitem id="menu_hms_ipd" name="Wards" parent="menu_hms_root" sequence="60" groups="stratos_hms.group_hms_nurse,stratos_hms.group_hms_doctor,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_admissions" name="Admissions" parent="menu_hms_ipd" action="action_admissions" sequence="1"/>
+    <menuitem id="menu_hms_beds" name="Bed Board" parent="menu_hms_ipd" action="action_bed_board" sequence="2"/>
+    <menuitem id="menu_hms_wards" name="Wards" parent="menu_hms_ipd" action="action_wards" sequence="3" groups="stratos_hms.group_hms_manager"/>
+
+    <menuitem id="menu_hms_ot" name="Operation Theatre" parent="menu_hms_root" sequence="70" groups="stratos_hms.group_hms_ot,stratos_hms.group_hms_doctor,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_surgeries" name="Surgeries" parent="menu_hms_ot" action="action_surgeries" sequence="1"/>
+    <menuitem id="menu_hms_theatres" name="Theatres" parent="menu_hms_ot" action="action_theatres" sequence="2" groups="stratos_hms.group_hms_manager"/>
+
+    <menuitem id="menu_hms_bb" name="Blood Bank" parent="menu_hms_root" sequence="80" groups="stratos_hms.group_hms_blood_bank,stratos_hms.group_hms_doctor,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_bb_requests" name="Requests" parent="menu_hms_bb" action="action_blood_requests" sequence="1"/>
+    <menuitem id="menu_hms_bb_units" name="Inventory" parent="menu_hms_bb" action="action_blood_units" sequence="2"/>
+
+    <!-- Management -->
+    <menuitem id="menu_hms_mgmt" name="Management" parent="menu_hms_root" sequence="90" groups="stratos_hms.group_hms_hod,stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_approvals" name="Discount Approvals" parent="menu_hms_mgmt" action="action_discount_approvals" sequence="1"/>
+    <menuitem id="menu_hms_charges" name="Charges Ledger" parent="menu_hms_mgmt" action="action_charges" sequence="2"/>
+    <menuitem id="menu_hms_memory" name="✦ Hospital Memory" parent="menu_hms_mgmt" action="action_case_memory" sequence="3"/>
+    <menuitem id="menu_hms_rules_all" name="✦ Learned Rules" parent="menu_hms_mgmt" action="action_ai_rules" sequence="4"/>
+    <menuitem id="menu_hms_protocols" name="Protocols &amp; Guidelines" parent="menu_hms_mgmt" action="action_protocols" sequence="5"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_hms_config" name="Configuration" parent="menu_hms_root" sequence="100" groups="stratos_hms.group_hms_manager"/>
+    <menuitem id="menu_hms_settings" name="Settings" parent="menu_hms_config" action="action_hms_config" sequence="1"/>
+    <menuitem id="menu_hms_departments" name="Departments" parent="menu_hms_config" action="action_departments" sequence="2"/>
+    <menuitem id="menu_hms_staff" name="Staff &amp; Logins" parent="menu_hms_config" action="action_practitioners" sequence="3"/>
+    <menuitem id="menu_hms_allergies" name="Allergens" parent="menu_hms_config" action="action_allergies" sequence="4"/>
+    <menuitem id="menu_hms_icd" name="ICD-10 Codes" parent="menu_hms_config" action="action_icd10" sequence="5"/>
+</odoo>

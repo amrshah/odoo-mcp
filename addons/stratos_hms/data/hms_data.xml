@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <function model="hms.setup" name="apply_pakistan_defaults"/>
+        <!-- Billing products -->
+        <record id="product_registration_fee" model="product.product">
+            <field name="name">Registration Fee</field>
+            <field name="type">service</field>
+            <field name="list_price">200</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">HMS-REG</field>
+        </record>
+        <record id="product_consult_fee" model="product.product">
+            <field name="name">OPD Consultation</field>
+            <field name="type">service</field>
+            <field name="list_price">1000</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">HMS-OPD</field>
+        </record>
+        <record id="product_blood_unit" model="product.product">
+            <field name="name">Blood Unit (screened, crossmatched)</field>
+            <field name="type">service</field>
+            <field name="list_price">3500</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">HMS-BLOOD</field>
+        </record>
+
+        <!-- Departments -->
+        <record id="dept_medicine" model="hms.department"><field name="name">General Medicine</field><field name="code">MED</field><field name="sequence">1</field><field name="consult_fee">1200</field>
+            <field name="specialty_pack">Common OPD presentations in Pakistan: acute gastroenteritis, typhoid, dengue (seasonal), URTI, UTI, hypertension, type 2 diabetes. Prefer ORS + zinc for diarrhoea; avoid empirical antibiotics for viral illness; check for dengue warning signs in fever with thrombocytopenia.</field></record>
+        <record id="dept_cardiology" model="hms.department"><field name="name">Cardiology</field><field name="code">CARD</field><field name="sequence">2</field><field name="consult_fee">2500</field>
+            <field name="specialty_pack">ACS pathway: aspirin 300 mg chewed + P2Y12 loading, STAT ECG within 10 minutes, hs-troponin, refer for primary PCI within 90 minutes if STEMI; heart failure and hypertension follow-up.</field></record>
+        <record id="dept_paeds" model="hms.department"><field name="name">Paediatrics</field><field name="code">PAED</field><field name="sequence">3</field><field name="consult_fee">1200</field>
+            <field name="specialty_pack">Weight-based dosing always. Diarrhoea: ORS + zinc 20 mg (10 mg under 6 months) for 10-14 days; assess dehydration per IMCI; no antimotility agents in children.</field></record>
+        <record id="dept_surgery" model="hms.department"><field name="name">General Surgery</field><field name="code">SURG</field><field name="sequence">4</field><field name="consult_fee">2000</field></record>
+        <record id="dept_gynae" model="hms.department"><field name="name">Obstetrics &amp; Gynaecology</field><field name="code">OBG</field><field name="sequence">5</field><field name="consult_fee">1500</field>
+            <field name="specialty_pack">Check pregnancy status before any prescription; flag pregnancy-caution drugs.</field></record>
+        <record id="dept_ortho" model="hms.department"><field name="name">Orthopaedics</field><field name="code">ORTH</field><field name="sequence">6</field><field name="consult_fee">2000</field></record>
+        <record id="dept_ent" model="hms.department"><field name="name">ENT</field><field name="code">ENT</field><field name="sequence">7</field><field name="consult_fee">1500</field></record>
+        <record id="dept_derma" model="hms.department"><field name="name">Dermatology</field><field name="code">DERM</field><field name="sequence">8</field><field name="consult_fee">1500</field></record>
+        <record id="dept_pulmo" model="hms.department"><field name="name">Pulmonology</field><field name="code">PULM</field><field name="sequence">9</field><field name="consult_fee">2000</field></record>
+        <record id="dept_neuro" model="hms.department"><field name="name">Neurology</field><field name="code">NEUR</field><field name="sequence">10</field><field name="consult_fee">2500</field></record>
+        <record id="dept_gastro" model="hms.department"><field name="name">Gastroenterology</field><field name="code">GAST</field><field name="sequence">11</field><field name="consult_fee">2000</field></record>
+        <record id="dept_nephro" model="hms.department"><field name="name">Nephrology</field><field name="code">NEPH</field><field name="sequence">12</field><field name="consult_fee">2000</field></record>
+        <record id="dept_uro" model="hms.department"><field name="name">Urology</field><field name="code">URO</field><field name="sequence">13</field><field name="consult_fee">2000</field></record>
+        <record id="dept_endo" model="hms.department"><field name="name">Endocrinology</field><field name="code">ENDO</field><field name="sequence">14</field><field name="consult_fee">2000</field></record>
+        <record id="dept_psych" model="hms.department"><field name="name">Psychiatry</field><field name="code">PSY</field><field name="sequence">15</field><field name="consult_fee">2000</field></record>
+        <record id="dept_eye" model="hms.department"><field name="name">Ophthalmology</field><field name="code">EYE</field><field name="sequence">16</field><field name="consult_fee">1500</field></record>
+        <record id="dept_dental" model="hms.department"><field name="name">Dental</field><field name="code">DENT</field><field name="sequence">17</field><field name="consult_fee">1000</field></record>
+        <record id="dept_er" model="hms.department"><field name="name">Emergency</field><field name="code">ER</field><field name="sequence">18</field><field name="consult_fee">1500</field></record>
+        <record id="dept_icu" model="hms.department"><field name="name">Critical Care</field><field name="code">ICU</field><field name="sequence">19</field><field name="consult_fee">3000</field></record>
+        <record id="dept_onco" model="hms.department"><field name="name">Oncology</field><field name="code">ONC</field><field name="sequence">20</field><field name="consult_fee">3000</field></record>
+        <record id="dept_physio" model="hms.department"><field name="name">Physiotherapy</field><field name="code">PHYS</field><field name="sequence">21</field><field name="consult_fee">800</field></record>
+        <record id="dept_anaes" model="hms.department"><field name="name">Anaesthesia</field><field name="code">ANAE</field><field name="sequence">22</field><field name="consult_fee">0</field></record>
+        <record id="dept_lab" model="hms.department"><field name="name">Laboratory</field><field name="code">LAB</field><field name="kind">diagnostic</field><field name="sequence">23</field></record>
+        <record id="dept_radiology" model="hms.department"><field name="name">Radiology &amp; Imaging</field><field name="code">RAD</field><field name="kind">diagnostic</field><field name="sequence">24</field></record>
+        <record id="dept_pharmacy" model="hms.department"><field name="name">Pharmacy</field><field name="code">PHAR</field><field name="kind">support</field><field name="sequence">25</field></record>
+        <record id="dept_blood" model="hms.department"><field name="name">Blood Bank</field><field name="code">BB</field><field name="kind">support</field><field name="sequence">26</field></record>
+
+        <!-- Allergies -->
+        <record id="allergy_penicillin" model="hms.allergy"><field name="name">Penicillin</field><field name="allergen_class">penicillin</field><field name="severity">severe</field></record>
+        <record id="allergy_sulfa" model="hms.allergy"><field name="name">Sulfonamides</field><field name="allergen_class">sulfa</field></record>
+        <record id="allergy_nsaid" model="hms.allergy"><field name="name">NSAIDs (aspirin/ibuprofen)</field><field name="allergen_class">nsaid</field></record>
+        <record id="allergy_cephalosporin" model="hms.allergy"><field name="name">Cephalosporins</field><field name="allergen_class">cephalosporin</field></record>
+        <record id="allergy_contrast" model="hms.allergy"><field name="name">Iodinated contrast</field><field name="allergen_class">contrast</field></record>
+        <record id="allergy_latex" model="hms.allergy"><field name="name">Latex</field><field name="allergen_class">latex</field></record>
+        <record id="allergy_egg" model="hms.allergy"><field name="name">Egg</field><field name="allergen_class">egg</field><field name="severity">mild</field></record>
+
+        <!-- Wards, beds, theatres -->
+        <record id="ward_general_m" model="hms.ward"><field name="name">Male Medical Ward</field><field name="code">MMW</field><field name="ward_type">general</field><field name="daily_rate">2500</field><field name="department_id" ref="dept_medicine"/></record>
+        <record id="ward_general_f" model="hms.ward"><field name="name">Female Medical Ward</field><field name="code">FMW</field><field name="ward_type">general</field><field name="daily_rate">2500</field><field name="department_id" ref="dept_medicine"/></record>
+        <record id="ward_private" model="hms.ward"><field name="name">Private Rooms</field><field name="code">PVT</field><field name="ward_type">private</field><field name="daily_rate">9000</field></record>
+        <record id="ward_ccu" model="hms.ward"><field name="name">CCU</field><field name="code">CCU</field><field name="ward_type">icu</field><field name="daily_rate">15000</field><field name="department_id" ref="dept_cardiology"/></record>
+        <record id="ward_icu" model="hms.ward"><field name="name">ICU</field><field name="code">ICU</field><field name="ward_type">icu</field><field name="daily_rate">18000</field><field name="department_id" ref="dept_icu"/></record>
+        <record id="ward_paeds" model="hms.ward"><field name="name">Paediatric Ward</field><field name="code">PW</field><field name="ward_type">paeds</field><field name="daily_rate">2500</field><field name="department_id" ref="dept_paeds"/></record>
+
+        <record id="bed_mmw_1" model="hms.bed"><field name="name">01</field><field name="ward_id" ref="ward_general_m"/></record>
+        <record id="bed_mmw_2" model="hms.bed"><field name="name">02</field><field name="ward_id" ref="ward_general_m"/></record>
+        <record id="bed_mmw_3" model="hms.bed"><field name="name">03</field><field name="ward_id" ref="ward_general_m"/></record>
+        <record id="bed_mmw_4" model="hms.bed"><field name="name">04</field><field name="ward_id" ref="ward_general_m"/></record>
+        <record id="bed_mmw_5" model="hms.bed"><field name="name">05</field><field name="ward_id" ref="ward_general_m"/></record>
+        <record id="bed_mmw_6" model="hms.bed"><field name="name">06</field><field name="ward_id" ref="ward_general_m"/></record>
+        <record id="bed_fmw_1" model="hms.bed"><field name="name">01</field><field name="ward_id" ref="ward_general_f"/></record>
+        <record id="bed_fmw_2" model="hms.bed"><field name="name">02</field><field name="ward_id" ref="ward_general_f"/></record>
+        <record id="bed_fmw_3" model="hms.bed"><field name="name">03</field><field name="ward_id" ref="ward_general_f"/></record>
+        <record id="bed_fmw_4" model="hms.bed"><field name="name">04</field><field name="ward_id" ref="ward_general_f"/></record>
+        <record id="bed_pvt_1" model="hms.bed"><field name="name">101</field><field name="ward_id" ref="ward_private"/></record>
+        <record id="bed_pvt_2" model="hms.bed"><field name="name">102</field><field name="ward_id" ref="ward_private"/></record>
+        <record id="bed_pvt_3" model="hms.bed"><field name="name">103</field><field name="ward_id" ref="ward_private"/></record>
+        <record id="bed_ccu_1" model="hms.bed"><field name="name">01</field><field name="ward_id" ref="ward_ccu"/></record>
+        <record id="bed_ccu_2" model="hms.bed"><field name="name">02</field><field name="ward_id" ref="ward_ccu"/></record>
+        <record id="bed_ccu_3" model="hms.bed"><field name="name">03</field><field name="ward_id" ref="ward_ccu"/></record>
+        <record id="bed_icu_1" model="hms.bed"><field name="name">01</field><field name="ward_id" ref="ward_icu"/></record>
+        <record id="bed_icu_2" model="hms.bed"><field name="name">02</field><field name="ward_id" ref="ward_icu"/></record>
+        <record id="bed_pw_1" model="hms.bed"><field name="name">01</field><field name="ward_id" ref="ward_paeds"/></record>
+        <record id="bed_pw_2" model="hms.bed"><field name="name">02</field><field name="ward_id" ref="ward_paeds"/></record>
+        <record id="bed_pw_3" model="hms.bed"><field name="name">03</field><field name="ward_id" ref="ward_paeds"/></record>
+        <record id="bed_pw_4" model="hms.bed"><field name="name">04</field><field name="ward_id" ref="ward_paeds"/></record>
+
+        <record id="theatre_1" model="hms.theatre"><field name="name">OT-1 (Major)</field></record>
+        <record id="theatre_2" model="hms.theatre"><field name="name">OT-2 (Minor / Day Care)</field></record>
+        <record id="theatre_3" model="hms.theatre"><field name="name">Cath Lab</field></record>
+    </data>
+</odoo>

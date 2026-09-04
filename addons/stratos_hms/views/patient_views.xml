@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_patient_list" model="ir.ui.view">
+        <field name="name">hms.patient.list</field>
+        <field name="model">hms.patient</field>
+        <field name="arch" type="xml">
+            <list string="Patients" class="hms_list">
+                <field name="mrn"/>
+                <field name="name"/>
+                <field name="age_display" string="Age/Sex"/>
+                <field name="phone"/>
+                <field name="city"/>
+                <field name="blood_group" optional="hide"/>
+                <field name="has_allergy" widget="boolean_toggle" string="Allergy" readonly="1"/>
+                <field name="tier" optional="show"/>
+                <field name="visit_count" string="Visits"/>
+                <field name="last_visit_date" optional="show"/>
+                <field name="outstanding_balance" sum="Outstanding" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_patient_kanban" model="ir.ui.view">
+        <field name="name">hms.patient.kanban</field>
+        <field name="model">hms.patient</field>
+        <field name="arch" type="xml">
+            <kanban class="hms_kanban" quick_create="false">
+                <field name="mrn"/><field name="has_allergy"/><field name="tier"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex align-items-center gap-2 p-1">
+                            <field name="image_128" widget="image" class="o_kanban_image_fill_left" options="{'size': [56, 56]}"/>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold"><field name="name"/></div>
+                                <div class="text-muted small"><field name="mrn"/> · <field name="age_display"/></div>
+                                <div class="small"><field name="phone"/></div>
+                                <div class="mt-1">
+                                    <span t-if="record.has_allergy.raw_value" class="badge hms_badge_danger">Allergy</span>
+                                    <span class="badge hms_badge_muted"><t t-esc="record.tier.value"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_patient_form" model="ir.ui.view">
+        <field name="name">hms.patient.form</field>
+        <field name="model">hms.patient</field>
+        <field name="arch" type="xml">
+            <form string="Patient" class="hms_form">
+                <header>
+                    <button name="action_new_visit" type="object" string="Register Visit" class="btn-primary" groups="stratos_hms.group_hms_receptionist,stratos_hms.group_hms_nurse,stratos_hms.group_hms_manager"/>
+                    <button name="action_view_chart" type="object" string="Open Chart" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_danger mb-3" invisible="not has_allergy">
+                        <i class="fa fa-exclamation-triangle me-2" title="exclamation triangle"/><b>ALLERGY:</b> <field name="allergy_ids" widget="many2many_tags" readonly="1" class="d-inline"/> <field name="allergy_notes" readonly="1" class="d-inline"/>
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_visits" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="visit_count" widget="statinfo" string="Visits"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-heartbeat" disabled="1">
+                            <field name="health_score" widget="statinfo" string="Health Score"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-money" disabled="1">
+                            <field name="outstanding_balance" widget="statinfo" string="Outstanding"/>
+                        </button>
+                    </div>
+                    <field name="image_128" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Patient full name"/></h1>
+                        <h3 class="text-muted"><field name="mrn" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="Identity">
+                            <field name="father_husband_name"/>
+                            <field name="sex"/>
+                            <field name="dob"/>
+                            <field name="age"/>
+                            <field name="cnic" placeholder="35202-1234567-1"/>
+                            <field name="blood_group"/>
+                            <field name="occupation"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="phone" widget="phone"/>
+                            <field name="whatsapp" widget="phone"/>
+                            <field name="email" widget="email"/>
+                            <field name="address"/>
+                            <field name="city"/>
+                            <field name="tier"/>
+                            <field name="panel"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Clinical Background" name="clinical">
+                            <group>
+                                <group>
+                                    <field name="allergy_ids" widget="many2many_tags" options="{'no_create_edit': False}"/>
+                                    <field name="allergy_notes"/>
+                                    <field name="chronic_conditions"/>
+                                    <field name="current_medicines"/>
+                                </group>
+                                <group>
+                                    <field name="family_history"/>
+                                    <field name="social_history"/>
+                                    <field name="notes"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Emergency Contact" name="emergency">
+                            <group>
+                                <field name="emergency_contact"/>
+                                <field name="emergency_relation"/>
+                                <field name="emergency_phone" widget="phone"/>
+                            </group>
+                        </page>
+                        <page string="Visits" name="visits">
+                            <field name="visit_ids" readonly="1">
+                                <list>
+                                    <field name="name"/><field name="arrival_time"/><field name="visit_type"/><field name="department_id"/><field name="doctor_id"/><field name="complaint"/>
+                                    <field name="stage" widget="badge"/><field name="ews_score"/><field name="billing_state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Billing" name="billing">
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="outstanding_balance"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- The longitudinal chart: one scrolling story from the first visit to today -->
+    <record id="view_patient_chart_form" model="ir.ui.view">
+        <field name="name">hms.patient.chart</field>
+        <field name="model">hms.patient</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <form string="Patient Chart" class="hms_form hms_chart" create="false" edit="false">
+                <sheet>
+                    <div class="hms_chart_header">
+                        <field name="image_128" widget="image" class="oe_avatar" options="{'size': [72, 72]}"/>
+                        <div>
+                            <h1><field name="name"/></h1>
+                            <div class="text-muted"><field name="mrn"/> · <field name="age_display"/> · <field name="blood_group"/> · <field name="phone"/></div>
+                            <div class="hms_alert hms_alert_danger mt-2" invisible="not has_allergy"><b>ALLERGY:</b> <field name="allergy_ids" widget="many2many_tags"/> <field name="allergy_notes"/></div>
+                        </div>
+                    </div>
+                    <group>
+                        <group string="Background">
+                            <field name="chronic_conditions"/>
+                            <field name="current_medicines"/>
+                        </group>
+                        <group string="History">
+                            <field name="family_history"/>
+                            <field name="social_history"/>
+                            <field name="health_score"/>
+                        </group>
+                    </group>
+                    <separator string="Every visit, every consult, every result, every payment"/>
+                    <field name="visit_ids" readonly="1">
+                        <list decoration-danger="held" decoration-muted="state != 'open'">
+                            <field name="arrival_time"/><field name="name"/><field name="visit_type"/><field name="department_id"/><field name="doctor_id"/><field name="complaint"/>
+                            <field name="ews_score"/><field name="stage" widget="badge"/><field name="amount_charged" sum="Charged"/><field name="amount_paid" sum="Paid"/><field name="held" column_invisible="1"/><field name="state" column_invisible="1"/>
+                            <field name="currency_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_patient_search" model="ir.ui.view">
+        <field name="name">hms.patient.search</field>
+        <field name="model">hms.patient</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Name / MRN / Phone / CNIC" filter_domain="['|', '|', '|', ('name', 'ilike', self), ('mrn', 'ilike', self), ('phone', 'ilike', self), ('cnic', 'ilike', self)]"/>
+                <field name="city"/>
+                <filter name="allergy" string="Has Allergy" domain="[('has_allergy', '=', True)]"/>
+                <filter name="vip" string="Gold / VIP" domain="[('tier', 'in', ('gold', 'vip'))]"/>
+                <group>
+                    <filter name="group_city" string="City" context="{'group_by': 'city'}"/>
+                    <filter name="group_tier" string="Tier" context="{'group_by': 'tier'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="res_model">hms.patient</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_patient_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register the first patient</p>
+            <p>One record per person. Every department reads from it and writes to it.</p>
+        </field>
+    </record>
+</odoo>

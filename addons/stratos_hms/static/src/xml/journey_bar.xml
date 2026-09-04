@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="stratos_hms.JourneyBar">
+        <div class="hms_journey">
+            <t t-foreach="steps" t-as="s" t-key="s.key">
+                <div t-attf-class="hms_journey_step hms_journey_#{s.cls}">
+                    <span class="hms_journey_dot"/>
+                    <span class="hms_journey_label" t-esc="s.label"/>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

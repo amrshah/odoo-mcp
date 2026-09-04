@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="stratos_hms.EwsBadge">
+        <span t-attf-class="hms_ews hms_ews_#{level}" t-att-title="title">EWS <t t-esc="score"/></span>
+    </t>
+</templates>

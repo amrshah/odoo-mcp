@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ai_rule_form" model="ir.ui.view">
+        <field name="name">hms.ai.rule.form</field>
+        <field name="model">hms.ai.rule</field>
+        <field name="arch" type="xml">
+            <form string="Teach the system" class="hms_form">
+                <sheet>
+                    <div class="hms_ai_box mb-3"><div class="hms_ai_title">✦ Teach once — it practises your way</div>
+                        <div class="small text-muted">When the situation appears again, your answer is offered first, wearing a <b>Learned</b> badge. Saved as a rule, not a note.</div></div>
+                    <group>
+                        <group string="When the consult mentions…"><field name="trigger_keywords" placeholder="e.g. sternal wound, itching, night"/><field name="min_matches"/><field name="scope"/><field name="doctor_id"/><field name="department_id"/></group>
+                        <group string="…offer this first"><field name="drug_id"/><field name="dose"/><field name="route"/><field name="frequency"/><field name="duration_days"/><field name="reason"/></group>
+                    </group>
+                    <group><field name="times_offered"/><field name="times_accepted"/><field name="active"/></group>
+                </sheet>
+                <footer invisible="id"><button string="✦ Teach" special="save" class="btn-primary"/><button string="Cancel" special="cancel"/></footer>
+            </form>
+        </field>
+    </record>
+    <record id="view_ai_rule_list" model="ir.ui.view">
+        <field name="name">hms.ai.rule.list</field>
+        <field name="model">hms.ai.rule</field>
+        <field name="arch" type="xml">
+            <list class="hms_list"><field name="trigger_keywords"/><field name="drug_id"/><field name="dose"/><field name="route"/><field name="frequency"/><field name="duration_days"/><field name="scope"/><field name="doctor_id"/><field name="department_id"/><field name="times_offered"/><field name="active"/></list>
+        </field>
+    </record>
+    <record id="action_ai_rules" model="ir.actions.act_window">
+        <field name="name">Learned Rules</field>
+        <field name="res_model">hms.ai.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Nothing taught yet</p><p>Open any consult and press ✦ Teach.</p></field>
+    </record>
+
+    <record id="view_case_memory_list" model="ir.ui.view">
+        <field name="name">hms.case.memory.list</field>
+        <field name="model">hms.case.memory</field>
+        <field name="arch" type="xml">
+            <list class="hms_list" create="false"><field name="create_date"/><field name="department_id"/><field name="doctor_id"/><field name="age_band"/><field name="sex"/><field name="complaint"/><field name="diagnosis"/><field name="icd10_code"/><field name="investigations"/><field name="ews_score"/><field name="outcome"/></list>
+        </field>
+    </record>
+    <record id="view_case_memory_form" model="ir.ui.view">
+        <field name="name">hms.case.memory.form</field>
+        <field name="model">hms.case.memory</field>
+        <field name="arch" type="xml">
+            <form class="hms_form" create="false"><sheet><group><group><field name="consult_id"/><field name="doctor_id"/><field name="department_id"/><field name="age_band"/><field name="sex"/><field name="ews_score"/></group><group><field name="complaint"/><field name="diagnosis"/><field name="icd10_code"/><field name="investigations"/><field name="outcome"/></group></group><field name="keywords"/><field name="prescription_json"/></sheet></form>
+        </field>
+    </record>
+    <record id="action_case_memory" model="ir.actions.act_window">
+        <field name="name">Hospital Memory</field>
+        <field name="res_model">hms.case.memory</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_dx': 1}</field>
+    </record>
+    <record id="view_case_memory_search" model="ir.ui.view">
+        <field name="name">hms.case.memory.search</field>
+        <field name="model">hms.case.memory</field>
+        <field name="arch" type="xml">
+            <search><field name="diagnosis"/><field name="keywords"/><group><filter name="group_dx" string="Diagnosis" context="{'group_by': 'diagnosis'}"/><filter name="group_doctor" string="Doctor" context="{'group_by': 'doctor_id'}"/></group></search>
+        </field>
+    </record>
+
+    <record id="view_protocol_form" model="ir.ui.view">
+        <field name="name">hms.protocol.form</field>
+        <field name="model">hms.protocol</field>
+        <field name="arch" type="xml">
+            <form class="hms_form"><sheet>
+                <div class="oe_title"><h1><field name="name"/></h1></div>
+                <group><group><field name="department_id"/><field name="icd10_id"/><field name="age_group"/><field name="source"/><field name="refer_department_id"/><field name="active"/></group><group><field name="trigger_keywords"/><field name="reasoning"/><field name="red_flags"/></group></group>
+                <notebook>
+                    <page string="Suggested medicines"><field name="line_ids"><list editable="bottom"><field name="sequence" widget="handle"/><field name="drug_id"/><field name="dose"/><field name="route"/><field name="frequency"/><field name="duration_days"/><field name="reason"/></list></field></page>
+                    <page string="Suggested investigations"><field name="investigation_ids" widget="many2many_tags"/></page>
+                </notebook>
+            </sheet></form>
+        </field>
+    </record>
+    <record id="view_protocol_list" model="ir.ui.view">
+        <field name="name">hms.protocol.list</field>
+        <field name="model">hms.protocol</field>
+        <field name="arch" type="xml">
+            <list class="hms_list"><field name="name"/><field name="department_id"/><field name="icd10_id"/><field name="age_group"/><field name="trigger_keywords"/><field name="source"/><field name="active"/></list>
+        </field>
+    </record>
+    <record id="action_protocols" model="ir.actions.act_window">
+        <field name="name">Protocols &amp; Guidelines</field>
+        <field name="res_model">hms.protocol</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

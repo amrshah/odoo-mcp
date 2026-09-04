@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_surgery_form" model="ir.ui.view">
+        <field name="name">hms.surgery.form</field>
+        <field name="model">hms.surgery</field>
+        <field name="arch" type="xml">
+            <form string="Surgery" class="hms_form">
+                <header>
+                    <button name="action_sign_in" type="object" string="WHO Sign In ✓" class="btn-primary" invisible="state != 'scheduled'"/>
+                    <button name="action_time_out" type="object" string="WHO Time Out ✓ — start" class="btn-primary" invisible="state != 'sign_in'"/>
+                    <button name="action_sign_out" type="object" string="WHO Sign Out ✓ — complete" class="btn-success" invisible="state != 'in_progress'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('completed','cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="scheduled,sign_in,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not has_allergy"><i class="fa fa-exclamation-triangle me-2" title="exclamation triangle"/><b>ALLERGY:</b> <field name="allergy_summary" class="d-inline"/></div>
+                    <div class="hms_alert hms_alert_warning mb-2" invisible="consent_ok or state != 'scheduled'"><i class="fa fa-file-text me-2" title="file text"/>Surgical consent not yet signed on the visit — Sign In will be blocked.</div>
+                    <div class="oe_title"><h1><field name="procedure" placeholder="Procedure"/></h1><div class="text-muted"><field name="name" readonly="1" class="d-inline"/> · <field name="patient_id" class="d-inline"/></div></div>
+                    <group>
+                        <group><field name="visit_id"/><field name="admission_id"/><field name="surgeon_id"/><field name="anaesthetist_id"/><field name="anaesthesia_type"/></group>
+                        <group><field name="theatre_id"/><field name="scheduled_at"/><field name="started_at"/><field name="ended_at"/><field name="price"/><field name="consent_ok" invisible="1"/><field name="has_allergy" invisible="1"/></group>
+                    </group>
+                    <notebook>
+                        <page string="WHO Surgical Safety Checklist" name="who">
+                            <div class="row">
+                                <div class="col-md-4"><h5>Sign In — before anaesthesia</h5>
+                                    <field name="si_identity_confirmed"/><label for="si_identity_confirmed"/><br/>
+                                    <field name="si_site_marked"/><label for="si_site_marked"/><br/>
+                                    <field name="si_anaesthesia_check"/><label for="si_anaesthesia_check"/><br/>
+                                    <field name="si_pulse_ox"/><label for="si_pulse_ox"/><br/>
+                                    <field name="si_allergy_known"/><label for="si_allergy_known"/><br/>
+                                    <field name="si_airway_risk"/><label for="si_airway_risk"/><br/>
+                                    <field name="si_blood_loss_risk"/><label for="si_blood_loss_risk"/>
+                                </div>
+                                <div class="col-md-4"><h5>Time Out — before incision</h5>
+                                    <field name="to_team_introduced"/><label for="to_team_introduced"/><br/>
+                                    <field name="to_confirm_patient"/><label for="to_confirm_patient"/><br/>
+                                    <field name="to_antibiotic"/><label for="to_antibiotic"/><br/>
+                                    <field name="to_critical_events"/><label for="to_critical_events"/><br/>
+                                    <field name="to_imaging"/><label for="to_imaging"/>
+                                </div>
+                                <div class="col-md-4"><h5>Sign Out — before leaving theatre</h5>
+                                    <field name="so_procedure_recorded"/><label for="so_procedure_recorded"/><br/>
+                                    <field name="so_counts_correct"/><label for="so_counts_correct"/><br/>
+                                    <field name="so_specimen_labelled"/><label for="so_specimen_labelled"/><br/>
+                                    <field name="so_equipment_issues"/><label for="so_equipment_issues"/><br/>
+                                    <field name="so_recovery_concerns"/><label for="so_recovery_concerns"/>
+                                </div>
+                            </div>
+                        </page>
+                        <page string="Operative Note" name="note"><field name="operative_note" widget="hms_scribe" nolabel="1"/></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_surgery_list" model="ir.ui.view">
+        <field name="name">hms.surgery.list</field>
+        <field name="model">hms.surgery</field>
+        <field name="arch" type="xml">
+            <list class="hms_list"><field name="scheduled_at"/><field name="name"/><field name="patient_id"/><field name="procedure"/><field name="surgeon_id"/><field name="anaesthetist_id"/><field name="theatre_id"/><field name="state" widget="badge"/></list>
+        </field>
+    </record>
+    <record id="view_surgery_calendar" model="ir.ui.view">
+        <field name="name">hms.surgery.calendar</field>
+        <field name="model">hms.surgery</field>
+        <field name="arch" type="xml">
+            <calendar date_start="scheduled_at" color="theatre_id" mode="week"><field name="patient_id"/><field name="procedure"/><field name="surgeon_id"/></calendar>
+        </field>
+    </record>
+    <record id="action_surgeries" model="ir.actions.act_window">
+        <field name="name">Operation Theatre</field>
+        <field name="res_model">hms.surgery</field>
+        <field name="view_mode">list,calendar,form</field>
+    </record>
+    <record id="action_theatres" model="ir.actions.act_window">
+        <field name="name">Theatres</field>
+        <field name="res_model">hms.theatre</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

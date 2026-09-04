@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="user_nasreen" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Nasreen Bibi</field><field name="login">nasreen</field><field name="password">nasreen123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_receptionist')])]"/>
+    </record>
+    <record id="staff_nasreen" model="hms.practitioner">
+      <field name="name">Nasreen Bibi</field><field name="user_id" ref="user_nasreen"/><field name="role">receptionist</field><field name="department_id" ref="dept_medicine"/>
+      <field name="specialty">Front Desk</field><field name="qualification"></field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="user_hina" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Hina Akhtar</field><field name="login">hina</field><field name="password">hina123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_nurse')])]"/>
+    </record>
+    <record id="staff_hina" model="hms.practitioner">
+      <field name="name">Hina Akhtar</field><field name="user_id" ref="user_hina"/><field name="role">nurse</field><field name="department_id" ref="dept_medicine"/>
+      <field name="specialty">Triage &amp; Ward</field><field name="qualification">BSN</field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="user_ayesha" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Ayesha Chaudhry</field><field name="login">dr.ayesha</field><field name="password">dr.ayesha123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_doctor')])]"/>
+    </record>
+    <record id="staff_ayesha" model="hms.practitioner">
+      <field name="name">Ayesha Chaudhry</field><field name="user_id" ref="user_ayesha"/><field name="role">doctor</field><field name="department_id" ref="dept_medicine"/>
+      <field name="specialty">General Physician</field><field name="qualification">MBBS, FCPS (Medicine)</field><field name="pmdc_no">PMDC-45821-P</field><field name="consult_fee">1500</field>
+    </record>
+    <record id="user_bilal" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Bilal Rahman</field><field name="login">dr.bilal</field><field name="password">dr.bilal123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_doctor')])]"/>
+    </record>
+    <record id="staff_bilal" model="hms.practitioner">
+      <field name="name">Bilal Rahman</field><field name="user_id" ref="user_bilal"/><field name="role">doctor</field><field name="department_id" ref="dept_cardiology"/>
+      <field name="specialty">Interventional Cardiologist</field><field name="qualification">MBBS, FCPS (Cardiology)</field><field name="pmdc_no">PMDC-31207-P</field><field name="consult_fee">3000</field>
+    </record>
+    <record id="user_sana" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Sana Islam</field><field name="login">dr.sana</field><field name="password">dr.sana123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_hod')])]"/>
+    </record>
+    <record id="staff_sana" model="hms.practitioner">
+      <field name="name">Sana Islam</field><field name="user_id" ref="user_sana"/><field name="role">hod</field><field name="department_id" ref="dept_medicine"/>
+      <field name="specialty">Head of Medicine</field><field name="qualification">MBBS, MRCP</field><field name="pmdc_no">PMDC-22910-P</field><field name="consult_fee">2500</field>
+    </record>
+    <record id="user_farhan" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Farhan Malik</field><field name="login">dr.farhan</field><field name="password">dr.farhan123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_doctor')])]"/>
+    </record>
+    <record id="staff_farhan" model="hms.practitioner">
+      <field name="name">Farhan Malik</field><field name="user_id" ref="user_farhan"/><field name="role">doctor</field><field name="department_id" ref="dept_paeds"/>
+      <field name="specialty">Paediatrician</field><field name="qualification">MBBS, FCPS (Paeds)</field><field name="pmdc_no">PMDC-50133-P</field><field name="consult_fee">1500</field>
+    </record>
+    <record id="user_usman" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Usman Tariq</field><field name="login">usman</field><field name="password">usman123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_pharmacist')])]"/>
+    </record>
+    <record id="staff_usman" model="hms.practitioner">
+      <field name="name">Usman Tariq</field><field name="user_id" ref="user_usman"/><field name="role">pharmacist</field><field name="department_id" ref="dept_pharmacy"/>
+      <field name="specialty">Clinical Pharmacist</field><field name="qualification">Pharm-D</field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="user_tariq" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Tariq Hussain</field><field name="login">tariq</field><field name="password">tariq123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_lab')])]"/>
+    </record>
+    <record id="staff_tariq" model="hms.practitioner">
+      <field name="name">Tariq Hussain</field><field name="user_id" ref="user_tariq"/><field name="role">lab</field><field name="department_id" ref="dept_lab"/>
+      <field name="specialty">Lab Technologist</field><field name="qualification">BS MLT</field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="user_kamran" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Kamran Shah</field><field name="login">kamran</field><field name="password">kamran123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_blood_bank')])]"/>
+    </record>
+    <record id="staff_kamran" model="hms.practitioner">
+      <field name="name">Kamran Shah</field><field name="user_id" ref="user_kamran"/><field name="role">blood_bank</field><field name="department_id" ref="dept_blood"/>
+      <field name="specialty">Blood Bank Officer</field><field name="qualification">BS MLT</field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="user_rubina" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Rubina Yousaf</field><field name="login">rubina</field><field name="password">rubina123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_ot')])]"/>
+    </record>
+    <record id="staff_rubina" model="hms.practitioner">
+      <field name="name">Rubina Yousaf</field><field name="user_id" ref="user_rubina"/><field name="role">ot</field><field name="department_id" ref="dept_surgery"/>
+      <field name="specialty">OT Coordinator</field><field name="qualification">BSN</field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="user_director" model="res.users" context="{'no_reset_password': True}">
+      <field name="name">Ahmed Nawaz</field><field name="login">director</field><field name="password">director123</field>
+      <field name="group_ids" eval="[(6, 0, [ref('stratos_hms.group_hms_manager')])]"/>
+    </record>
+    <record id="staff_director" model="hms.practitioner">
+      <field name="name">Ahmed Nawaz</field><field name="user_id" ref="user_director"/><field name="role">director</field><field name="department_id" ref="dept_medicine"/>
+      <field name="specialty">Hospital Director</field><field name="qualification">MBA (Health)</field><field name="pmdc_no"></field><field name="consult_fee">0</field>
+    </record>
+    <record id="staff_admin" model="hms.practitioner"><field name="name">System Administrator</field><field name="user_id" ref="base.user_admin"/><field name="role">director</field><field name="department_id" ref="dept_medicine"/></record>
+    <record id="dept_medicine" model="hms.department"><field name="head_id" ref="staff_sana"/></record>
+    <record id="dept_cardiology" model="hms.department"><field name="head_id" ref="staff_bilal"/></record>
+    <record id="dept_paeds" model="hms.department"><field name="head_id" ref="staff_farhan"/></record>
+  </data>
+</odoo>

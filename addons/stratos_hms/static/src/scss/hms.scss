@@ -1,0 +1,130 @@
+// Stratos HMS — visual system. One motif: soft cards, indigo primary, teal success, red for anything unsafe.
+$hms-indigo: #4f46e5;
+$hms-indigo-soft: #eef2ff;
+$hms-teal: #0f9d7a;
+$hms-teal-soft: #e6f7f2;
+$hms-amber: #f59e0b;
+$hms-amber-soft: #fff7e6;
+$hms-red: #dc2626;
+$hms-red-soft: #fee2e2;
+$hms-ink: #1a2238;
+$hms-muted: #5b6478;
+$hms-line: #e1e4ef;
+$hms-bg: #f6f7fb;
+
+// ---------- badges & alerts ----------
+.hms_badge_danger { background: $hms-red-soft; color: #991b1b; font-weight: 600; }
+.hms_badge_muted { background: #eef0f6; color: $hms-muted; font-weight: 500; }
+.hms_alert { border-radius: 10px; padding: 10px 14px; font-size: 13px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+    .o_field_widget { display: inline-block; margin: 0; }
+}
+.hms_alert_danger { background: $hms-red-soft; color: #991b1b; border: 1px solid #fecaca; }
+.hms_alert_warning { background: $hms-amber-soft; color: #92400e; border: 1px solid #fde68a; }
+.hms_alert_info { background: $hms-indigo-soft; color: #3730a3; border: 1px solid #c7d2fe; }
+.hms_pre { white-space: pre-wrap; }
+.hms_pre textarea, .hms_pre .o_input { white-space: pre-wrap; font-family: inherit; }
+
+// ---------- EWS pill ----------
+.hms_ews { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; letter-spacing: .2px; white-space: nowrap; }
+.hms_ews_low { background: $hms-teal-soft; color: #065f46; }
+.hms_ews_lowmed { background: $hms-amber-soft; color: #92400e; }
+.hms_ews_medium { background: #ffedd5; color: #9a3412; }
+.hms_ews_high { background: $hms-red; color: #fff; animation: hms_pulse 1.6s infinite; }
+@keyframes hms_pulse { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.5);} 70% { box-shadow: 0 0 0 8px rgba(220,38,38,0);} 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0);} }
+
+// ---------- Journey bar ----------
+.hms_journey { display: flex; gap: 4px; margin: 4px 0 12px; flex-wrap: wrap; }
+.hms_journey_step { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; white-space: nowrap; background: #eef0f6; color: $hms-muted; position: relative;
+    .hms_journey_dot { width: 8px; height: 8px; border-radius: 50%; background: #c4c9d8; }
+}
+.hms_journey_done { background: $hms-indigo-soft; color: #3730a3; .hms_journey_dot { background: $hms-indigo; } }
+.hms_journey_current { background: $hms-indigo; color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,.35); .hms_journey_dot { background: #fff; } }
+.o_form_statusbar .hms_journey { margin: 0; }
+
+// ---------- Forms ----------
+.hms_form {
+    .o_form_sheet { border-radius: 14px; box-shadow: 0 1px 0 rgba(26,34,56,.04), 0 8px 24px rgba(26,34,56,.05); }
+    .oe_title h1 .o_field_widget input, .oe_title h1 .o_field_many2one input { font-size: 26px; font-weight: 700; color: $hms-ink; }
+    .o_notebook .nav-link.active { color: $hms-indigo; border-bottom: 2px solid $hms-indigo; }
+    .btn-primary { background: $hms-indigo; border-color: $hms-indigo; }
+    .btn-success { background: $hms-teal; border-color: $hms-teal; }
+}
+.hms_btn_ai { background: linear-gradient(90deg, #4f46e5, #7c3aed) !important; border: none !important; box-shadow: 0 4px 14px rgba(79,70,229,.35); }
+.hms_ai_box { border: 1px solid #c7d2fe; background: linear-gradient(180deg, #f5f3ff, #fff); border-radius: 12px; padding: 12px 16px;
+    .hms_ai_title { font-weight: 700; color: #4338ca; margin-bottom: 6px; }
+}
+.hms_assist_toggle { display: flex; align-items: center; gap: 8px; background: $hms-indigo-soft; border-radius: 999px; padding: 6px 14px; font-weight: 600; color: #3730a3; label { margin: 0; } }
+.hms_subtitle { display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    > .o_field_widget, .o_field_widget { margin: 0 !important; display: inline-flex !important; width: auto !important; }
+    .o_many2one a { width: auto !important; }
+}
+.hms_assist_toggle { white-space: nowrap; }
+.hms_num input { width: 70px !important; text-align: center; }
+.hms_chart_header { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
+
+// ---------- Lists / kanban ----------
+.hms_list .o_data_row { height: 44px; }
+.hms_queue .o_data_row.text-danger td { background: #fff5f5; }
+.hms_kanban .o_kanban_record { border-radius: 12px; border: 1px solid $hms-line; box-shadow: 0 2px 8px rgba(26,34,56,.05); }
+.hms_visit_card { padding: 4px 2px; }
+.hms_card_held { border-left: 4px solid $hms-red; padding-left: 8px; }
+.hms_card_high { background: #fff5f5; }
+.hms_bed { padding: 6px; border-radius: 8px; }
+.hms_bed_free { background: $hms-teal-soft; }
+.hms_bed_occupied { background: $hms-red-soft; }
+.hms_bed_cleaning { background: $hms-amber-soft; }
+.hms_bed_blocked { background: #eef0f6; }
+
+// ---------- Scribe ----------
+.o_field_hms_scribe { display: block; width: 100%; }
+.hms_scribe { border: 1px solid $hms-line; border-radius: 12px; overflow: hidden; background: #fff; width: 100%;
+    .hms_scribe_bar { display: flex; align-items: center; padding: 6px 8px; background: #f8f9fc; border-bottom: 1px solid $hms-line; }
+    .hms_scribe_text { width: 100%; border: none; padding: 10px 12px; min-height: 90px; resize: vertical; font-size: 14px; line-height: 1.5; }
+    .hms_scribe_interim { padding: 4px 12px 8px; color: $hms-muted; font-style: italic; font-size: 13px; }
+}
+.hms_scribe_listening { border-color: $hms-red; box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
+
+// ---------- Command centre ----------
+.hms_cc { background: $hms-bg; min-height: 100%; padding: 20px 28px 40px; overflow: auto; }
+.hms_cc_head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;
+    h1 { font-size: 28px; font-weight: 800; color: $hms-ink; margin: 2px 0; }
+}
+.hms_cc_kicker { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: $hms-indigo; }
+.hms_cc_tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 14px; }
+@media (max-width: 1400px) { .hms_cc_tiles { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 900px) { .hms_cc_tiles { grid-template-columns: repeat(2, 1fr); } }
+.hms_tile { background: #fff; border-radius: 14px; padding: 14px 16px; cursor: pointer; border: 1px solid $hms-line; transition: transform .12s, box-shadow .12s; position: relative;
+    &:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(26,34,56,.08); }
+    .hms_tile_icon { position: absolute; right: 14px; top: 12px; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .hms_tile_value { font-size: 30px; font-weight: 800; color: $hms-ink; line-height: 1.1; }
+    .hms_tile_label { font-size: 12px; color: $hms-muted; font-weight: 600; margin-top: 4px; }
+    .hms_tile_sub { font-size: 11px; color: $hms-muted; }
+}
+.hms_tile_indigo .hms_tile_icon { background: $hms-indigo-soft; color: $hms-indigo; }
+.hms_tile_teal .hms_tile_icon { background: $hms-teal-soft; color: $hms-teal; }
+.hms_tile_amber .hms_tile_icon { background: $hms-amber-soft; color: #b45309; }
+.hms_tile_red .hms_tile_icon { background: $hms-red-soft; color: $hms-red; }
+.hms_tile_red .hms_tile_value { color: $hms-red; }
+.hms_cc_money { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+.hms_money_card { border-radius: 14px; padding: 16px 20px; background: linear-gradient(135deg, #1e1b4b, #4f46e5); color: #fff;
+    .hms_money_label { font-size: 12px; opacity: .85; font-weight: 600; letter-spacing: .3px; }
+    .hms_money_value { font-size: 26px; font-weight: 800; margin-top: 4px; }
+}
+.hms_money_teal { background: linear-gradient(135deg, #064e3b, #0f9d7a); }
+.hms_money_red { background: linear-gradient(135deg, #7f1d1d, #dc2626); }
+.hms_cc_grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 1200px) { .hms_cc_grid { grid-template-columns: repeat(2, 1fr); } }
+.hms_card { background: #fff; border-radius: 14px; border: 1px solid $hms-line; padding: 14px 16px; min-height: 240px;
+    .hms_card_title { font-weight: 700; color: $hms-ink; font-size: 13px; margin-bottom: 8px; }
+}
+.hms_card_wide { grid-column: span 2; }
+.hms_chart { position: relative; height: 210px; }
+.hms_table td { vertical-align: middle; }
+.hms_row_click { cursor: pointer; &:hover td { background: $hms-indigo-soft; } }
+.hms_bar_row { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 12px;
+    .hms_bar_label { width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: $hms-ink; }
+    .hms_bar { flex: 1; height: 8px; background: #eef0f6; border-radius: 999px; overflow: hidden; }
+    .hms_bar_fill { height: 100%; background: $hms-indigo; border-radius: 999px; }
+    .hms_bar_teal { background: $hms-teal; }
+    .hms_bar_val { width: 28px; text-align: right; font-weight: 700; color: $hms-muted; }
+}

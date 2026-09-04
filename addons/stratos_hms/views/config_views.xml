@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_hms" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hms</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Hospital" string="Hospital" name="stratos_hms" groups="stratos_hms.group_hms_manager">
+                    <block title="AI Assist &amp; Scribe" name="hms_ai">
+                        <setting string="AI provider" help="Pluggable. Offline mode uses hospital memory, learned rules and protocols only.">
+                            <field name="hms_ai_provider"/>
+                            <div class="mt-2" invisible="hms_ai_provider != 'anthropic'">
+                                <field name="hms_anthropic_api_key" password="True" placeholder="sk-ant-…"/>
+                                <field name="hms_anthropic_model" class="mt-1"/>
+                            </div>
+                            <div class="mt-2" invisible="hms_ai_provider != 'openai'">
+                                <field name="hms_openai_api_key" password="True" placeholder="sk-…"/>
+                                <field name="hms_openai_model" class="mt-1"/>
+                            </div>
+                            <div class="mt-2"><label for="hms_ai_timeout"/><field name="hms_ai_timeout"/></div>
+                            <button name="action_hms_test_ai" type="object" string="Test connection" class="btn-link mt-2" icon="fa-plug"/>
+                        </setting>
+                        <setting string="Scribe language" help="Browser speech recognition language for the consult room microphone.">
+                            <field name="hms_speech_lang"/>
+                        </setting>
+                    </block>
+                    <block title="Front desk &amp; money" name="hms_money">
+                        <setting string="Hold unpaid files" help="Pay first, then care: keep the file in Held until the consultation fee is collected.">
+                            <field name="hms_hold_unpaid"/>
+                        </setting>
+                        <setting string="Registration fee" help="Charged once, on a patient's first visit.">
+                            <field name="hms_registration_fee"/>
+                        </setting>
+                        <setting string="Document tagline" help="Printed under the hospital name on bills and prescriptions.">
+                            <field name="hms_hospital_tagline"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+    <record id="action_hms_config" model="ir.actions.act_window">
+        <field name="name">Hospital Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'stratos_hms'}</field>
+    </record>
+
+    <record id="view_department_list" model="ir.ui.view">
+        <field name="name">hms.department.list</field>
+        <field name="model">hms.department</field>
+        <field name="arch" type="xml">
+            <list editable="bottom"><field name="sequence" widget="handle"/><field name="code"/><field name="name"/><field name="kind"/><field name="head_id"/><field name="consult_fee"/><field name="consult_product_id"/><field name="active"/></list>
+        </field>
+    </record>
+    <record id="view_department_form" model="ir.ui.view">
+        <field name="name">hms.department.form</field>
+        <field name="model">hms.department</field>
+        <field name="arch" type="xml">
+            <form class="hms_form"><sheet><div class="oe_title"><h1><field name="name"/></h1></div>
+                <group><group><field name="code"/><field name="kind"/><field name="head_id"/><field name="active"/></group><group><field name="consult_fee"/><field name="consult_product_id"/></group></group>
+                <group string="Specialty pack (guidance the AI uses for this department)"><field name="specialty_pack" nolabel="1"/></group>
+                <field name="practitioner_ids"><list><field name="name"/><field name="role"/><field name="specialty"/><field name="user_id"/></list></field>
+            </sheet></form>
+        </field>
+    </record>
+    <record id="action_departments" model="ir.actions.act_window">
+        <field name="name">Departments</field>
+        <field name="res_model">hms.department</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_practitioner_list" model="ir.ui.view">
+        <field name="name">hms.practitioner.list</field>
+        <field name="model">hms.practitioner</field>
+        <field name="arch" type="xml">
+            <list class="hms_list"><field name="name"/><field name="role"/><field name="department_id"/><field name="specialty"/><field name="pmdc_no"/><field name="user_id"/><field name="consult_fee"/><field name="active"/></list>
+        </field>
+    </record>
+    <record id="view_practitioner_form" model="ir.ui.view">
+        <field name="name">hms.practitioner.form</field>
+        <field name="model">hms.practitioner</field>
+        <field name="arch" type="xml">
+            <form class="hms_form"><sheet>
+                <field name="image_128" widget="image" class="oe_avatar"/>
+                <div class="oe_title"><h1><field name="name"/></h1></div>
+                <group><group><field name="role"/><field name="department_id"/><field name="specialty"/><field name="qualification"/><field name="pmdc_no"/></group><group><field name="user_id"/><field name="phone"/><field name="email"/><field name="consult_fee"/><field name="active"/></group></group>
+            </sheet><chatter/></form>
+        </field>
+    </record>
+    <record id="action_practitioners" model="ir.actions.act_window">
+        <field name="name">Staff &amp; Logins</field>
+        <field name="res_model">hms.practitioner</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_allergy_list" model="ir.ui.view">
+        <field name="name">hms.allergy.list</field>
+        <field name="model">hms.allergy</field>
+        <field name="arch" type="xml"><list editable="bottom"><field name="name"/><field name="allergen_class"/><field name="severity"/></list></field>
+    </record>
+    <record id="action_allergies" model="ir.actions.act_window">
+        <field name="name">Allergens</field>
+        <field name="res_model">hms.allergy</field>
+        <field name="view_mode">list</field>
+    </record>
+    <record id="view_icd_list" model="ir.ui.view">
+        <field name="name">hms.icd10.list</field>
+        <field name="model">hms.icd10</field>
+        <field name="arch" type="xml"><list editable="bottom"><field name="code"/><field name="name"/><field name="chapter"/></list></field>
+    </record>
+    <record id="action_icd10" model="ir.actions.act_window">
+        <field name="name">ICD-10 Codes</field>
+        <field name="res_model">hms.icd10</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

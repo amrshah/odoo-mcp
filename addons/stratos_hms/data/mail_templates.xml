@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_prescription" model="mail.template">
+            <field name="name">HMS: Prescription to patient</field>
+            <field name="model_id" ref="model_hms_consult"/>
+            <field name="subject">Your prescription from {{ object.doctor_id.display_name }} — {{ object.env.company.name }}</field>
+            <field name="email_to">{{ object.patient_id.email }}</field>
+            <field name="body_html" type="html">
+<div style="font-family:Arial,sans-serif">
+<p>Assalam o Alaikum <t t-out="object.patient_id.name"/>,</p>
+<p>Please find attached your prescription from <t t-out="object.doctor_id.display_name"/>. Follow the plan and come back on the follow-up date.</p>
+<p>— <t t-out="object.env.company.name"/></p>
+</div></field>
+            <field name="report_template_ids" eval="[(4, ref('stratos_hms.action_report_prescription'))]"/>
+        </record>
+    </data>
+</odoo>

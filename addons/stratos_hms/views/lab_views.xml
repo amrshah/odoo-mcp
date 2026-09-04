@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_list" model="ir.ui.view">
+        <field name="name">hms.order.list</field>
+        <field name="model">hms.order</field>
+        <field name="arch" type="xml">
+            <list string="Worklist" class="hms_list" decoration-danger="urgency == 'stat' or flag == 'critical'" decoration-warning="tat_breached" decoration-muted="state in ('cancelled','acknowledged')">
+                <field name="urgency_rank" column_invisible="1"/>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="test_id"/>
+                <field name="urgency" widget="badge" decoration-danger="urgency == 'stat'" decoration-warning="urgency == 'urgent'"/>
+                <field name="state" widget="badge"/>
+                <field name="ordered_by_id"/>
+                <field name="create_date" string="Ordered"/>
+                <field name="tat_minutes" string="TAT (min)"/>
+                <field name="tat_breached" widget="boolean_toggle" readonly="1" string="Over TAT"/>
+                <field name="result_value"/>
+                <field name="flag" widget="badge" decoration-danger="flag == 'critical'" decoration-warning="flag in ('high','low','abnormal')"/>
+                <field name="critical_pending" widget="boolean_toggle" readonly="1" string="Call due"/>
+                <field name="category" optional="hide"/>
+                <field name="doctor_id" optional="hide"/>
+                <button name="action_acknowledge" type="object" string="Acknowledge" icon="fa-check" class="btn-link" invisible="state != 'verified'" groups="stratos_hms.group_hms_doctor"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">hms.order.form</field>
+        <field name="model">hms.order</field>
+        <field name="arch" type="xml">
+            <form string="Diagnostic Order" class="hms_form">
+                <header>
+                    <button name="action_approve" type="object" string="Approve order" class="btn-primary" invisible="state != 'proposed'" groups="stratos_hms.group_hms_doctor"/>
+                    <button name="action_collect" type="object" string="Collect sample (scan-verified)" class="btn-primary" invisible="state != 'ordered'" groups="stratos_hms.group_hms_lab,stratos_hms.group_hms_nurse"/>
+                    <button name="action_enter_result" type="object" string="Enter result" class="btn-primary" invisible="state not in ('collected','ordered') or state == 'ordered' and category == 'lab'" groups="stratos_hms.group_hms_lab"/>
+                    <button name="action_verify_release" type="object" string="Verify &amp; release" class="btn-success" invisible="state != 'resulted'" groups="stratos_hms.group_hms_lab"/>
+                    <button name="action_acknowledge" type="object" string="Acknowledge" class="btn-success" invisible="state != 'verified'" groups="stratos_hms.group_hms_doctor"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('verified','acknowledged','cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="ordered,collected,resulted,verified,acknowledged"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not critical_pending"><i class="fa fa-phone me-2" title="phone"/><b>CRITICAL VALUE — call log open.</b> Phone the doctor, read the value back, log the call. The result cannot be acknowledged until this is done.</div>
+                    <div class="oe_title">
+                        <h1><field name="test_id" readonly="state not in ('proposed','ordered')"/></h1>
+                        <div class="text-muted"><field name="name" readonly="1" class="d-inline"/> · <field name="patient_id" class="d-inline"/> · <field name="visit_id" class="d-inline"/></div>
+                    </div>
+                    <group>
+                        <group string="Order">
+                            <field name="urgency"/>
+                            <field name="reason"/>
+                            <field name="ordered_by_id"/>
+                            <field name="doctor_id"/>
+                            <field name="ai_suggested"/>
+                            <field name="category"/>
+                            <field name="create_date" string="Ordered at"/>
+                            <field name="tat_minutes"/>
+                        </group>
+                        <group string="Collection — a gate, not a habit" invisible="state not in ('ordered','collected')">
+                            <field name="specimen_barcode" readonly="1"/>
+                            <field name="scanned_band" placeholder="Scan wristband (MRN)…" readonly="state != 'ordered'"/>
+                            <field name="scanned_specimen" placeholder="Scan specimen tube…" readonly="state != 'ordered'"/>
+                            <field name="collected_by_id" readonly="1"/>
+                            <field name="collected_at" readonly="1"/>
+                        </group>
+                        <group string="Result" invisible="state in ('proposed','ordered')">
+                            <field name="result_value" readonly="state not in ('collected','resulted')"/>
+                            <field name="flag" readonly="state not in ('collected','resulted')"/>
+                            <field name="result_text" readonly="state not in ('collected','resulted')"/>
+                            <field name="result_file" filename="result_filename" readonly="state not in ('collected','resulted')"/>
+                            <field name="result_filename" invisible="1"/>
+                            <field name="resulted_by_id" readonly="1"/>
+                            <field name="verified_by_id" readonly="1"/>
+                            <field name="verified_at" readonly="1"/>
+                            <field name="acknowledged_by_id" readonly="1"/>
+                            <field name="acknowledged_at" readonly="1"/>
+                        </group>
+                        <group string="Reference" invisible="state in ('proposed','ordered')">
+                            <label for="test_id" string="Range"/>
+                            <div><field name="test_id" readonly="1" class="d-inline" options="{'no_open': True}"/></div>
+                        </group>
+                    </group>
+                    <notebook invisible="not critical_call_ids">
+                        <page string="Critical value call log" name="calls">
+                            <field name="critical_call_ids">
+                                <list editable="bottom" decoration-danger="state == 'pending'" decoration-success="state == 'done'">
+                                    <field name="test_name"/><field name="value"/><field name="doctor_id"/><field name="spoke_to"/><field name="read_back"/><field name="notes"/><field name="state" widget="badge"/><field name="called_by_id"/><field name="called_at"/>
+                                    <button name="action_log_call" type="object" string="Log call" icon="fa-phone" class="btn-link" invisible="state == 'done'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <field name="critical_pending" invisible="1"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_order_search" model="ir.ui.view">
+        <field name="name">hms.order.search</field>
+        <field name="model">hms.order</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/><field name="test_id"/><field name="name"/>
+                <filter name="worklist" string="Worklist" domain="[('state', 'in', ('ordered', 'collected'))]"/>
+                <filter name="to_verify" string="To Verify" domain="[('state', '=', 'resulted')]"/>
+                <filter name="stat" string="STAT" domain="[('urgency', '=', 'stat')]"/>
+                <filter name="critical" string="Critical calls due" domain="[('critical_pending', '=', True)]"/>
+                <filter name="breached" string="Over TAT" domain="[('tat_breached', '=', True)]"/>
+                <separator/>
+                <filter name="lab" string="Laboratory" domain="[('category', '=', 'lab')]"/>
+                <filter name="imaging" string="Imaging" domain="[('category', '=', 'imaging')]"/>
+                <filter name="my_patients" string="My patients" domain="[('doctor_id.user_id', '=', uid)]"/>
+                <group>
+                    <filter name="group_patient" string="Patient" context="{'group_by': 'patient_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_section" string="Section" context="{'group_by': 'test_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_lab_worklist" model="ir.actions.act_window">
+        <field name="name">Laboratory Worklist</field>
+        <field name="res_model">hms.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_order_search"/>
+        <field name="domain">[('category', '=', 'lab')]</field>
+        <field name="context">{'search_default_worklist': 1, 'search_default_group_patient': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">The worklist is clear</p><p>STAT on top with the clock running. Collection is scan-verified.</p></field>
+    </record>
+    <record id="action_imaging_worklist" model="ir.actions.act_window">
+        <field name="name">Imaging Worklist</field>
+        <field name="res_model">hms.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_order_search"/>
+        <field name="domain">[('category', 'in', ('imaging', 'procedure'))]</field>
+        <field name="context">{'search_default_worklist': 1}</field>
+    </record>
+    <record id="action_critical_calls" model="ir.actions.act_window">
+        <field name="name">Critical Value Calls</field>
+        <field name="res_model">hms.critical.call</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+    <record id="view_critical_call_list" model="ir.ui.view">
+        <field name="name">hms.critical.call.list</field>
+        <field name="model">hms.critical.call</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" decoration-danger="state == 'pending'" decoration-success="state == 'done'">
+                <field name="create_date" string="Flagged"/><field name="patient_id"/><field name="test_name"/><field name="value"/><field name="doctor_id"/><field name="spoke_to"/><field name="read_back"/><field name="notes"/><field name="state" widget="badge"/><field name="called_by_id"/><field name="called_at"/>
+                <button name="action_log_call" type="object" string="Log call" icon="fa-phone" class="btn-link" invisible="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_critical_call_search" model="ir.ui.view">
+        <field name="name">hms.critical.call.search</field>
+        <field name="model">hms.critical.call</field>
+        <field name="arch" type="xml">
+            <search>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_test_list" model="ir.ui.view">
+        <field name="name">hms.test.list</field>
+        <field name="model">hms.test</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="code"/><field name="name"/><field name="category"/><field name="section"/><field name="sample_type"/><field name="unit"/><field name="ref_low"/><field name="ref_high"/><field name="critical_low"/><field name="critical_high"/><field name="numeric"/><field name="tat_minutes"/><field name="price"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_tests" model="ir.actions.act_window">
+        <field name="name">Test Catalogue</field>
+        <field name="res_model">hms.test</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

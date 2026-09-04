@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dispense_list" model="ir.ui.view">
+        <field name="name">hms.dispense.list</field>
+        <field name="model">hms.dispense</field>
+        <field name="arch" type="xml">
+            <list class="hms_list" decoration-danger="blocked" decoration-success="state == 'dispensed'" decoration-muted="state == 'cancelled'">
+                <field name="create_date" string="Received"/><field name="name"/><field name="patient_id"/><field name="doctor_id"/><field name="has_allergy" widget="boolean_toggle" readonly="1" string="Allergy"/><field name="blocked" widget="boolean_toggle" readonly="1"/><field name="amount_total" sum="Total"/><field name="state" widget="badge"/><field name="pharmacist_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_dispense_form" model="ir.ui.view">
+        <field name="name">hms.dispense.form</field>
+        <field name="model">hms.dispense</field>
+        <field name="arch" type="xml">
+            <form string="Pharmacy" class="hms_form">
+                <header>
+                    <button name="action_verify" type="object" string="Verify" class="btn-primary" invisible="state != 'to_verify'" groups="stratos_hms.group_hms_pharmacist,stratos_hms.group_hms_manager"/>
+                    <button name="action_dispense" type="object" string="Dispense &amp; bill" class="btn-success" invisible="state != 'verified'" groups="stratos_hms.group_hms_pharmacist,stratos_hms.group_hms_manager"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('dispensed','cancelled')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not has_allergy"><i class="fa fa-exclamation-triangle me-2" title="exclamation triangle"/><b>ALLERGY:</b> <field name="allergy_summary" class="d-inline"/></div>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not blocked"><i class="fa fa-ban me-2" title="ban"/><b>BLOCKED.</b> A line conflicts with a recorded allergy. Reject it, or record a documented override.</div>
+                    <div class="oe_title"><h1><field name="patient_id" readonly="1"/></h1><div class="text-muted"><field name="name" readonly="1" class="d-inline"/> · <field name="consult_id" class="d-inline" readonly="1"/> · <field name="doctor_id" class="d-inline"/></div></div>
+                    <field name="line_ids" readonly="state in ('dispensed','cancelled')">
+                        <list editable="bottom" decoration-danger="blocked" decoration-muted="state == 'rejected'">
+                            <field name="drug_id"/><field name="dose"/><field name="route"/><field name="frequency"/><field name="duration_days" string="Days"/><field name="quantity" string="Qty"/><field name="amount"/>
+                            <field name="blocked" widget="boolean_toggle" readonly="1"/><field name="block_reason"/><field name="override_reason"/><field name="state" widget="badge"/>
+                            <button name="action_reject" type="object" string="Reject" icon="fa-times" class="btn-link text-danger" invisible="state in ('rejected','dispensed')"/>
+                        </list>
+                    </field>
+                    <group><field name="amount_total"/><field name="pharmacist_id"/><field name="has_allergy" invisible="1"/><field name="blocked" invisible="1"/></group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_dispense_search" model="ir.ui.view">
+        <field name="name">hms.dispense.search</field>
+        <field name="model">hms.dispense</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/>
+                <filter name="queue" string="Verification queue" domain="[('state', 'in', ('to_verify', 'verified'))]"/>
+                <filter name="blocked" string="Blocked" domain="[('blocked', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+    <record id="action_pharmacy_queue" model="ir.actions.act_window">
+        <field name="name">Pharmacy Queue</field>
+        <field name="res_model">hms.dispense</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dispense_search"/>
+        <field name="context">{'search_default_queue': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Nothing to verify</p><p>Signed prescriptions arrive here as live orders. Allergy conflicts are blocked automatically.</p></field>
+    </record>
+
+    <!-- Formulary -->
+    <record id="view_drug_list" model="ir.ui.view">
+        <field name="name">hms.drug.list</field>
+        <field name="model">hms.drug</field>
+        <field name="arch" type="xml">
+            <list class="hms_list">
+                <field name="name"/><field name="generic_name"/><field name="brand"/><field name="form"/><field name="default_dose"/><field name="default_route"/><field name="default_frequency"/><field name="drug_class"/><field name="allergen_class"/><field name="price"/><field name="barcode" optional="hide"/><field name="controlled" optional="hide"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_drug_form" model="ir.ui.view">
+        <field name="name">hms.drug.form</field>
+        <field name="model">hms.drug</field>
+        <field name="arch" type="xml">
+            <form class="hms_form">
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Identity"><field name="generic_name"/><field name="brand"/><field name="strength"/><field name="form"/><field name="drug_class"/><field name="barcode"/><field name="product_id"/><field name="price"/><field name="active"/></group>
+                        <group string="Default prescription"><field name="default_dose"/><field name="default_route"/><field name="default_frequency"/><field name="default_duration_days"/><field name="max_daily_dose_text"/><field name="paediatric_dose_text"/></group>
+                        <group string="Safety"><field name="allergen_class"/><field name="renal_caution"/><field name="pregnancy_caution"/><field name="controlled"/><field name="interaction_ids" widget="many2many_tags"/><field name="interaction_note"/></group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_drugs" model="ir.actions.act_window">
+        <field name="name">Formulary</field>
+        <field name="res_model">hms.drug</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

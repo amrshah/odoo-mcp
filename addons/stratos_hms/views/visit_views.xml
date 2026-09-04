@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===================== VISIT / QUEUE ===================== -->
+    <record id="view_visit_list" model="ir.ui.view">
+        <field name="name">hms.visit.list</field>
+        <field name="model">hms.visit</field>
+        <field name="arch" type="xml">
+            <list string="Patient Queue" class="hms_list hms_queue" decoration-danger="held" decoration-bf="ews_level in ('medium','high')" decoration-muted="state != 'open'">
+                <field name="priority_rank" column_invisible="1"/>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="patient_age" string="Age"/>
+                <field name="complaint"/>
+                <field name="ews_score" widget="hms_ews_badge" string="EWS"/>
+                <field name="stage" widget="badge" decoration-info="stage in ('registered','triaged')" decoration-warning="stage == 'consult'" decoration-success="stage in ('results','discharged')"/>
+                <field name="held" widget="boolean_toggle" readonly="1" string="Held"/>
+                <field name="hold_reason" optional="show"/>
+                <field name="billing_state" widget="badge" decoration-danger="billing_state in ('unpaid','unbilled')" decoration-warning="billing_state == 'partial'" decoration-success="billing_state == 'paid'"/>
+                <field name="waiting_minutes" string="Waiting (min)"/>
+                <field name="doctor_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="arrival_time" optional="show"/>
+                <field name="has_allergy" widget="boolean_toggle" readonly="1" string="Allergy" optional="show"/>
+                <field name="ews_level" column_invisible="1"/>
+                <field name="state" column_invisible="1"/>
+                <button name="action_open_chart" type="object" string="Chart" icon="fa-folder-open" class="btn-link"/>
+                <button name="action_take_vitals" type="object" string="Vitals" icon="fa-heartbeat" class="btn-link" groups="stratos_hms.group_hms_nurse,stratos_hms.group_hms_manager"/>
+                <button name="action_start_consult" type="object" string="See patient" icon="fa-stethoscope" class="btn-link" groups="stratos_hms.group_hms_doctor" invisible="stage in ('discharged',)"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_visit_kanban" model="ir.ui.view">
+        <field name="name">hms.visit.kanban</field>
+        <field name="model">hms.visit</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage" class="hms_kanban o_kanban_small_column" quick_create="false" records_draggable="false">
+                <field name="stage"/><field name="held"/><field name="hold_reason"/><field name="ews_score"/><field name="ews_level"/><field name="has_allergy"/><field name="color"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="hms_visit_card #{record.held.raw_value ? 'hms_card_held' : ''} #{record.ews_level.raw_value == 'high' ? 'hms_card_high' : ''}">
+                            <div class="d-flex justify-content-between">
+                                <b><field name="patient_id"/></b>
+                                <field name="ews_score" widget="hms_ews_badge"/>
+                            </div>
+                            <div class="text-muted small"><field name="name"/> · <field name="patient_age"/>y · <field name="department_id"/></div>
+                            <div class="small mt-1"><field name="complaint"/></div>
+                            <div class="mt-1 d-flex gap-1 flex-wrap">
+                                <span t-if="record.held.raw_value" class="badge hms_badge_danger">HELD · <t t-esc="record.hold_reason.value"/></span>
+                                <span t-if="record.has_allergy.raw_value" class="badge hms_badge_danger">Allergy</span>
+                                <span class="badge hms_badge_muted"><field name="doctor_id"/></span>
+                                <span class="badge hms_badge_muted"><field name="waiting_minutes"/> min</span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_visit_form" model="ir.ui.view">
+        <field name="name">hms.visit.form</field>
+        <field name="model">hms.visit</field>
+        <field name="arch" type="xml">
+            <form string="Visit" class="hms_form">
+                <header>
+                    <button name="action_take_vitals" type="object" string="Take Vitals" class="btn-primary" invisible="state != 'open'" groups="stratos_hms.group_hms_nurse,stratos_hms.group_hms_doctor,stratos_hms.group_hms_manager"/>
+                    <button name="action_start_consult" type="object" string="Start Consultation" class="btn-primary" invisible="state != 'open' or stage == 'discharged'" groups="stratos_hms.group_hms_doctor"/>
+                    <button name="action_ai_summary" type="object" string="✦ Patient Summary" class="btn-secondary" invisible="state != 'open'"/>
+                    <button name="action_request_discount" type="object" string="Request Discount" invisible="state != 'open' or discount_pending" groups="stratos_hms.group_hms_receptionist,stratos_hms.group_hms_manager"/>
+                    <button name="action_create_bill" type="object" string="Raise Bill" invisible="billing_state != 'unbilled' or discount_pending" groups="stratos_hms.group_hms_receptionist,stratos_hms.group_hms_manager"/>
+                    <button name="action_register_payment" type="object" string="Collect Payment" class="btn-success" invisible="billing_state not in ('unbilled','unpaid','partial') or discount_pending" groups="stratos_hms.group_hms_receptionist,stratos_hms.group_hms_manager"/>
+                    <button name="action_whatsapp_bill" type="object" string="WhatsApp Bill" icon="fa-whatsapp" invisible="billing_state == 'none'"/>
+                    <button name="action_admit" type="object" string="Admit" invisible="state != 'open' or admission_id" groups="stratos_hms.group_hms_doctor,stratos_hms.group_hms_receptionist,stratos_hms.group_hms_manager"/>
+                    <button name="action_discharge" type="object" string="Close Visit" invisible="state != 'open'" confirm="Close this visit? The journey bar will move to Discharged."/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'open'"/>
+                </header>
+                <sheet>
+                    <field name="stage" widget="hms_journey_bar" readonly="1"/>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not held"><i class="fa fa-lock me-2" title="lock"/><b>HELD — <field name="hold_reason" class="d-inline"/>.</b> This file is waiting on management or on a payment, not on the patient.</div>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not has_allergy"><i class="fa fa-exclamation-triangle me-2" title="exclamation triangle"/><b>ALLERGY:</b> <field name="allergy_summary" class="d-inline"/></div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bills" type="object" class="oe_stat_button" icon="fa-file-text-o"><field name="amount_due" widget="statinfo" string="Due"/></button>
+                        <button class="oe_stat_button" icon="fa-flask" disabled="1"><field name="order_count" widget="statinfo" string="Orders"/></button>
+                        <button class="oe_stat_button" icon="fa-stethoscope" disabled="1"><field name="consult_count" widget="statinfo" string="Consults"/></button>
+                    </div>
+                    <div class="oe_title">
+                        <h1 class="w-100"><field name="patient_id" placeholder="Search patient by name, MRN or phone" options="{'no_create': False}" class="w-100"/></h1>
+                        <div class="text-muted hms_subtitle"><field name="name" readonly="1"/> · Age <field name="patient_age"/> · <field name="ews_score" widget="hms_ews_badge"/></div>
+                    </div>
+                    <group>
+                        <group string="Visit">
+                            <field name="visit_type"/>
+                            <field name="department_id"/>
+                            <field name="doctor_id"/>
+                            <field name="complaint"/>
+                            <field name="referred_by"/>
+                        </group>
+                        <group string="Timing &amp; Money">
+                            <field name="arrival_time"/>
+                            <field name="appointment_time"/>
+                            <field name="billing_state" widget="badge"/>
+                            <field name="approved_discount" invisible="not approved_discount"/>
+                            <field name="amount_charged"/>
+                            <field name="amount_paid"/>
+                            <field name="admission_id" readonly="1" invisible="not admission_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="state" invisible="1"/>
+                            <field name="discount_pending" invisible="1"/>
+                            <field name="has_allergy" invisible="1"/>
+                        </group>
+                    </group>
+                    <div class="hms_ai_box" invisible="not ai_summary">
+                        <div class="hms_ai_title">✦ Patient summary <span class="text-muted small">(<field name="ai_summary_at" class="d-inline"/>)</span></div>
+                        <field name="ai_summary" readonly="1" class="hms_pre"/>
+                    </div>
+                    <notebook>
+                        <page string="Consents" name="consents">
+                            <field name="consent_ids">
+                                <list editable="bottom" decoration-success="state == 'signed'" decoration-danger="state == 'declined'">
+                                    <field name="kind"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="signed_by_name"/>
+                                    <field name="taken_by_id"/>
+                                    <field name="signed_at"/>
+                                    <button name="action_sign" type="object" string="Read &amp; sign" icon="fa-pencil" class="btn-link" invisible="state == 'signed'"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="kind"/>
+                                        <field name="text"/>
+                                        <field name="signed_by_name"/>
+                                        <field name="signed_on_behalf"/>
+                                        <field name="signature" widget="signature"/>
+                                        <field name="state" widget="badge"/>
+                                    </group>
+                                    <footer>
+                                        <button name="action_sign" type="object" string="Sign &amp; record" class="btn-primary"/>
+                                        <button name="action_decline" type="object" string="Declined"/>
+                                    </footer>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Vitals &amp; Triage" name="vitals">
+                            <field name="vitals_ids" readonly="1">
+                                <list decoration-danger="ews_score >= 5" decoration-warning="ews_score >= 3">
+                                    <field name="taken_at"/><field name="bp_sys"/><field name="bp_dia"/><field name="heart_rate"/><field name="resp_rate"/><field name="temperature"/><field name="spo2"/><field name="weight"/><field name="blood_sugar"/>
+                                    <field name="ews_score" widget="hms_ews_badge"/><field name="flags"/><field name="nurse_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Consultations" name="consults">
+                            <field name="consult_ids" readonly="1">
+                                <list>
+                                    <field name="name"/><field name="doctor_id"/><field name="working_diagnosis"/><field name="state" widget="badge"/><field name="signed_at"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Investigations" name="orders">
+                            <field name="order_ids" readonly="1">
+                                <list decoration-danger="flag == 'critical'" decoration-warning="flag in ('high','low','abnormal')">
+                                    <field name="name"/><field name="test_id"/><field name="urgency" widget="badge"/><field name="state" widget="badge"/><field name="result_value"/><field name="flag"/><field name="tat_minutes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Charges &amp; Discounts" name="money">
+                            <field name="charge_ids" readonly="1">
+                                <list>
+                                    <field name="create_date" string="When"/><field name="source"/><field name="description"/><field name="quantity"/><field name="price_unit"/><field name="amount" sum="Total"/><field name="invoiced" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                            <field name="discount_request_ids" readonly="1">
+                                <list>
+                                    <field name="create_date"/><field name="percent"/><field name="reason"/><field name="requested_by_id"/><field name="state" widget="badge"/><field name="approver_id"/><field name="decided_at"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Front-desk notes…"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_visit_search" model="ir.ui.view">
+        <field name="name">hms.visit.search</field>
+        <field name="model">hms.visit</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/>
+                <field name="name"/>
+                <field name="doctor_id"/>
+                <field name="department_id"/>
+                <filter name="open" string="Open" domain="[('state', '=', 'open')]"/>
+                <filter name="today" string="Today" domain="[('arrival_time', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="registered" string="In Triage" domain="[('stage', 'in', ('registered', 'triaged')), ('state', '=', 'open')]"/>
+                <filter name="consult" string="With Doctor" domain="[('stage', '=', 'consult'), ('state', '=', 'open')]"/>
+                <filter name="admitted" string="Admitted" domain="[('admission_id.state', '=', 'admitted')]"/>
+                <filter name="held" string="Held" domain="[('held', '=', True)]"/>
+                <filter name="discharged" string="Discharged" domain="[('stage', '=', 'discharged')]"/>
+                <separator/>
+                <filter name="sick" string="EWS ≥ 5" domain="[('ews_score', '>=', 5)]"/>
+                <filter name="mine" string="My Patients" domain="[('doctor_id.user_id', '=', uid)]"/>
+                <filter name="unpaid" string="Unpaid" domain="[('billing_state', 'in', ('unpaid', 'partial', 'unbilled'))]"/>
+                <group>
+                    <filter name="group_stage" string="Stage" context="{'group_by': 'stage'}"/>
+                    <filter name="group_doctor" string="Doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter name="group_dept" string="Department" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_visit_queue" model="ir.actions.act_window">
+        <field name="name">Patient Queue</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_visit_search"/>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">No patients in the building</p><p>Register a visit and the journey bar starts moving.</p></field>
+    </record>
+    <record id="action_visit_board" model="ir.actions.act_window">
+        <field name="name">Journey Board</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_visit_search"/>
+        <field name="context">{'search_default_open': 1}</field>
+    </record>
+    <record id="action_visit_register" model="ir.actions.act_window">
+        <field name="name">Register Visit</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+    <record id="action_visit_my_queue" model="ir.actions.act_window">
+        <field name="name">My Queue</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_visit_search"/>
+        <field name="domain">[('state', '=', 'open'), ('stage', '!=', 'discharged')]</field>
+        <field name="context">{'search_default_mine': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Your queue is empty</p><p>Sickest first by warning score, then longest wait.</p></field>
+    </record>
+    <record id="action_visit_nurse" model="ir.actions.act_window">
+        <field name="name">Nurse Station</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_visit_search"/>
+        <field name="domain">[('state', '=', 'open')]</field>
+        <field name="context">{'search_default_registered': 1}</field>
+    </record>
+    <record id="action_visit_held" model="ir.actions.act_window">
+        <field name="name">Held Files</field>
+        <field name="res_model">hms.visit</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('held', '=', True)]</field>
+    </record>
+
+    <!-- ===================== VITALS ===================== -->
+    <record id="view_vitals_form" model="ir.ui.view">
+        <field name="name">hms.vitals.form</field>
+        <field name="model">hms.vitals</field>
+        <field name="arch" type="xml">
+            <form string="Vitals" class="hms_form">
+                <sheet>
+                    <div class="oe_title">
+                        <h2>Vitals — <field name="patient_id" readonly="1" class="d-inline"/></h2>
+                        <div class="text-muted"><field name="visit_id" readonly="1" class="d-inline"/> · Early Warning Score: <field name="ews_score" widget="hms_ews_badge" readonly="1"/> <span class="text-muted small"><field name="ews_breakdown" readonly="1" class="d-inline"/></span></div>
+                    </div>
+                    <div class="hms_alert hms_alert_warning mb-2" invisible="not flags"><i class="fa fa-flag me-2" title="flag"/>Flagged: <field name="flags" readonly="1" class="d-inline"/></div>
+                    <group>
+                        <group string="Vital Signs">
+                            <label for="bp_sys" string="Blood Pressure"/>
+                            <div class="d-flex gap-2 align-items-center"><field name="bp_sys" class="hms_num"/> / <field name="bp_dia" class="hms_num"/> mmHg</div>
+                            <field name="heart_rate"/>
+                            <field name="resp_rate"/>
+                            <field name="temperature"/>
+                            <field name="spo2"/>
+                            <field name="on_oxygen"/>
+                            <field name="consciousness"/>
+                        </group>
+                        <group string="Measurements">
+                            <field name="weight"/>
+                            <field name="height"/>
+                            <field name="bmi"/>
+                            <field name="blood_sugar"/>
+                            <field name="pain_score"/>
+                            <field name="nurse_note" widget="hms_scribe"/>
+                            <field name="send_to_doctor_id"/>
+                            <field name="nurse_id"/>
+                            <field name="taken_at"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Save → send to doctor" special="save" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="view_vitals_list" model="ir.ui.view">
+        <field name="name">hms.vitals.list</field>
+        <field name="model">hms.vitals</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="ews_score >= 5" decoration-warning="ews_score >= 3">
+                <field name="taken_at"/><field name="patient_id"/><field name="visit_id"/><field name="bp_sys"/><field name="bp_dia"/><field name="heart_rate"/><field name="resp_rate"/><field name="temperature"/><field name="spo2"/><field name="ews_score" widget="hms_ews_badge"/><field name="flags"/><field name="nurse_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_vitals" model="ir.actions.act_window">
+        <field name="name">Vitals Log</field>
+        <field name="res_model">hms.vitals</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ===================== DISCOUNT APPROVALS ===================== -->
+    <record id="view_discount_form" model="ir.ui.view">
+        <field name="name">hms.discount.request.form</field>
+        <field name="model">hms.discount.request</field>
+        <field name="arch" type="xml">
+            <form string="Discount Request" class="hms_form">
+                <header>
+                    <button name="action_approve" type="object" string="Approve" class="btn-success" invisible="state != 'submitted'" groups="stratos_hms.group_hms_hod"/>
+                    <button name="action_reject" type="object" string="Reject" class="btn-danger" invisible="state != 'submitted'" groups="stratos_hms.group_hms_hod"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_info mb-3"><i class="fa fa-info-circle me-2" title="info circle"/>The front desk cannot grant a discount. Submitting holds the file until a Head of Department decides — by name, permanently.</div>
+                    <group>
+                        <group>
+                            <field name="visit_id" readonly="1"/>
+                            <field name="patient_id" readonly="1"/>
+                            <field name="percent"/>
+                            <field name="reason"/>
+                            <field name="reason_note"/>
+                        </group>
+                        <group>
+                            <field name="amount_before"/>
+                            <field name="amount_after"/>
+                            <field name="requested_by_id"/>
+                            <field name="approver_id"/>
+                            <field name="decided_at"/>
+                            <field name="decision_note"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer invisible="id">
+                    <button string="Submit for approval" special="save" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_discount_list" model="ir.ui.view">
+        <field name="name">hms.discount.request.list</field>
+        <field name="model">hms.discount.request</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="state == 'submitted'" decoration-success="state == 'approved'" decoration-muted="state == 'rejected'">
+                <field name="create_date" string="Requested"/><field name="patient_id"/><field name="visit_id"/><field name="percent"/><field name="reason"/><field name="reason_note"/><field name="amount_before"/><field name="amount_after"/><field name="requested_by_id"/><field name="state" widget="badge"/><field name="approver_id"/>
+                <field name="currency_id" column_invisible="1"/>
+                <button name="action_approve" type="object" string="Approve" icon="fa-check" class="btn-link text-success" invisible="state != 'submitted'" groups="stratos_hms.group_hms_hod"/>
+                <button name="action_reject" type="object" string="Reject" icon="fa-times" class="btn-link text-danger" invisible="state != 'submitted'" groups="stratos_hms.group_hms_hod"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_discount_approvals" model="ir.actions.act_window">
+        <field name="name">Discount Approvals</field>
+        <field name="res_model">hms.discount.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">No discount requests waiting</p></field>
+    </record>
+    <record id="view_discount_search" model="ir.ui.view">
+        <field name="name">hms.discount.request.search</field>
+        <field name="model">hms.discount.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'submitted')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== CONSENTS ===================== -->
+    <record id="view_consent_list" model="ir.ui.view">
+        <field name="name">hms.consent.list</field>
+        <field name="model">hms.consent</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'signed'">
+                <field name="patient_id"/><field name="visit_id"/><field name="kind"/><field name="state" widget="badge"/><field name="signed_by_name"/><field name="taken_by_id"/><field name="signed_at"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_consents" model="ir.actions.act_window">
+        <field name="name">Consents</field>
+        <field name="res_model">hms.consent</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

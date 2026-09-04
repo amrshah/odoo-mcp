@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_hms_a4" model="report.paperformat">
+        <field name="name">HMS A4</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">12</field>
+        <field name="margin_bottom">12</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">6</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Shared document header: hospital identity block -->
+    <template id="hms_doc_header">
+        <div class="hms_doc_head">
+            <div class="row">
+                <div class="col-8">
+                    <h2 class="mb-0" t-esc="company.name"/>
+                    <div class="text-muted small">
+                        <t t-if="company.street"><span t-esc="company.street"/>, </t><span t-esc="company.city or ''"/>
+                        <t t-if="company.phone"> · <span t-esc="company.phone"/></t>
+                        <t t-set="tagline" t-value="company.env['ir.config_parameter'].sudo().get_param('stratos_hms.tagline')"/>
+                        <t t-if="tagline"><br/><i t-esc="tagline"/></t>
+                    </div>
+                </div>
+                <div class="col-4 text-end">
+                    <div class="hms_doc_badge"><t t-esc="doc_title"/></div>
+                    <div class="small text-muted" t-esc="doc_ref"/>
+                </div>
+            </div>
+            <hr/>
+        </div>
+    </template>
+
+    <template id="hms_patient_block">
+        <table class="table table-sm table-borderless hms_doc_patient">
+            <tr>
+                <td><b>Patient</b><br/><span t-esc="patient.name"/></td>
+                <td><b>MRN</b><br/><span t-esc="patient.mrn"/></td>
+                <td><b>Age / Sex</b><br/><span t-esc="patient.age_display"/></td>
+                <td><b>Phone</b><br/><span t-esc="patient.phone"/></td>
+                <td><b>Date</b><br/><span t-esc="doc_date"/></td>
+            </tr>
+        </table>
+        <div t-if="patient.has_allergy" class="hms_doc_allergy">ALLERGY: <t t-esc="', '.join(patient.allergy_ids.mapped('name'))"/> <t t-esc="patient.allergy_notes or ''"/></div>
+    </template>
+</odoo>

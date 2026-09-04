@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="stratos_hms.ScribeField">
+        <div class="hms_scribe" t-att-class="{ 'hms_scribe_listening': state.listening }">
+            <div class="hms_scribe_bar">
+                <button type="button" class="btn btn-sm hms_scribe_btn" t-att-class="state.listening ? 'btn-danger' : 'btn-primary'" t-on-click="toggle" t-att-disabled="props.readonly" t-att-title="state.listening ? 'Stop recording' : 'Record — speak and the words land here'">
+                    <i t-att-class="state.listening ? 'fa fa-stop' : 'fa fa-microphone'"/>
+                    <t t-if="state.listening"> Keep recording…</t><t t-else=""> Record</t>
+                </button>
+                <span class="badge hms_badge_muted ms-2" t-esc="langLabel"/>
+                <span t-if="!state.supported" class="text-muted small ms-2">Use Chrome/Edge for the microphone — typing always works.</span>
+                <button type="button" class="btn btn-sm btn-link ms-auto" t-on-click="clear" t-if="!props.readonly &amp;&amp; value">Clear</button>
+            </div>
+            <textarea class="o_input hms_scribe_text" t-att-rows="props.rows" t-att-placeholder="props.placeholder" t-att-readonly="props.readonly" t-att-value="value" t-on-input="onInput"/>
+            <div class="hms_scribe_interim" t-if="state.interim"><i class="fa fa-circle text-danger me-1"/><span t-esc="state.interim"/></div>
+        </div>
+    </t>
+</templates>

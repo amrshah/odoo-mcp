@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="stratos_hms.CommandCenter">
+        <div class="hms_cc o_action">
+            <div class="hms_cc_head">
+                <div>
+                    <div class="hms_cc_kicker">STRATOS HMS · COMMAND CENTRE</div>
+                    <h1>The whole hospital, live.</h1>
+                    <div class="text-muted small" t-if="state.data">As of <t t-esc="state.data.generated_at"/> · refreshes every minute</div>
+                </div>
+                <button class="btn btn-secondary" t-on-click="refresh"><i class="fa fa-refresh me-1"/>Refresh</button>
+            </div>
+            <div t-if="state.loading" class="p-5 text-center text-muted"><i class="fa fa-spinner fa-spin fa-2x"/></div>
+            <div t-elif="state.error" class="alert alert-danger m-3" t-esc="state.error"/>
+            <t t-else="">
+                <div class="hms_cc_tiles">
+                    <t t-foreach="tiles" t-as="tile" t-key="tile.label">
+                        <div t-attf-class="hms_tile hms_tile_#{tile.tone}" t-on-click="() => this.open(tile.click)">
+                            <div class="hms_tile_icon"><i t-attf-class="fa #{tile.icon}"/></div>
+                            <div class="hms_tile_value" t-esc="tile.value"/>
+                            <div class="hms_tile_label" t-esc="tile.label"/>
+                            <div class="hms_tile_sub" t-if="tile.sub" t-esc="tile.sub"/>
+                        </div>
+                    </t>
+                </div>
+                <div class="hms_cc_money">
+                    <div class="hms_money_card"><div class="hms_money_label">Billed this month</div><div class="hms_money_value" t-esc="money(state.data.kpis.billed_month)"/></div>
+                    <div class="hms_money_card hms_money_teal"><div class="hms_money_label">Collected this month</div><div class="hms_money_value" t-esc="money(state.data.kpis.collected_month)"/></div>
+                    <div class="hms_money_card hms_money_red"><div class="hms_money_label">Outstanding</div><div class="hms_money_value" t-esc="money(state.data.kpis.outstanding)"/></div>
+                </div>
+                <div class="hms_cc_grid">
+                    <div class="hms_card hms_card_wide"><div class="hms_card_title">Revenue — last 14 days</div><div class="hms_chart"><canvas t-ref="revenueChart"/></div></div>
+                    <div class="hms_card"><div class="hms_card_title">Revenue mix — this month</div><div class="hms_chart"><canvas t-ref="mixChart"/></div></div>
+                    <div class="hms_card"><div class="hms_card_title">Patient flow — where everyone is right now</div><div class="hms_chart"><canvas t-ref="flowChart"/></div></div>
+                    <div class="hms_card"><div class="hms_card_title">Bed occupancy by ward</div><div class="hms_chart"><canvas t-ref="bedsChart"/></div></div>
+                    <div class="hms_card">
+                        <div class="hms_card_title">Sickest in the building</div>
+                        <table class="table table-sm hms_table" t-if="state.data.sickest.length">
+                            <tbody>
+                                <tr t-foreach="state.data.sickest" t-as="s" t-key="s.id" class="hms_row_click" t-on-click="() => this.openVisit(s.id)">
+                                    <td><span t-attf-class="hms_ews hms_ews_#{s.ews >= 7 ? 'high' : 'medium'}">EWS <t t-esc="s.ews"/></span></td>
+                                    <td><b t-esc="s.name"/><div class="small text-muted" t-esc="s.complaint"/></td>
+                                    <td class="text-muted small"><t t-esc="s.doctor"/><br/><t t-esc="s.stage"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div t-else="" class="text-muted small">No patient with EWS ≥ 5 right now.</div>
+                    </div>
+                    <div class="hms_card">
+                        <div class="hms_card_title">Clinician load (open patients)</div>
+                        <t t-foreach="state.data.clinician_load" t-as="c" t-key="c.doctor">
+                            <div class="hms_bar_row"><span class="hms_bar_label" t-esc="c.doctor"/><div class="hms_bar"><div class="hms_bar_fill" t-attf-style="width: #{Math.min(100, c.count * 12)}%"/></div><span class="hms_bar_val" t-esc="c.count"/></div>
+                        </t>
+                        <div t-if="!state.data.clinician_load.length" class="text-muted small">No open patients assigned.</div>
+                    </div>
+                    <div class="hms_card">
+                        <div class="hms_card_title">Top diagnoses this month</div>
+                        <t t-foreach="state.data.top_dx" t-as="x" t-key="x.name">
+                            <div class="hms_bar_row"><span class="hms_bar_label" t-esc="x.name"/><div class="hms_bar"><div class="hms_bar_fill hms_bar_teal" t-attf-style="width: #{Math.min(100, x.count * 10)}%"/></div><span class="hms_bar_val" t-esc="x.count"/></div>
+                        </t>
+                        <div t-if="!state.data.top_dx.length" class="text-muted small">No signed consults yet this month.</div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

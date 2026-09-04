@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_consult_form" model="ir.ui.view">
+        <field name="name">hms.consult.form</field>
+        <field name="model">hms.consult</field>
+        <field name="arch" type="xml">
+            <form string="Consultation" class="hms_form hms_consult">
+                <header>
+                    <button name="action_summarise" type="object" string="✦ Patient Summary" class="btn-secondary" invisible="state != 'draft'"/>
+                    <button name="action_analyse" type="object" string="✦ Analyse" class="btn-primary hms_btn_ai" invisible="state != 'draft' or not assist_enabled"/>
+                    <button name="action_approve_all_proposals" type="object" string="Approve all proposals" invisible="state != 'draft' or not proposed_count" confirm="Approve every pending diagnosis, medicine and test proposal? You remain responsible for each one."/>
+                    <button name="action_reject_all_proposals" type="object" string="Reject all" invisible="state != 'draft' or not proposed_count"/>
+                    <button name="action_recheck_safety" type="object" string="Safety check" invisible="state != 'draft'"/>
+                    <button name="action_sign" type="object" string="End &amp; sign consult note" class="btn-success" invisible="state != 'draft'"/>
+                    <button name="action_print_prescription" type="object" string="Print prescription" icon="fa-print" invisible="state != 'signed'"/>
+                    <button name="action_whatsapp_prescription" type="object" string="WhatsApp" icon="fa-whatsapp" invisible="state != 'signed'"/>
+                    <button name="action_teach" type="object" string="✦ Teach" invisible="state == 'cancelled'" help="Record a rule: when this situation appears, offer my answer first."/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,signed"/>
+                </header>
+                <sheet>
+                    <field name="stage" widget="hms_journey_bar" readonly="1"/>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not has_allergy"><i class="fa fa-exclamation-triangle me-2" title="exclamation triangle"/><b>ALLERGY:</b> <field name="allergy_summary" class="d-inline"/></div>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not ai_safety_alerts"><i class="fa fa-shield me-2" title="shield"/><b>SAFETY CHECK</b><field name="ai_safety_alerts" readonly="1" class="hms_pre"/></div>
+                    <div class="hms_alert hms_alert_info mb-2" invisible="not referred_from_id"><i class="fa fa-share me-2" title="share"/>Referred from <field name="referred_from_id" readonly="1" class="d-inline"/> — the whole story travelled with the patient; press Patient Summary.</div>
+                    <div class="oe_title d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1><field name="patient_id" readonly="1"/></h1>
+                            <div class="text-muted hms_subtitle"><field name="name" readonly="1"/> · Age <field name="patient_age"/> · <field name="department_id" readonly="1"/></div>
+                            <div class="hms_subtitle"><field name="ews_score" widget="hms_ews_badge"/> <span class="text-muted"><field name="latest_vitals_text"/></span></div>
+                        </div>
+                        <div class="hms_assist_toggle">
+                            <label for="assist_enabled" string="AI Assist"/>
+                            <field name="assist_enabled" widget="boolean_toggle" readonly="state != 'draft'"/>
+                        </div>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="doctor_id" readonly="state != 'draft'"/>
+                            <field name="complaint" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="visit_id" readonly="1"/>
+                            <field name="proposed_count" invisible="1"/>
+                            <field name="has_allergy" invisible="1"/>
+                            <field name="ai_provider_used" invisible="not ai_provider_used" string="Analysed by"/>
+                            <field name="ai_analysed_at" invisible="not ai_analysed_at"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Summary &amp; Conversation" name="summary">
+                            <div class="hms_ai_box mb-3" invisible="not ai_summary">
+                                <div class="hms_ai_title">✦ The story so far</div>
+                                <field name="ai_summary" readonly="1" class="hms_pre"/>
+                            </div>
+                            <group>
+                                <group string="The conversation is the record" colspan="2">
+                                    <field name="recording_consented" readonly="state != 'draft'"/>
+                                    <field name="transcript_lang" readonly="state != 'draft'"/>
+                                    <field name="transcript" widget="hms_scribe" nolabel="1" colspan="2" readonly="state != 'draft'" placeholder="Press the microphone and speak — Urdu or English. The patient's words land here as they speak. Edit freely before you analyse."/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="History" name="history">
+                            <group>
+                                <group>
+                                    <field name="hpi" widget="hms_scribe" readonly="state != 'draft'"/>
+                                    <field name="past_history" readonly="state != 'draft'"/>
+                                    <field name="medication_history" readonly="state != 'draft'"/>
+                                </group>
+                                <group>
+                                    <field name="family_history" readonly="state != 'draft'"/>
+                                    <field name="social_history" readonly="state != 'draft'"/>
+                                    <field name="review_of_systems" readonly="state != 'draft'"/>
+                                    <field name="examination" widget="hms_scribe" readonly="state != 'draft'"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Diagnosis" name="diagnosis">
+                            <div class="hms_ai_box mb-2" invisible="not similar_cases_text">
+                                <div class="hms_ai_title">✦ Hospital memory — what this hospital's doctors did for similar presentations</div>
+                                <field name="similar_cases_text" readonly="1" class="hms_pre"/>
+                            </div>
+                            <div class="text-muted small mb-1"><b>Doctor's decision.</b> Proposals carry their reasoning; tick <i>Confirmed</i> or reject each one. Type your own diagnosis to add it — the ICD-10 code is found as you type.</div>
+                            <field name="diagnosis_ids" readonly="state != 'draft'">
+                                <list editable="bottom" decoration-success="confirmed" decoration-muted="rejected" decoration-info="ai_suggested and not confirmed and not rejected">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="icd10_id" options="{'no_create': True}"/>
+                                    <field name="reasoning"/>
+                                    <field name="source" string="Source"/>
+                                    <field name="ai_suggested" string="AI" widget="boolean_toggle" readonly="1"/>
+                                    <field name="confirmed" widget="boolean_toggle"/>
+                                    <field name="rejected" widget="boolean_toggle"/>
+                                    <field name="top_match" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Medication" name="medication">
+                            <div class="text-muted small mb-1">Dose, route, frequency — with the reason attached to every line. Approve one by one, or reject with a reason. Lines marked <b>Learned</b> came from rules this doctor taught the system.</div>
+                            <field name="prescription_ids" readonly="state != 'draft'">
+                                <list editable="bottom" decoration-info="state == 'proposed'" decoration-muted="state == 'rejected'" decoration-danger="warning">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="drug_id" options="{'no_create': True}"/>
+                                    <field name="dose"/>
+                                    <field name="route"/>
+                                    <field name="frequency"/>
+                                    <field name="duration_days" string="Days"/>
+                                    <field name="quantity" string="Qty" optional="hide"/>
+                                    <field name="instructions" optional="hide"/>
+                                    <field name="reason"/>
+                                    <field name="learned" widget="boolean_toggle" readonly="1" string="Learned" optional="show"/>
+                                    <field name="warning" optional="show"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'proposed'" decoration-success="state == 'approved'"/>
+                                    <field name="ai_suggested" column_invisible="1"/>
+                                    <button name="action_approve" type="object" string="Approve" icon="fa-check" class="btn-link text-success" invisible="state != 'proposed'"/>
+                                    <button name="action_reject" type="object" string="Reject" icon="fa-times" class="btn-link text-danger" invisible="state == 'rejected'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Investigations" name="investigations">
+                            <div class="text-muted small mb-1">Suggested investigations come with their urgency. Approve and the order flows to the laboratory work list with its bill line posted — no forms, no phone call.</div>
+                            <field name="order_ids" readonly="state != 'draft'" context="{'default_visit_id': visit_id, 'default_ordered_by_id': doctor_id, 'default_state': 'ordered'}">
+                                <list editable="bottom" decoration-info="state == 'proposed'" decoration-muted="state == 'cancelled'" decoration-danger="flag == 'critical'">
+                                    <field name="test_id" options="{'no_create': True}"/>
+                                    <field name="urgency"/>
+                                    <field name="reason"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="result_value"/>
+                                    <field name="flag"/>
+                                    <field name="visit_id" column_invisible="1"/>
+                                    <field name="ordered_by_id" column_invisible="1"/>
+                                    <button name="action_approve" type="object" string="Approve" icon="fa-check" class="btn-link text-success" invisible="state != 'proposed'"/>
+                                    <button name="action_reject" type="object" string="Reject" icon="fa-times" class="btn-link text-danger" invisible="state != 'proposed'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Plan &amp; Referral" name="plan">
+                            <group>
+                                <group string="Plan">
+                                    <field name="plan" widget="hms_scribe" readonly="state != 'draft'"/>
+                                    <field name="follow_up_days" readonly="state != 'draft'"/>
+                                    <field name="admit" readonly="state != 'draft'"/>
+                                </group>
+                                <group string="Referral — carries the whole story">
+                                    <field name="refer_department_id" readonly="state != 'draft'"/>
+                                    <field name="refer_doctor_id" readonly="state != 'draft'" domain="[('is_doctor','=',True), ('department_id','=',refer_department_id)]"/>
+                                    <field name="refer_urgency" readonly="state != 'draft'"/>
+                                    <field name="refer_reason" readonly="state != 'draft'"/>
+                                    <field name="referral_visit_id" invisible="not referral_visit_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Signed Note" name="note" invisible="state != 'signed'">
+                            <field name="note" readonly="1"/>
+                            <field name="signed_at" readonly="1"/>
+                        </page>
+                        <page string="AI Trace" name="trace" groups="stratos_hms.group_hms_hod" invisible="not ai_analysis_json">
+                            <div class="text-muted small">Raw proposal returned by the model, kept for audit: what was proposed, what the doctor changed, who signed.</div>
+                            <field name="ai_analysis_json" readonly="1" class="hms_pre"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_consult_list" model="ir.ui.view">
+        <field name="name">hms.consult.list</field>
+        <field name="model">hms.consult</field>
+        <field name="arch" type="xml">
+            <list class="hms_list" decoration-success="state == 'signed'">
+                <field name="create_date" string="Started"/><field name="name"/><field name="patient_id"/><field name="doctor_id"/><field name="department_id"/><field name="complaint"/><field name="working_diagnosis"/><field name="ews_score" widget="hms_ews_badge"/><field name="state" widget="badge"/><field name="signed_at"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_consult_search" model="ir.ui.view">
+        <field name="name">hms.consult.search</field>
+        <field name="model">hms.consult</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/><field name="doctor_id"/><field name="working_diagnosis"/>
+                <filter name="draft" string="In Progress" domain="[('state', '=', 'draft')]"/>
+                <filter name="signed" string="Signed" domain="[('state', '=', 'signed')]"/>
+                <filter name="mine" string="Mine" domain="[('doctor_id.user_id', '=', uid)]"/>
+                <group>
+                    <filter name="group_doctor" string="Doctor" context="{'group_by': 'doctor_id'}"/>
+                    <filter name="group_dx" string="Diagnosis" context="{'group_by': 'working_diagnosis'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_consults" model="ir.actions.act_window">
+        <field name="name">Consultations</field>
+        <field name="res_model">hms.consult</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_consult_search"/>
+        <field name="context">{'search_default_mine': 1}</field>
+    </record>
+
+    <!-- Results inbox: flagged results stay here until the doctor acknowledges them -->
+    <record id="action_results_inbox" model="ir.actions.act_window">
+        <field name="name">Results to Acknowledge</field>
+        <field name="res_model">hms.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'verified')]</field>
+        <field name="context">{'search_default_my_patients': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Nothing waiting for you</p><p>Released results stay here until you personally acknowledge them.</p></field>
+    </record>
+    <record id="action_my_inpatients" model="ir.actions.act_window">
+        <field name="name">My Inpatients</field>
+        <field name="res_model">hms.admission</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'admitted')]</field>
+        <field name="context">{'search_default_mine': 1}</field>
+    </record>
+</odoo>

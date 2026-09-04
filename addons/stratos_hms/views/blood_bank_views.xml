@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_blood_unit_list" model="ir.ui.view">
+        <field name="name">hms.blood.unit.list</field>
+        <field name="model">hms.blood.unit</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" decoration-danger="is_expired" decoration-success="state == 'available'" decoration-muted="state in ('issued','discarded','expired')">
+                <field name="name"/><field name="blood_group"/><field name="component"/><field name="volume_ml"/><field name="collected_date"/><field name="expiry_date"/><field name="donor_ref"/><field name="screening_done"/><field name="state" widget="badge"/><field name="request_id"/><field name="is_expired" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_blood_units" model="ir.actions.act_window">
+        <field name="name">Blood Inventory</field>
+        <field name="res_model">hms.blood.unit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_blood_request_form" model="ir.ui.view">
+        <field name="name">hms.blood.request.form</field>
+        <field name="model">hms.blood.request</field>
+        <field name="arch" type="xml">
+            <form string="Blood Request" class="hms_form">
+                <header>
+                    <button name="action_reserve" type="object" string="Reserve compatible units" class="btn-primary" invisible="state != 'requested'"/>
+                    <button name="action_verify" type="object" string="Verify (two-person)" class="btn-primary" invisible="state not in ('reserved',) and not (state == 'reserved')"/>
+                    <button name="action_issue" type="object" string="Issue" class="btn-success" invisible="state != 'verified'"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state in ('issued','cancelled')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_info mb-2"><i class="fa fa-users me-2" title="users"/>Issue needs two different people to verify the crossmatch and the consent. The same login cannot verify twice.</div>
+                    <div class="oe_title"><h1><field name="patient_id" readonly="1"/></h1><div class="text-muted"><field name="name" readonly="1" class="d-inline"/> · Patient group <field name="patient_group" class="d-inline"/></div></div>
+                    <group>
+                        <group><field name="visit_id"/><field name="doctor_id"/><field name="component"/><field name="units_requested"/><field name="urgency"/><field name="indication"/></group>
+                        <group><field name="crossmatch_done"/><field name="crossmatch_by_id"/><field name="verify1_id"/><field name="verify2_id"/><field name="price_per_unit"/></group>
+                    </group>
+                    <field name="unit_ids" readonly="1"><list><field name="name"/><field name="blood_group"/><field name="component"/><field name="expiry_date"/><field name="state" widget="badge"/></list></field>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_blood_request_list" model="ir.ui.view">
+        <field name="name">hms.blood.request.list</field>
+        <field name="model">hms.blood.request</field>
+        <field name="arch" type="xml">
+            <list class="hms_list" decoration-danger="urgency == 'massive'"><field name="create_date"/><field name="name"/><field name="patient_id"/><field name="patient_group"/><field name="component"/><field name="units_requested"/><field name="urgency" widget="badge"/><field name="doctor_id"/><field name="state" widget="badge"/></list>
+        </field>
+    </record>
+    <record id="action_blood_requests" model="ir.actions.act_window">
+        <field name="name">Blood Requests</field>
+        <field name="res_model">hms.blood.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

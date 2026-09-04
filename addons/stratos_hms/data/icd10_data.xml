@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="icd_a09" model="hms.icd10"><field name="code">A09</field><field name="name">Infectious gastroenteritis and colitis</field><field name="chapter">Infectious</field></record>
+    <record id="icd_a01_0" model="hms.icd10"><field name="code">A01.0</field><field name="name">Typhoid fever</field><field name="chapter">Infectious</field></record>
+    <record id="icd_a90" model="hms.icd10"><field name="code">A90</field><field name="name">Dengue fever</field><field name="chapter">Infectious</field></record>
+    <record id="icd_b54" model="hms.icd10"><field name="code">B54</field><field name="name">Malaria, unspecified</field><field name="chapter">Infectious</field></record>
+    <record id="icd_a15_0" model="hms.icd10"><field name="code">A15.0</field><field name="name">Pulmonary tuberculosis</field><field name="chapter">Infectious</field></record>
+    <record id="icd_b18_2" model="hms.icd10"><field name="code">B18.2</field><field name="name">Chronic viral hepatitis C</field><field name="chapter">Infectious</field></record>
+    <record id="icd_b16_9" model="hms.icd10"><field name="code">B16.9</field><field name="name">Acute hepatitis B</field><field name="chapter">Infectious</field></record>
+    <record id="icd_j06_9" model="hms.icd10"><field name="code">J06.9</field><field name="name">Acute upper respiratory infection</field><field name="chapter">Respiratory</field></record>
+    <record id="icd_j18_9" model="hms.icd10"><field name="code">J18.9</field><field name="name">Pneumonia, unspecified</field><field name="chapter">Respiratory</field></record>
+    <record id="icd_j44_1" model="hms.icd10"><field name="code">J44.1</field><field name="name">COPD with acute exacerbation</field><field name="chapter">Respiratory</field></record>
+    <record id="icd_j45_9" model="hms.icd10"><field name="code">J45.9</field><field name="name">Asthma, unspecified</field><field name="chapter">Respiratory</field></record>
+    <record id="icd_j02_9" model="hms.icd10"><field name="code">J02.9</field><field name="name">Acute pharyngitis</field><field name="chapter">Respiratory</field></record>
+    <record id="icd_j01_9" model="hms.icd10"><field name="code">J01.9</field><field name="name">Acute sinusitis</field><field name="chapter">Respiratory</field></record>
+    <record id="icd_i21_0" model="hms.icd10"><field name="code">I21.0</field><field name="name">Acute transmural MI of anterior wall (STEMI)</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_i21_4" model="hms.icd10"><field name="code">I21.4</field><field name="name">Acute subendocardial MI (NSTEMI)</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_i20_0" model="hms.icd10"><field name="code">I20.0</field><field name="name">Unstable angina</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_i10" model="hms.icd10"><field name="code">I10</field><field name="name">Essential (primary) hypertension</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_i50_9" model="hms.icd10"><field name="code">I50.9</field><field name="name">Heart failure, unspecified</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_i63_9" model="hms.icd10"><field name="code">I63.9</field><field name="name">Cerebral infarction (ischaemic stroke)</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_i48" model="hms.icd10"><field name="code">I48</field><field name="name">Atrial fibrillation and flutter</field><field name="chapter">Circulatory</field></record>
+    <record id="icd_e11_9" model="hms.icd10"><field name="code">E11.9</field><field name="name">Type 2 diabetes mellitus without complications</field><field name="chapter">Endocrine</field></record>
+    <record id="icd_e11_65" model="hms.icd10"><field name="code">E11.65</field><field name="name">Type 2 diabetes with hyperglycaemia</field><field name="chapter">Endocrine</field></record>
+    <record id="icd_e03_9" model="hms.icd10"><field name="code">E03.9</field><field name="name">Hypothyroidism, unspecified</field><field name="chapter">Endocrine</field></record>
+    <record id="icd_e86_0" model="hms.icd10"><field name="code">E86.0</field><field name="name">Dehydration</field><field name="chapter">Endocrine</field></record>
+    <record id="icd_e66_9" model="hms.icd10"><field name="code">E66.9</field><field name="name">Obesity</field><field name="chapter">Endocrine</field></record>
+    <record id="icd_k29_7" model="hms.icd10"><field name="code">K29.7</field><field name="name">Gastritis, unspecified</field><field name="chapter">Digestive</field></record>
+    <record id="icd_k21_9" model="hms.icd10"><field name="code">K21.9</field><field name="name">Gastro-oesophageal reflux disease</field><field name="chapter">Digestive</field></record>
+    <record id="icd_k35_8" model="hms.icd10"><field name="code">K35.8</field><field name="name">Acute appendicitis</field><field name="chapter">Digestive</field></record>
+    <record id="icd_k80_2" model="hms.icd10"><field name="code">K80.2</field><field name="name">Calculus of gallbladder (cholelithiasis)</field><field name="chapter">Digestive</field></record>
+    <record id="icd_k92_2" model="hms.icd10"><field name="code">K92.2</field><field name="name">Gastrointestinal haemorrhage</field><field name="chapter">Digestive</field></record>
+    <record id="icd_k30" model="hms.icd10"><field name="code">K30</field><field name="name">Functional dyspepsia</field><field name="chapter">Digestive</field></record>
+    <record id="icd_n39_0" model="hms.icd10"><field name="code">N39.0</field><field name="name">Urinary tract infection, site not specified</field><field name="chapter">Genitourinary</field></record>
+    <record id="icd_n20_0" model="hms.icd10"><field name="code">N20.0</field><field name="name">Calculus of kidney</field><field name="chapter">Genitourinary</field></record>
+    <record id="icd_n18_9" model="hms.icd10"><field name="code">N18.9</field><field name="name">Chronic kidney disease, unspecified</field><field name="chapter">Genitourinary</field></record>
+    <record id="icd_n40" model="hms.icd10"><field name="code">N40</field><field name="name">Benign prostatic hyperplasia</field><field name="chapter">Genitourinary</field></record>
+    <record id="icd_r50_9" model="hms.icd10"><field name="code">R50.9</field><field name="name">Fever, unspecified</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r10_4" model="hms.icd10"><field name="code">R10.4</field><field name="name">Abdominal pain, unspecified</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r07_9" model="hms.icd10"><field name="code">R07.9</field><field name="name">Chest pain, unspecified</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r51" model="hms.icd10"><field name="code">R51</field><field name="name">Headache</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r11" model="hms.icd10"><field name="code">R11</field><field name="name">Nausea and vomiting</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r19_7" model="hms.icd10"><field name="code">R19.7</field><field name="name">Diarrhoea, unspecified</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r55" model="hms.icd10"><field name="code">R55</field><field name="name">Syncope and collapse</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_r06_0" model="hms.icd10"><field name="code">R06.0</field><field name="name">Dyspnoea</field><field name="chapter">Symptoms</field></record>
+    <record id="icd_m54_5" model="hms.icd10"><field name="code">M54.5</field><field name="name">Low back pain</field><field name="chapter">Musculoskeletal</field></record>
+    <record id="icd_m17_9" model="hms.icd10"><field name="code">M17.9</field><field name="name">Osteoarthritis of knee</field><field name="chapter">Musculoskeletal</field></record>
+    <record id="icd_s72_0" model="hms.icd10"><field name="code">S72.0</field><field name="name">Fracture of neck of femur</field><field name="chapter">Injury</field></record>
+    <record id="icd_s52_5" model="hms.icd10"><field name="code">S52.5</field><field name="name">Fracture of lower end of radius</field><field name="chapter">Injury</field></record>
+    <record id="icd_t14_1" model="hms.icd10"><field name="code">T14.1</field><field name="name">Open wound, unspecified</field><field name="chapter">Injury</field></record>
+    <record id="icd_l20_9" model="hms.icd10"><field name="code">L20.9</field><field name="name">Atopic dermatitis</field><field name="chapter">Skin</field></record>
+    <record id="icd_l30_9" model="hms.icd10"><field name="code">L30.9</field><field name="name">Dermatitis, unspecified</field><field name="chapter">Skin</field></record>
+    <record id="icd_b35_4" model="hms.icd10"><field name="code">B35.4</field><field name="name">Tinea corporis</field><field name="chapter">Skin</field></record>
+    <record id="icd_l70_0" model="hms.icd10"><field name="code">L70.0</field><field name="name">Acne vulgaris</field><field name="chapter">Skin</field></record>
+    <record id="icd_g40_9" model="hms.icd10"><field name="code">G40.9</field><field name="name">Epilepsy, unspecified</field><field name="chapter">Nervous</field></record>
+    <record id="icd_g43_9" model="hms.icd10"><field name="code">G43.9</field><field name="name">Migraine, unspecified</field><field name="chapter">Nervous</field></record>
+    <record id="icd_f32_9" model="hms.icd10"><field name="code">F32.9</field><field name="name">Depressive episode</field><field name="chapter">Mental</field></record>
+    <record id="icd_f41_1" model="hms.icd10"><field name="code">F41.1</field><field name="name">Generalised anxiety disorder</field><field name="chapter">Mental</field></record>
+    <record id="icd_o80" model="hms.icd10"><field name="code">O80</field><field name="name">Single spontaneous delivery</field><field name="chapter">Pregnancy</field></record>
+    <record id="icd_o14_9" model="hms.icd10"><field name="code">O14.9</field><field name="name">Pre-eclampsia</field><field name="chapter">Pregnancy</field></record>
+    <record id="icd_d50_9" model="hms.icd10"><field name="code">D50.9</field><field name="name">Iron deficiency anaemia</field><field name="chapter">Blood</field></record>
+    <record id="icd_d69_6" model="hms.icd10"><field name="code">D69.6</field><field name="name">Thrombocytopenia</field><field name="chapter">Blood</field></record>
+    <record id="icd_h10_9" model="hms.icd10"><field name="code">H10.9</field><field name="name">Conjunctivitis</field><field name="chapter">Eye</field></record>
+    <record id="icd_h66_9" model="hms.icd10"><field name="code">H66.9</field><field name="name">Otitis media</field><field name="chapter">Ear</field></record>
+    <record id="icd_z00_0" model="hms.icd10"><field name="code">Z00.0</field><field name="name">General medical examination</field><field name="chapter">Factors</field></record>
+    <record id="icd_p59_9" model="hms.icd10"><field name="code">P59.9</field><field name="name">Neonatal jaundice</field><field name="chapter">Perinatal</field></record>
+  </data>
+</odoo>

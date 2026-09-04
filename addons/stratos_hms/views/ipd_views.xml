@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Bed board -->
+    <record id="view_bed_kanban" model="ir.ui.view">
+        <field name="name">hms.bed.kanban</field>
+        <field name="model">hms.bed</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="ward_id" class="hms_kanban hms_bedboard" quick_create="false" records_draggable="false">
+                <field name="state"/><field name="color"/><field name="patient_id"/><field name="admission_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="hms_bed hms_bed_#{record.state.raw_value}">
+                            <div class="d-flex justify-content-between"><b><field name="name"/></b><span class="badge hms_badge_muted"><t t-esc="record.state.value"/></span></div>
+                            <div class="small mt-1" t-if="record.patient_id.raw_value"><i class="fa fa-user me-1" title="user"/><field name="patient_id"/></div>
+                            <div class="small text-muted" t-if="record.admission_id.raw_value"><field name="admission_id"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <record id="view_bed_list" model="ir.ui.view">
+        <field name="name">hms.bed.list</field>
+        <field name="model">hms.bed</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="ward_id"/><field name="name"/><field name="state"/><field name="patient_id"/><field name="admission_id"/>
+                <button name="action_mark_clean" type="object" string="Cleaned" icon="fa-check" class="btn-link" invisible="state != 'cleaning'"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_bed_board" model="ir.actions.act_window">
+        <field name="name">Bed Board</field>
+        <field name="res_model">hms.bed</field>
+        <field name="view_mode">kanban,list</field>
+    </record>
+    <record id="view_ward_list" model="ir.ui.view">
+        <field name="name">hms.ward.list</field>
+        <field name="model">hms.ward</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="code"/><field name="name"/><field name="ward_type"/><field name="department_id"/><field name="bed_count"/><field name="occupied_count"/><field name="occupancy_pct" widget="progressbar"/><field name="daily_rate"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_wards" model="ir.actions.act_window">
+        <field name="name">Wards</field>
+        <field name="res_model">hms.ward</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Admission -->
+    <record id="view_admission_form" model="ir.ui.view">
+        <field name="name">hms.admission.form</field>
+        <field name="model">hms.admission</field>
+        <field name="arch" type="xml">
+            <form string="Admission" class="hms_form">
+                <header>
+                    <button name="action_draft_handoff" type="object" string="✦ Shift handoff (SBAR)" invisible="state != 'admitted'" groups="stratos_hms.group_hms_nurse,stratos_hms.group_hms_manager"/>
+                    <button name="action_discharge" type="object" string="Discharge" class="btn-success" invisible="state != 'admitted'" confirm="Discharge the patient? Bed charges will post and the discharge summary will be drafted." groups="stratos_hms.group_hms_doctor,stratos_hms.group_hms_manager"/>
+                    <button name="action_print_discharge" type="object" string="Print discharge summary" icon="fa-print" invisible="state != 'discharged'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="hms_alert hms_alert_danger mb-2" invisible="not has_allergy"><i class="fa fa-exclamation-triangle me-2" title="exclamation triangle"/><b>ALLERGY:</b> <field name="allergy_summary" class="d-inline"/></div>
+                    <div class="oe_title"><h1><field name="patient_id" readonly="state != 'admitted'"/></h1><div class="text-muted"><field name="name" readonly="1" class="d-inline"/> · EWS <field name="ews_score" widget="hms_ews_badge"/> · Bed <field name="bed_id" class="d-inline" readonly="state != 'admitted'"/> · LOS <field name="length_of_stay" class="d-inline"/> d</div></div>
+                    <group>
+                        <group><field name="visit_id" readonly="1"/><field name="doctor_id"/><field name="department_id"/><field name="diagnosis"/></group>
+                        <group><field name="ward_id"/><field name="bed_id" invisible="state != 'admitted'"/><field name="admitted_at"/><field name="discharged_at"/><field name="amount_due"/><field name="currency_id" invisible="1"/><field name="has_allergy" invisible="1"/></group>
+                    </group>
+                    <group><field name="escalation_note"/></group>
+                    <notebook>
+                        <page string="Ward Orders" name="orders">
+                            <div class="text-muted small mb-1">An order from the ward catalogue is priced the moment it is picked and appears on the nurse's board as soon as it is placed.</div>
+                            <field name="ward_order_ids" context="{'default_admission_id': id}">
+                                <list decoration-muted="state != 'active'" decoration-danger="warning">
+                                    <field name="create_date" string="Placed"/><field name="order_type"/><field name="drug_id"/><field name="dose"/><field name="route"/><field name="frequency"/><field name="duration_days"/><field name="prn"/><field name="instruction"/><field name="price_unit"/><field name="doctor_id"/><field name="state" widget="badge"/><field name="warning" column_invisible="1"/>
+                                    <button name="action_stop" type="object" string="Stop" icon="fa-stop" class="btn-link" invisible="state != 'active'"/>
+                                    <button name="action_give_prn" type="object" string="Give PRN" icon="fa-plus" class="btn-link" invisible="not prn or state != 'active'"/>
+                                </list>
+                                <form>
+                                    <group><group><field name="order_type"/><field name="drug_id" invisible="order_type not in ('medication','iv_fluid')" required="order_type in ('medication','iv_fluid')"/><field name="dose"/><field name="route"/><field name="frequency"/><field name="duration_days"/><field name="prn"/></group>
+                                    <group><field name="instruction"/><field name="price_unit"/><field name="doctor_id"/><field name="warning" invisible="not warning"/></group></group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="MAR — scan to give" name="mar">
+                            <div class="text-muted small mb-1">The MAR will not record a dose until the band and the medicine are scanned. One tap records the dose and the charge posts to the bill.</div>
+                            <field name="mar_ids" readonly="state != 'admitted'">
+                                <list editable="bottom" decoration-danger="overdue" decoration-success="state == 'given'" decoration-muted="state in ('held','refused','missed')" default_order="scheduled_at">
+                                    <field name="scheduled_at"/><field name="drug_id"/><field name="dose"/><field name="route"/>
+                                    <field name="scanned_band" placeholder="scan band"/><field name="scanned_medicine" placeholder="scan medicine"/>
+                                    <field name="state" widget="badge"/><field name="given_at"/><field name="nurse_id"/><field name="overdue" column_invisible="1"/>
+                                    <button name="action_give" type="object" string="Give" icon="fa-check" class="btn-link text-success" invisible="state != 'due'"/>
+                                    <button name="action_hold" type="object" string="Hold" icon="fa-pause" class="btn-link" invisible="state != 'due'"/>
+                                    <button name="action_refused" type="object" string="Refused" icon="fa-times" class="btn-link" invisible="state != 'due'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Progress Notes" name="notes">
+                            <field name="progress_note_ids" context="{'default_admission_id': id}">
+                                <list editable="bottom"><field name="create_date" string="When"/><field name="doctor_id"/><field name="note"/><field name="plan"/></list>
+                            </field>
+                        </page>
+                        <page string="Vitals" name="vitals">
+                            <field name="vitals_ids" context="{'default_admission_id': id, 'default_visit_id': visit_id}">
+                                <list decoration-danger="ews_score >= 5"><field name="taken_at"/><field name="bp_sys"/><field name="bp_dia"/><field name="heart_rate"/><field name="resp_rate"/><field name="temperature"/><field name="spo2"/><field name="ews_score" widget="hms_ews_badge"/><field name="flags"/><field name="nurse_id"/></list>
+                            </field>
+                        </page>
+                        <page string="Investigations" name="inv">
+                            <field name="order_ids" context="{'default_admission_id': id, 'default_visit_id': visit_id, 'default_state': 'ordered'}">
+                                <list editable="bottom" decoration-danger="flag == 'critical'"><field name="test_id"/><field name="urgency"/><field name="state" widget="badge"/><field name="result_value"/><field name="flag"/><field name="visit_id" column_invisible="1"/></list>
+                            </field>
+                        </page>
+                        <page string="Handoffs" name="handoffs">
+                            <field name="handoff_ids" readonly="1">
+                                <list><field name="create_date"/><field name="shift"/><field name="from_nurse_id"/><field name="to_nurse_id"/><field name="state" widget="badge"/><field name="acknowledged_at"/></list>
+                            </field>
+                        </page>
+                        <page string="Surgeries" name="surgeries">
+                            <field name="surgery_ids" readonly="1"><list><field name="name"/><field name="procedure"/><field name="surgeon_id"/><field name="theatre_id"/><field name="scheduled_at"/><field name="state" widget="badge"/></list></field>
+                        </page>
+                        <page string="Discharge Summary" name="discharge" invisible="state != 'discharged'">
+                            <field name="discharge_summary" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_admission_list" model="ir.ui.view">
+        <field name="name">hms.admission.list</field>
+        <field name="model">hms.admission</field>
+        <field name="arch" type="xml">
+            <list class="hms_list" decoration-danger="ews_score >= 5">
+                <field name="name"/><field name="bed_id"/><field name="patient_id"/><field name="diagnosis"/><field name="doctor_id"/><field name="ews_score" widget="hms_ews_badge"/><field name="mar_due_count" string="Doses due"/><field name="admitted_at"/><field name="length_of_stay"/><field name="amount_due"/><field name="state" widget="badge"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_admission_search" model="ir.ui.view">
+        <field name="name">hms.admission.search</field>
+        <field name="model">hms.admission</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="patient_id"/><field name="bed_id"/>
+                <filter name="admitted" string="Admitted" domain="[('state', '=', 'admitted')]"/>
+                <filter name="mine" string="Under me" domain="[('doctor_id.user_id', '=', uid)]"/>
+                <group><filter name="group_ward" string="Ward" context="{'group_by': 'ward_id'}"/></group>
+            </search>
+        </field>
+    </record>
+    <record id="action_admissions" model="ir.actions.act_window">
+        <field name="name">Ward Board</field>
+        <field name="res_model">hms.admission</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_admission_search"/>
+        <field name="context">{'search_default_admitted': 1}</field>
+    </record>
+
+    <!-- MAR board for nurses -->
+    <record id="view_mar_list" model="ir.ui.view">
+        <field name="name">hms.mar.list</field>
+        <field name="model">hms.mar</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" decoration-danger="overdue" decoration-success="state == 'given'" default_order="scheduled_at">
+                <field name="scheduled_at"/><field name="patient_id"/><field name="admission_id"/><field name="drug_id"/><field name="dose"/><field name="route"/>
+                <field name="scanned_band" placeholder="scan band"/><field name="scanned_medicine" placeholder="scan medicine"/><field name="state" widget="badge"/><field name="given_at"/><field name="nurse_id"/><field name="overdue" column_invisible="1"/>
+                <button name="action_give" type="object" string="Give" icon="fa-check" class="btn-link text-success" invisible="state != 'due'"/>
+                <button name="action_hold" type="object" string="Hold" icon="fa-pause" class="btn-link" invisible="state != 'due'"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_mar_form" model="ir.ui.view">
+        <field name="name">hms.mar.form</field>
+        <field name="model">hms.mar</field>
+        <field name="arch" type="xml">
+            <form class="hms_form">
+                <sheet>
+                    <group><group><field name="patient_id"/><field name="drug_id"/><field name="dose"/><field name="route"/><field name="scheduled_at"/></group>
+                    <group><field name="scanned_band"/><field name="scanned_medicine"/><field name="state"/><field name="note"/></group></group>
+                </sheet>
+                <footer><button name="action_give" type="object" string="Give dose" class="btn-primary"/><button string="Close" special="cancel"/></footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_mar_board" model="ir.actions.act_window">
+        <field name="name">Treatment Board (MAR)</field>
+        <field name="res_model">hms.mar</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'due')]</field>
+    </record>
+    <record id="view_mar_search" model="ir.ui.view">
+        <field name="name">hms.mar.search</field>
+        <field name="model">hms.mar</field>
+        <field name="arch" type="xml">
+            <search><field name="patient_id"/><group><filter name="group_patient" string="Patient" context="{'group_by': 'patient_id'}"/></group></search>
+        </field>
+    </record>
+
+    <!-- Handoff -->
+    <record id="view_handoff_form" model="ir.ui.view">
+        <field name="name">hms.handoff.form</field>
+        <field name="model">hms.handoff</field>
+        <field name="arch" type="xml">
+            <form string="Shift Handoff" class="hms_form">
+                <header>
+                    <button name="action_ai_draft" type="object" string="✦ Draft SBAR from chart" class="btn-primary hms_btn_ai" invisible="state != 'draft'"/>
+                    <button name="action_send" type="object" string="Send handoff" class="btn-success" invisible="state != 'draft'"/>
+                    <button name="action_acknowledge" type="object" string="Acknowledge" class="btn-success" invisible="state != 'sent'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h2>SBAR — <field name="patient_id" readonly="1" class="d-inline"/></h2><div class="text-muted"><field name="admission_id" readonly="1" class="d-inline"/></div></div>
+                    <group><group><field name="from_nurse_id"/><field name="to_nurse_id" readonly="state != 'draft'"/></group><group><field name="shift" readonly="state != 'draft'"/><field name="acknowledged_at"/></group></group>
+                    <group string="S — Situation"><field name="situation" nolabel="1" colspan="2" widget="hms_scribe" readonly="state != 'draft'"/></group>
+                    <group string="B — Background"><field name="background" nolabel="1" colspan="2" readonly="state != 'draft'"/></group>
+                    <group string="A — Assessment"><field name="assessment" nolabel="1" colspan="2" readonly="state != 'draft'"/></group>
+                    <group string="R — Recommendation (what to do, what to watch, when to call, when to run)"><field name="recommendation" nolabel="1" colspan="2" widget="hms_scribe" readonly="state != 'draft'"/></group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_handoff_list" model="ir.ui.view">
+        <field name="name">hms.handoff.list</field>
+        <field name="model">hms.handoff</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="state == 'sent'" decoration-success="state == 'acknowledged'">
+                <field name="create_date"/><field name="patient_id"/><field name="admission_id"/><field name="shift"/><field name="from_nurse_id"/><field name="to_nurse_id"/><field name="state" widget="badge"/><field name="acknowledged_at"/>
+                <button name="action_acknowledge" type="object" string="Acknowledge" icon="fa-check" class="btn-link" invisible="state != 'sent'"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_handoffs" model="ir.actions.act_window">
+        <field name="name">Shift Handoffs</field>
+        <field name="res_model">hms.handoff</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">No handoffs waiting</p><p>The incoming nurse acknowledges and the loop is closed. Nothing lives in a pocket notebook.</p></field>
+    </record>
+</odoo>
