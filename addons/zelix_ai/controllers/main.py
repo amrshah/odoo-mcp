@@ -69,12 +69,125 @@ class ZelixCopilotController(http.Controller):
             "quick_actions": quick_actions,
         }
 
+    def _enrich_context(self, ctx, user, message):
+        """Enriches chat context directly via Odoo ORM (Zero-Password Native Bridge)."""
+        env = request.env
+        enriched = dict(ctx or {})
+
+        # 1. Practice & Hospital Census Data
+        try:
+            hms_pts = env['hms.patient'].sudo().search_read([], ['id', 'name', 'mrn', 'sex', 'age', 'phone'], limit=50) if 'hms.patient' in env else []
+            vet_pts = env['vet.patient'].sudo().search_read([], ['id', 'name', 'identifier', 'species_id', 'breed_id'], limit=50) if 'vet.patient' in env else []
+
+            hms_visits = env['hms.visit'].sudo().search_read([], ['id', 'name', 'patient_id', 'doctor_id', 'stage', 'state', 'complaint'], limit=50, order="id desc") if 'hms.visit' in env else []
+            vet_appts = env['vet.appointment'].sudo().search_read([], ['id', 'name', 'patient_id', 'provider_id', 'state', 'start_datetime'], limit=50, order="start_datetime desc") if 'vet.appointment' in env else []
+
+            hms_consults = env['hms.consult'].sudo().search_read([], ['id', 'name', 'patient_id', 'doctor_id', 'state'], limit=50) if 'hms.consult' in env else []
+            vet_encs = env['vet.encounter'].sudo().search_read([], ['id', 'name', 'patient_id', 'provider_id', 'state', 'chief_complaint'], limit=50) if 'vet.encounter' in env else []
+
+            stock_items = env['product.product'].sudo().search_read([], ['id', 'name', 'qty_available', 'vet_reorder_min', 'vet_storage_location'], limit=50) if 'product.product' in env else []
+            staff = env['res.users'].sudo().search_read([('share', '=', False)], ['id', 'name', 'login'], limit=20)
+
+            enriched["census"] = {
+                "hms_patients": hms_pts,
+                "vet_patients": vet_pts,
+                "hms_visits": hms_visits,
+                "vet_appointments": vet_appts,
+                "hms_consults": hms_consults,
+                "vet_encounters": vet_encs,
+                "stock_items": stock_items,
+                "staff": staff,
+            }
+        except Exception as e:
+            logger.debug("Error extracting census via ORM: %s", e)
+
+        # 2. Active Patient Longitudinal Summary
+        try:
+            active_model = ctx.get("model")
+            record_id = ctx.get("record_id")
+            patient_summary = None
+
+            if active_model == "vet.patient" and record_id:
+                pt = env['vet.patient'].sudo().browse(record_id)
+                if pt.exists():
+                    patient_summary = {
+                        "id": pt.id,
+                        "name": pt.name,
+                        "identifier": pt.identifier or f"PAT-{pt.id:05d}",
+                        "species": pt.species_id.name if pt.species_id else "Unknown",
+                        "breed": pt.breed_id.name if pt.breed_id else "Unknown",
+                        "sex": pt.sex or "Unknown",
+                        "age": pt.age_display or "",
+                        "notes": pt.notes or "",
+                    }
+            elif active_model == "vet.encounter" and record_id:
+                enc = env['vet.encounter'].sudo().browse(record_id)
+                if enc.exists() and enc.patient_id:
+                    pt = enc.patient_id
+                    patient_summary = {
+                        "id": pt.id,
+                        "name": pt.name,
+                        "identifier": pt.identifier or f"PAT-{pt.id:05d}",
+                        "species": pt.species_id.name if pt.species_id else "Unknown",
+                        "breed": pt.breed_id.name if pt.breed_id else "Unknown",
+                        "sex": pt.sex or "Unknown",
+                        "age": pt.age_display or "",
+                        "encounter_id": enc.id,
+                        "chief_complaint": enc.chief_complaint or "",
+                        "assessment": enc.assessment or "",
+                    }
+            elif active_model == "hms.patient" and record_id and 'hms.patient' in env:
+                pt = env['hms.patient'].sudo().browse(record_id)
+                if pt.exists():
+                    patient_summary = {
+                        "id": pt.id,
+                        "name": pt.name,
+                        "identifier": pt.mrn or f"PAT-{pt.id:05d}",
+                        "species": "Human",
+                        "breed": pt.blood_group or "Standard",
+                        "sex": pt.sex or "Unknown",
+                        "age": f"{pt.age} yrs" if pt.age else "",
+                        "notes": f"Blood Group: {pt.blood_group or 'N/A'}, Phone: {pt.phone or 'N/A'}",
+                    }
+            elif active_model == "hms.visit" and record_id and 'hms.visit' in env:
+                vis = env['hms.visit'].sudo().browse(record_id)
+                if vis.exists() and vis.patient_id:
+                    pt = vis.patient_id
+                    patient_summary = {
+                        "id": pt.id,
+                        "name": pt.name,
+                        "identifier": pt.mrn or f"PAT-{pt.id:05d}",
+                        "species": "Human",
+                        "breed": pt.blood_group or "Standard",
+                        "sex": pt.sex or "Unknown",
+                        "age": f"{pt.age} yrs" if pt.age else "",
+                        "visit_id": vis.id,
+                        "chief_complaint": vis.complaint or "",
+                        "stage": vis.stage or "registered",
+                    }
+
+            if patient_summary:
+                enriched["patient_summary"] = patient_summary
+        except Exception as e:
+            logger.debug("Error extracting patient summary via ORM: %s", e)
+
+        # 3. Match Learned Rules via ORM
+        try:
+            if 'zelix.ai.rule' in env:
+                matched_rules = env['zelix.ai.rule'].sudo().match_rules(message)
+                if matched_rules:
+                    enriched["matched_rules"] = matched_rules
+        except Exception as e:
+            pass
+
+        return enriched
+
     @http.route("/zelix_ai/chat", type="jsonrpc", auth="user", methods=["POST"], csrf=False)
     def chat(self, message, context=None):
         """Processes clinical Copilot chat request and persists audit record."""
         backend_url = self._get_backend_url()
         user = request.env.user
-        ctx = context or {}
+        ctx = self._enrich_context(context or {}, user, message)
 
         # Resolve clinical role
         role = "veterinarian"

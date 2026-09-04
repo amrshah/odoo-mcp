@@ -6,16 +6,27 @@ print("==========================================================")
 print("📦 Verifying Healthcare Modules Installation...")
 print("==========================================================")
 
-# 0. Synchronize admin user password for MCP / XML-RPC client access
+# 0. Provision dedicated Zelix AI Service Account (Decoupled from human administrator)
 import os
 try:
-    admin_password = os.getenv('ODOO_PASSWORD', 'admin')
-    admin_user = env.ref('base.user_admin', raise_if_not_found=False)
-    if admin_user:
-        admin_user.sudo().write({'password': admin_password})
-        print(f"[+] Verified/Updated admin user credentials for XML-RPC & Copilot API access.")
+    User = env['res.users'].sudo()
+    service_login = "zelix_service"
+    service_pass = os.getenv('ZELIX_SERVICE_PASSWORD', 'zelix_service_secret_key_2026')
+    service_user = User.search([('login', '=', service_login)], limit=1)
+    if not service_user:
+        service_user = User.create({
+            'name': 'Zelix AI Service Account',
+            'login': service_login,
+            'email': 'service@zelix.ai',
+            'password': service_pass,
+            'groups_id': [(6, 0, [env.ref('base.group_system').id])],
+        })
+        print("[+] Created dedicated 'zelix_service' system service account.")
+    else:
+        service_user.write({'password': service_pass})
+        print("[+] Verified 'zelix_service' system service account.")
 except Exception as e:
-    print(f"[*] Note on admin password sync: {e}")
+    print(f"[*] Note on service user setup: {e}")
 
 target_modules = ['vet_installer', 'stratos_hms', 'zelix_ai', 'mcp_server']
 Module = env['ir.module.module'].sudo()

@@ -41,7 +41,7 @@ class PracticeQueryWorkflow(BaseWorkflow):
         client = odoo_client
         prompt_lower = user_input.lower()
 
-        # 1. Fetch live authoritative records from Odoo (VetCairn + Stratos HMS + Inventory + Users)
+        # 1. Fetch live authoritative records (prefer native in-Odoo ORM session data if provided)
         vet_patients = []
         hms_patients = []
         vet_appts = []
@@ -52,7 +52,18 @@ class PracticeQueryWorkflow(BaseWorkflow):
         formulary_data = []
         users_data = []
 
-        if client:
+        if active_context and getattr(active_context, "census", None):
+            census = active_context.census
+            vet_patients = census.get("vet_patients", [])
+            hms_patients = census.get("hms_patients", [])
+            vet_appts = census.get("vet_appointments", [])
+            hms_appts = census.get("hms_visits", [])
+            vet_encs = census.get("vet_encounters", [])
+            hms_consults = census.get("hms_consults", [])
+            inventory_data = census.get("stock_items", [])
+            users_data = census.get("staff", [])
+        elif client:
+            # Fallback to XML-RPC client (for standalone / external MCP callers)
             # A. Patients (Vet & HMS)
             try:
                 vet_patients = client.search_read(

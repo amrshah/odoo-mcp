@@ -79,22 +79,36 @@ class ZelixCopilotOrchestrator:
         role = ClinicalRole(request.role) if request.role in [r.value for r in ClinicalRole] else ClinicalRole.VETERINARIAN
         policy = RoleResolver.get_policy(role)
 
-        # 1. Resolve Patient ID and build clinical context
-        patient_id = self.context_engine.resolve_patient_id(ctx)
+        # 1. Resolve Patient ID and build clinical context (prefer native ORM summary if passed from in-Odoo session)
         patient_summary = None
         context_prompt = ""
 
-        if patient_id:
-            ctx.patient_id = patient_id
-            patient_summary = self.context_engine.fetch_patient_context(patient_id)
-            if patient_summary:
-                # Attach summary object to context for workflows
-                ctx_dict = ctx.model_dump()
-                setattr(ctx, "patient_summary_obj", patient_summary)
-                context_prompt = self.context_engine.format_context_prompt(patient_summary)
+        if getattr(ctx, "patient_summary", None):
+            raw_summary = ctx.patient_summary
+            from context.context_engine import PatientClinicalSummary
+            patient_summary = PatientClinicalSummary(
+                id=raw_summary.get("id", 0),
+                name=raw_summary.get("name", "Unknown"),
+                identifier=raw_summary.get("identifier", "N/A"),
+                species=raw_summary.get("species", "Patient"),
+                breed=raw_summary.get("breed", "Standard"),
+                sex=raw_summary.get("sex", "Unknown"),
+                age_or_birthdate=raw_summary.get("age"),
+                notes=raw_summary.get("notes"),
+            )
+            setattr(ctx, "patient_summary_obj", patient_summary)
+            context_prompt = self.context_engine.format_context_prompt(patient_summary)
+        else:
+            patient_id = self.context_engine.resolve_patient_id(ctx)
+            if patient_id:
+                ctx.patient_id = patient_id
+                patient_summary = self.context_engine.fetch_patient_context(patient_id)
+                if patient_summary:
+                    setattr(ctx, "patient_summary_obj", patient_summary)
+                    context_prompt = self.context_engine.format_context_prompt(patient_summary)
 
         if not context_prompt:
-            context_prompt = "No specific active patient record linked. Providing general veterinary clinical assistance."
+            context_prompt = "No specific active patient record linked. Providing general clinical assistance."
 
         # 2. Intent Classification via IntentRouter
         intent_res = IntentRouter.classify(request.message)

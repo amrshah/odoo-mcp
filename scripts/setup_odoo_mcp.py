@@ -21,6 +21,22 @@ def setup_in_app_mcp():
     uid = client.authenticate()
     print(f"[+] Authenticated as {username} (UID: {uid}) on DB: {db}")
 
+    # 0. Provision dedicated Zelix AI Service Account
+    service_login = "zelix_service"
+    service_pass = os.getenv("ZELIX_SERVICE_PASSWORD", "zelix_service_secret_key_2026")
+    existing_service_users = client.search_read("res.users", [("login", "=", service_login)], ["id", "login"])
+    if not existing_service_users:
+        svc_uid = client.create("res.users", {
+            "name": "Zelix AI Service Account",
+            "login": service_login,
+            "email": "service@zelix.ai",
+            "password": service_pass,
+        })
+        print(f"[+] Created dedicated 'zelix_service' system service account (UID: {svc_uid})")
+    else:
+        client.write("res.users", [existing_service_users[0]["id"]], {"password": service_pass})
+        print(f"[+] Verified 'zelix_service' system service account (UID: {existing_service_users[0]['id']})")
+
     # 1. Enable master switch in ir.config_parameter
     client.execute_kw(
         "ir.config_parameter",

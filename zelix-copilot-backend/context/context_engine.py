@@ -27,6 +27,12 @@ class ActiveContext(BaseModel):
     user_name: str = "Administrator"
     role: str = "veterinarian"
     patient_summary_obj: Optional[Any] = None
+    patient_summary: Optional[Dict[str, Any]] = None
+    census: Optional[Dict[str, Any]] = None
+    matched_rules: Optional[List[Dict[str, Any]]] = None
+
+    class Config:
+        extra = "allow"
 
 
 class PatientClinicalSummary(BaseModel):
