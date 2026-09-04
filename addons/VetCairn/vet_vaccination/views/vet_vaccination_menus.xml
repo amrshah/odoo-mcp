@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_preventive_care" name="Preventive Care" parent="vet_base.menu_vetcairn_root" sequence="20" groups="vet_base.group_vet_user"/>
+    <menuitem id="menu_vet_vaccinations" name="Vaccinations" parent="menu_vet_preventive_care" action="action_vet_vaccination" sequence="10"/>
+    <menuitem id="menu_vet_vaccine_protocol" name="Vaccine Protocols" parent="vet_base.menu_vetcairn_configuration" action="action_vet_vaccine_protocol" sequence="50" groups="vet_base.group_vet_manager"/>
+</odoo>

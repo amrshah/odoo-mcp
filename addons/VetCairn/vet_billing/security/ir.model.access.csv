@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_charge_billing_user,charge billing user,model_vet_charge,vet_billing.group_vet_billing_user,1,1,1,0
+access_vet_charge_billing_manager,charge billing manager,model_vet_charge,vet_billing.group_vet_billing_manager,1,1,1,1
+access_vet_charge_veterinarian,charge veterinarian,model_vet_charge,vet_base.group_vet_veterinarian,1,1,1,0

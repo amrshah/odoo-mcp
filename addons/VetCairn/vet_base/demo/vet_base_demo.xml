@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="demo_species_canine" model="vet.species">
+        <field name="name">Canine</field>
+        <field name="code">CANINE</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="demo_species_feline" model="vet.species">
+        <field name="name">Feline</field>
+        <field name="code">FELINE</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="demo_breed_mixed_canine" model="vet.breed">
+        <field name="name">Mixed Breed</field>
+        <field name="species_id" ref="demo_species_canine"/>
+    </record>
+    <record id="demo_breed_domestic_shorthair" model="vet.breed">
+        <field name="name">Domestic Shorthair</field>
+        <field name="species_id" ref="demo_species_feline"/>
+    </record>
+    <record id="demo_clinic_partner" model="res.partner">
+        <field name="name">VetCairn Demonstration Clinic</field>
+        <field name="is_company" eval="True"/>
+    </record>
+    <record id="demo_clinic" model="vet.clinic">
+        <field name="name">VetCairn Demonstration Clinic</field>
+        <field name="code">DEMO</field>
+        <field name="partner_id" ref="demo_clinic_partner"/>
+    </record>
+    <record id="demo_client" model="res.partner">
+        <field name="name">Demo Veterinary Client</field>
+        <field name="is_vet_client" eval="True"/>
+        <field name="customer_rank">1</field>
+        <field name="vet_preferred_clinic_id" ref="demo_clinic"/>
+    </record>
+    <record id="demo_patient" model="vet.patient">
+        <field name="name">Demo Patient</field>
+        <field name="clinic_id" ref="demo_clinic"/>
+        <field name="species_id" ref="demo_species_canine"/>
+        <field name="breed_id" ref="demo_breed_mixed_canine"/>
+        <field name="sex">unknown</field>
+        <field name="reproductive_status">unknown</field>
+    </record>
+    <record id="demo_patient_owner" model="vet.patient.owner">
+        <field name="patient_id" ref="demo_patient"/>
+        <field name="partner_id" ref="demo_client"/>
+        <field name="relationship_type">owner</field>
+        <field name="is_primary" eval="True"/>
+    </record>
+</odoo>
+

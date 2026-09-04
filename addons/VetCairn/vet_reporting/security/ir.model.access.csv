@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_reporting_appointment,report appointment,vet_appointment.model_vet_appointment,vet_reporting.group_vet_reporting_user,1,0,0,0
+access_reporting_encounter,report encounter,vet_clinical.model_vet_encounter,vet_reporting.group_vet_reporting_user,1,0,0,0
+access_reporting_vaccination,report vaccination,vet_vaccination.model_vet_vaccination,vet_reporting.group_vet_reporting_user,1,0,0,0
+access_reporting_diagnostic,report diagnostic,vet_diagnostic.model_vet_diagnostic_order,vet_reporting.group_vet_reporting_user,1,0,0,0
+access_reporting_prescription,report prescription,vet_prescription.model_vet_prescription,vet_reporting.group_vet_reporting_user,1,0,0,0
+access_reporting_charge,report charge,vet_billing.model_vet_charge,vet_reporting.group_vet_reporting_user,1,0,0,0
+access_reporting_reminder,report reminder,vet_reminder.model_vet_reminder,vet_reporting.group_vet_reporting_user,1,0,0,0

@@ -1,0 +1,22 @@
+{
+    "name": "VetCairn Communications",
+    "summary": "Veterinary client communication history, templates, and follow-up",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "license": "LGPL-3",
+    "depends": ["vet_task"],
+    "data": [
+        "security/vet_communication_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_communication_sequence.xml",
+        "data/vet_communication_template_data.xml",
+        "views/vet_communication_template_views.xml",
+        "views/vet_communication_views.xml",
+        "views/res_partner_views.xml",
+        "views/vet_patient_views.xml",
+        "views/vet_communication_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}

@@ -1,0 +1,30 @@
+.o_vetcairn_dashboard {
+    --vet-navy: #16324f;
+    --vet-teal: #168d8b;
+    --vet-mint: #35b8a6;
+    height: 100%; overflow: auto; padding: 24px; background: #f4f7fa; color: #25384c;
+    .o_vet_loading {height: 65vh; display: flex; align-items: center; justify-content: center; gap: 12px; color: #64778a; font-size: 1.05rem;}
+}
+.o_vet_dashboard_hero {display:flex; justify-content:space-between; align-items:center; gap:24px; padding:28px 32px; border-radius:18px; color:white; background:linear-gradient(125deg, #16324f 0%, #126c73 62%, #26a89a 100%); box-shadow:0 14px 35px rgba(22,50,79,.18); position:relative; overflow:hidden;
+    &::after {content:""; position:absolute; width:260px; height:260px; border:45px solid rgba(255,255,255,.07); border-radius:50%; right:110px; top:-120px;}
+    h1 {font-size:1.8rem; margin:2px 0 5px; font-weight:700;} p {margin:0; opacity:.82;} .o_vet_eyebrow {font-size:.7rem; letter-spacing:.15em; opacity:.75; font-weight:700;}
+    .o_vet_refresh {z-index:1; color:var(--vet-navy); background:white; border:0; border-radius:10px; padding:9px 17px; font-weight:600; box-shadow:0 6px 18px rgba(0,0,0,.12);}
+}
+.o_vet_metric_grid {display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; margin:18px 0;}
+.o_vet_metric_card {--accent:#168d8b; appearance:none; text-align:left; border:1px solid #e3eaf0; border-left:4px solid var(--accent); background:white; border-radius:13px; min-height:94px; padding:16px; display:flex; align-items:center; gap:14px; box-shadow:0 4px 15px rgba(31,55,76,.06); transition:.18s ease;
+    &:hover {transform:translateY(-2px); box-shadow:0 9px 22px rgba(31,55,76,.12); border-color:#d5e0e7;} .o_vet_metric_icon {width:44px; height:44px; flex:0 0 44px; border-radius:12px; display:grid; place-items:center; color:var(--accent); background:color-mix(in srgb, var(--accent) 11%, white); font-size:1.15rem;}
+    .o_vet_metric_content {display:flex; flex-direction:column; min-width:0; strong {font-size:1.55rem; line-height:1.1; color:#20374d;} span {margin-top:5px; color:#65788a; font-size:.82rem; line-height:1.2;}}
+    .o_vet_metric_arrow {margin-left:auto; color:#bac5ce; font-size:.7rem;}
+    &.o_vet_metric_primary {--accent:#2867b2;} &.o_vet_metric_info {--accent:#168d8b;} &.o_vet_metric_danger {--accent:#d85b60;} &.o_vet_metric_warning {--accent:#dd941c;} &.o_vet_metric_success {--accent:#3a9b68;}
+}
+.o_vet_dashboard_body {display:grid; grid-template-columns:minmax(0, 3fr) minmax(260px, 1fr); gap:18px; align-items:start;}
+.o_vet_charts, .o_vet_quick_panel {background:white; border:1px solid #e3eaf0; border-radius:15px; padding:20px; box-shadow:0 4px 15px rgba(31,55,76,.05);}
+.o_vet_section_heading {display:flex; justify-content:space-between; align-items:end; margin-bottom:16px; span {font-size:.66rem; letter-spacing:.14em; color:var(--vet-teal); font-weight:800;} h2 {font-size:1.15rem; margin:2px 0 0; color:var(--vet-navy); font-weight:700;} small {color:#8796a4;}}
+.o_vet_chart_grid {display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.o_vet_chart_card {border:1px solid #e8edf1; border-radius:12px; padding:15px; min-height:235px; background:#fcfdfe; .o_vet_chart_header {display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:17px;} h3 {font-size:.92rem; margin:0; font-weight:650; color:#314a60;} .btn {color:#517084;}}
+.o_vet_bar_row {margin-bottom:13px;}.o_vet_bar_label {display:flex; justify-content:space-between; gap:8px; font-size:.76rem; margin-bottom:5px; color:#5d7183; strong {color:#304a60;}}.o_vet_bar_track {height:7px; background:#e8eef2; border-radius:9px; overflow:hidden; span {display:block; height:100%; min-width:3px; border-radius:9px; background:linear-gradient(90deg,var(--vet-teal),var(--vet-mint));}}
+.o_vet_empty_chart {height:155px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#a0adb8; gap:9px; .fa {font-size:1.7rem; opacity:.55;} span {font-size:.8rem;}}
+.o_vet_quick_grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; button {border:1px solid #e5ebef; background:#f9fbfc; color:#536b7d; border-radius:10px; min-height:68px; padding:10px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; font-size:.76rem; transition:.15s ease; .fa {font-size:1rem; color:var(--vet-teal);} &:hover {background:#edf8f7; border-color:#bfe1df; color:#214c52; transform:translateY(-1px);}}}
+@media (max-width:1200px) {.o_vet_metric_grid {grid-template-columns:repeat(3,1fr)} .o_vet_dashboard_body {grid-template-columns:1fr} .o_vet_quick_grid {grid-template-columns:repeat(6,1fr)}}
+@media (max-width:850px) {.o_vetcairn_dashboard {padding:14px}.o_vet_metric_grid {grid-template-columns:repeat(2,1fr)}.o_vet_chart_grid {grid-template-columns:1fr}.o_vet_quick_grid {grid-template-columns:repeat(3,1fr)}.o_vet_dashboard_hero {padding:22px; h1 {font-size:1.45rem}}}
+@media (max-width:520px) {.o_vet_metric_grid {grid-template-columns:1fr}.o_vet_dashboard_hero {align-items:flex-start; flex-direction:column}.o_vet_quick_grid {grid-template-columns:repeat(2,1fr)}}

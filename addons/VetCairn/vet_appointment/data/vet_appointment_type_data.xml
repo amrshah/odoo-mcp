@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="appointment_type_consultation" model="vet.appointment.type">
+        <field name="name">Consultation</field>
+        <field name="code">CONSULT</field>
+        <field name="duration">0.5</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+    <record id="appointment_type_follow_up" model="vet.appointment.type">
+        <field name="name">Follow-up</field>
+        <field name="code">FOLLOW</field>
+        <field name="duration">0.25</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+    <record id="appointment_type_vaccination" model="vet.appointment.type">
+        <field name="name">Vaccination</field>
+        <field name="code">VACCINE</field>
+        <field name="duration">0.25</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+</odoo>

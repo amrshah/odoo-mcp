@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_patient_document_receptionist,document receptionist,model_vet_patient_document,vet_base.group_vet_receptionist,1,1,1,0
+access_patient_document_technician,document technician,model_vet_patient_document,vet_base.group_vet_technician,1,1,1,0
+access_patient_document_veterinarian,document veterinarian,model_vet_patient_document,vet_base.group_vet_veterinarian,1,1,1,1
+access_document_type_user,document type user,model_vet_document_type,vet_base.group_vet_user,1,0,0,0
+access_document_type_manager,document type manager,model_vet_document_type,vet_documents.group_vet_document_manager,1,1,1,1

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_patient_form_clinical" model="ir.ui.view">
+        <field name="name">vet.patient.form.clinical</field>
+        <field name="model">vet.patient</field>
+        <field name="inherit_id" ref="vet_base.view_vet_patient_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[contains(@class, 'oe_title')]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_encounters" type="object" class="oe_stat_button" icon="fa-stethoscope" groups="vet_base.group_vet_technician">
+                        <field name="encounter_count" widget="statinfo" string="Clinical History"/>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

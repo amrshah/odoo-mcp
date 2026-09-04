@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_encounter_report_pivot" model="ir.ui.view"><field name="name">vet.encounter.report.pivot</field><field name="model">vet.encounter</field><field name="arch" type="xml"><pivot string="Clinical Census Analysis" sample="1"><field name="start_datetime" type="row" interval="day"/><field name="clinic_id" type="row"/><field name="provider_id" type="col"/><field name="state" type="col"/><field name="weight_kg" type="measure"/></pivot></field></record>
+    <record id="view_vet_encounter_report_graph" model="ir.ui.view"><field name="name">vet.encounter.report.graph</field><field name="model">vet.encounter</field><field name="arch" type="xml"><graph string="Clinical Encounters" type="bar" sample="1"><field name="start_datetime" interval="month"/><field name="triage_priority"/></graph></field></record>
+    <record id="action_vet_report_clinical" model="ir.actions.act_window"><field name="name">Clinical Census Analysis</field><field name="res_model">vet.encounter</field><field name="view_mode">pivot,graph,list</field><field name="search_view_id" ref="vet_clinical.view_vet_encounter_search"/></record>
+</odoo>

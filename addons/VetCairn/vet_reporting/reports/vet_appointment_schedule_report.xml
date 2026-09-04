@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_vet_appointment_schedule" model="ir.actions.report">
+        <field name="name">Appointment Schedule</field>
+        <field name="model">vet.appointment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">vet_reporting.report_vet_appointment_schedule</field>
+        <field name="report_file">vet_reporting.report_vet_appointment_schedule</field>
+        <field name="binding_model_id" ref="vet_appointment.model_vet_appointment"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Appointment Schedule'</field>
+    </record>
+    <template id="report_vet_appointment_schedule">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Veterinary Appointment Schedule</h2>
+                    <p class="text-muted">Generated <span t-out="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/></p>
+                    <table class="table table-sm table-striped">
+                        <thead><tr><th>Start</th><th>Patient</th><th>Client</th><th>Reason</th><th>Provider</th><th>Clinic</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr t-foreach="docs.sorted(key=lambda a: a.start_datetime)" t-as="appointment">
+                                <td><span t-field="appointment.start_datetime"/></td>
+                                <td><span t-field="appointment.patient_id"/></td>
+                                <td><span t-field="appointment.client_id"/></td>
+                                <td><span t-field="appointment.reason"/></td>
+                                <td><span t-field="appointment.provider_id"/></td>
+                                <td><span t-field="appointment.clinic_id"/></td>
+                                <td><span t-field="appointment.state"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

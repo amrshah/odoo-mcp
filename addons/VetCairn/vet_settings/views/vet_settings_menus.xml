@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><odoo><menuitem id="menu_vetcairn_settings" name="Practice Settings" parent="vet_base.menu_vetcairn_configuration" action="action_vetcairn_settings" sequence="1" groups="vet_base.group_vet_manager"/></odoo>

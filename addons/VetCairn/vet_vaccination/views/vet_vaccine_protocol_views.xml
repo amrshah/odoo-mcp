@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_vaccine_protocol_list" model="ir.ui.view">
+        <field name="name">vet.vaccine.protocol.list</field>
+        <field name="model">vet.vaccine.protocol</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="species_id"/>
+                <field name="minimum_age_months" optional="show"/>
+                <field name="booster_interval_months"/>
+                <field name="default_route" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_vaccine_protocol_form" model="ir.ui.view">
+        <field name="name">vet.vaccine.protocol.form</field>
+        <field name="model">vet.vaccine.protocol</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title"><label for="name"/><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Protocol">
+                            <field name="code"/>
+                            <field name="species_id" options="{'no_create': True}"/>
+                            <field name="minimum_age_months"/>
+                            <field name="booster_interval_months"/>
+                        </group>
+                        <group string="Administration Defaults">
+                            <field name="default_route"/>
+                            <label for="default_dose"/>
+                            <div class="o_row"><field name="default_dose"/><field name="dose_unit"/></div>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Protocol guidance and internal notes..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vet_vaccine_protocol" model="ir.actions.act_window">
+        <field name="name">Vaccine Protocols</field>
+        <field name="res_model">vet.vaccine.protocol</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+</odoo>

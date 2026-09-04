@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vetcairn_root" name="VetCairn" sequence="25" groups="vet_base.group_vet_user"/>
+
+    <menuitem id="menu_vetcairn_operations" name="Operations" parent="menu_vetcairn_root" sequence="10"/>
+    <menuitem id="menu_vet_patient" name="Patients" parent="menu_vetcairn_operations" action="action_vet_patient" sequence="10"/>
+    <menuitem id="menu_vet_client" name="Clients" parent="menu_vetcairn_operations" action="action_vet_client" sequence="20"/>
+
+    <menuitem id="menu_vetcairn_configuration" name="Configuration" parent="menu_vetcairn_root" sequence="90" groups="vet_base.group_vet_manager"/>
+    <menuitem id="menu_vet_clinic" name="Clinics" parent="menu_vetcairn_configuration" action="action_vet_clinic" sequence="10"/>
+    <menuitem id="menu_vet_species" name="Species" parent="menu_vetcairn_configuration" action="action_vet_species" sequence="20"/>
+    <menuitem id="menu_vet_breed" name="Breeds" parent="menu_vetcairn_configuration" action="action_vet_breed" sequence="30"/>
+</odoo>
+

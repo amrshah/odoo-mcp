@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_vaccination_calendar" model="ir.ui.view">
+        <field name="name">vet.vaccination.calendar</field>
+        <field name="model">vet.vaccination</field>
+        <field name="arch" type="xml">
+            <calendar string="Vaccination Schedule" date_start="planned_date" color="protocol_id" mode="month" event_limit="8" quick_create="0">
+                <field name="patient_id"/>
+                <field name="client_id"/>
+                <field name="protocol_id"/>
+                <field name="clinic_id" filters="1"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_vet_vaccination_list" model="ir.ui.view">
+        <field name="name">vet.vaccination.list</field>
+        <field name="model">vet.vaccination</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="is_overdue" decoration-success="state == 'administered'" decoration-muted="state == 'cancelled'">
+                <field name="is_overdue" column_invisible="True"/>
+                <field name="planned_date"/>
+                <field name="patient_id"/>
+                <field name="client_id" optional="show"/>
+                <field name="species_id" optional="show"/>
+                <field name="protocol_id"/>
+                <field name="clinic_id" optional="show"/>
+                <field name="product_name" optional="hide"/>
+                <field name="batch_number" optional="hide"/>
+                <field name="administered_date" optional="show"/>
+                <field name="next_due_date" optional="show"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_vaccination_form" model="ir.ui.view">
+        <field name="name">vet.vaccination.form</field>
+        <field name="model">vet.vaccination</field>
+        <field name="arch" type="xml">
+            <form string="Patient Vaccination">
+                <header>
+                    <button name="action_administer" type="object" string="Record Administration" class="btn-primary" invisible="state != 'planned'" groups="vet_base.group_vet_technician" confirm="Confirm that this vaccine was administered to the selected patient?"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="state != 'planned'"/>
+                    <button name="action_reset_planned" type="object" string="Reset to Planned" invisible="state != 'cancelled'" groups="vet_base.group_vet_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="planned,administered"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Overdue" bg_color="text-bg-danger" invisible="not is_overdue"/>
+                    <div class="oe_title">
+                        <h1><field name="patient_id" placeholder="Select patient" options="{'no_create': True}"/></h1>
+                        <h2 class="text-muted"><field name="protocol_id" placeholder="Select vaccine protocol" options="{'no_create': True}"/></h2>
+                        <div class="text-muted"><field name="name" readonly="1"/></div>
+                    </div>
+                    <group>
+                        <group string="Patient &amp; Schedule">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="clinic_id" options="{'no_create': True}"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="species_id" readonly="1"/>
+                            <field name="planned_date"/>
+                            <field name="appointment_id" options="{'no_create': True}"/>
+                            <field name="encounter_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Administration">
+                            <field name="administered_date"/>
+                            <field name="administered_by_id"/>
+                            <field name="next_due_date"/>
+                            <field name="route"/>
+                            <field name="administration_site"/>
+                            <label for="dose"/>
+                            <div class="o_row"><field name="dose"/><field name="dose_unit"/></div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Vaccine &amp; Traceability" name="traceability">
+                            <group>
+                                <group>
+                                    <field name="product_name"/>
+                                    <field name="manufacturer"/>
+                                    <field name="batch_number"/>
+                                </group>
+                                <group>
+                                    <field name="expiry_date"/>
+                                    <field name="certificate_number"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Clinical Notes" name="notes">
+                            <group>
+                                <field name="adverse_reaction" placeholder="Any observed or reported adverse reaction..."/>
+                                <field name="notes" placeholder="Vaccination notes..."/>
+                                <field name="cancellation_reason" invisible="state != 'cancelled'"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vet_vaccination_search" model="ir.ui.view">
+        <field name="name">vet.vaccination.search</field>
+        <field name="model">vet.vaccination</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="client_id"/>
+                <field name="protocol_id"/>
+                <field name="clinic_id"/>
+                <field name="batch_number"/>
+                <filter name="planned" string="Planned" domain="[('state', '=', 'planned')]"/>
+                <filter name="overdue" string="Overdue" domain="[('is_overdue', '=', True)]"/>
+                <filter name="administered" string="Administered" domain="[('state', '=', 'administered')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="group_patient" string="Patient" context="{'group_by': 'patient_id'}"/>
+                <filter name="group_protocol" string="Protocol" context="{'group_by': 'protocol_id'}"/>
+                <filter name="group_clinic" string="Clinic" context="{'group_by': 'clinic_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vet_vaccination" model="ir.actions.act_window">
+        <field name="name">Vaccinations</field>
+        <field name="res_model">vet.vaccination</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="search_view_id" ref="view_vet_vaccination_search"/>
+        <field name="context">{'search_default_planned': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Plan the first patient vaccination</p>
+            <p>Track protocols, administration details, vaccine batches, and next due dates.</p>
+        </field>
+    </record>
+</odoo>

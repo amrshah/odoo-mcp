@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_encounter_receptionist,vet.encounter receptionist,model_vet_encounter,vet_base.group_vet_receptionist,1,0,0,0
+access_vet_encounter_technician,vet.encounter technician,model_vet_encounter,vet_base.group_vet_technician,1,1,1,0
+access_vet_encounter_veterinarian,vet.encounter veterinarian,model_vet_encounter,vet_base.group_vet_veterinarian,1,1,1,1
+access_vet_encounter_manager,vet.encounter manager,model_vet_encounter,vet_base.group_vet_manager,1,1,1,1

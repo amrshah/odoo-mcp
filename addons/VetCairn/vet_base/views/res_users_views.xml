@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form_vetcairn" model="ir.ui.view">
+        <field name="name">res.users.form.vetcairn</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="VetCairn" name="vetcairn" groups="vet_base.group_vet_manager">
+                    <group>
+                        <field name="vet_is_provider"/>
+                        <field name="vet_provider_code" invisible="not vet_is_provider"/>
+                        <field name="vet_clinic_ids" widget="many2many_tags"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_clinic_user,vet.clinic user,model_vet_clinic,vet_base.group_vet_user,1,0,0,0
+access_vet_clinic_manager,vet.clinic manager,model_vet_clinic,vet_base.group_vet_manager,1,1,1,1
+access_vet_species_user,vet.species user,model_vet_species,vet_base.group_vet_user,1,0,0,0
+access_vet_species_manager,vet.species manager,model_vet_species,vet_base.group_vet_manager,1,1,1,1
+access_vet_breed_user,vet.breed user,model_vet_breed,vet_base.group_vet_user,1,0,0,0
+access_vet_breed_manager,vet.breed manager,model_vet_breed,vet_base.group_vet_manager,1,1,1,1
+access_vet_patient_user,vet.patient user,model_vet_patient,vet_base.group_vet_user,1,0,0,0
+access_vet_patient_receptionist,vet.patient receptionist,model_vet_patient,vet_base.group_vet_receptionist,1,1,1,0
+access_vet_patient_manager,vet.patient manager,model_vet_patient,vet_base.group_vet_manager,1,1,1,1
+access_vet_patient_owner_user,vet.patient.owner user,model_vet_patient_owner,vet_base.group_vet_user,1,0,0,0
+access_vet_patient_owner_receptionist,vet.patient.owner receptionist,model_vet_patient_owner,vet_base.group_vet_receptionist,1,1,1,0
+access_vet_patient_owner_manager,vet.patient.owner manager,model_vet_patient_owner,vet_base.group_vet_manager,1,1,1,1
+

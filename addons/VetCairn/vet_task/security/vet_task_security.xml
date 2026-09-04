@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_vet_task_manager" model="res.groups">
+        <field name="name">Task Manager</field>
+        <field name="sequence">44</field>
+        <field name="comment">Can configure task types and fully manage veterinary work queues.</field>
+        <field name="privilege_id" ref="vet_base.privilege_vetcairn"/>
+        <field name="implied_ids" eval="[(4, ref('vet_base.group_vet_technician'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+    <data noupdate="1">
+        <record id="rule_vet_task_company" model="ir.rule">
+            <field name="name">Veterinary tasks: multi-company</field>
+            <field name="model_id" ref="model_vet_task"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_vet_task_type_company" model="ir.rule">
+            <field name="name">Veterinary task types: multi-company</field>
+            <field name="model_id" ref="model_vet_task_type"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_vet_task_checklist_company" model="ir.rule">
+            <field name="name">Task checklist: multi-company</field>
+            <field name="model_id" ref="model_vet_task_checklist"/>
+            <field name="domain_force">[('task_id.company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

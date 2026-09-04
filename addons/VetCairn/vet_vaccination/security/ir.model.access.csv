@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_vaccination_receptionist,vet.vaccination receptionist,model_vet_vaccination,vet_base.group_vet_receptionist,1,0,1,0
+access_vet_vaccination_technician,vet.vaccination technician,model_vet_vaccination,vet_base.group_vet_technician,1,1,1,0
+access_vet_vaccination_veterinarian,vet.vaccination veterinarian,model_vet_vaccination,vet_base.group_vet_veterinarian,1,1,1,1
+access_vet_vaccine_protocol_user,vet.vaccine.protocol user,model_vet_vaccine_protocol,vet_base.group_vet_user,1,0,0,0
+access_vet_vaccine_protocol_manager,vet.vaccine.protocol manager,model_vet_vaccine_protocol,vet_base.group_vet_manager,1,1,1,1

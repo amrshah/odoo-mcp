@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="privilege_vetcairn" model="res.groups.privilege">
+        <field name="name">VetCairn</field>
+        <field name="sequence">30</field>
+        <field name="category_id" ref="base.module_category_services"/>
+    </record>
+
+    <record id="group_vet_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="comment">Can view VetCairn clinics, clients, and patients.</field>
+        <field name="privilege_id" ref="privilege_vetcairn"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_vet_receptionist" model="res.groups">
+        <field name="name">Receptionist</field>
+        <field name="sequence">20</field>
+        <field name="comment">Can maintain veterinary clients and patient demographics.</field>
+        <field name="privilege_id" ref="privilege_vetcairn"/>
+        <field name="implied_ids" eval="[(4, ref('vet_base.group_vet_user'))]"/>
+    </record>
+
+    <record id="group_vet_technician" model="res.groups">
+        <field name="name">Technician</field>
+        <field name="sequence">30</field>
+        <field name="comment">Clinical support role with patient maintenance access.</field>
+        <field name="privilege_id" ref="privilege_vetcairn"/>
+        <field name="implied_ids" eval="[(4, ref('vet_base.group_vet_receptionist'))]"/>
+    </record>
+
+    <record id="group_vet_veterinarian" model="res.groups">
+        <field name="name">Veterinarian</field>
+        <field name="sequence">40</field>
+        <field name="comment">Veterinary provider role; later clinical modules extend this access.</field>
+        <field name="privilege_id" ref="privilege_vetcairn"/>
+        <field name="implied_ids" eval="[(4, ref('vet_base.group_vet_technician'))]"/>
+    </record>
+
+    <record id="group_vet_manager" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="sequence">50</field>
+        <field name="comment">Can configure VetCairn and manage all Phase 1 records.</field>
+        <field name="privilege_id" ref="privilege_vetcairn"/>
+        <field name="implied_ids" eval="[(4, ref('vet_base.group_vet_veterinarian'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <data noupdate="1">
+        <record id="rule_vet_clinic_company" model="ir.rule">
+            <field name="name">Vet clinic: multi-company</field>
+            <field name="model_id" ref="model_vet_clinic"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_vet_patient_company" model="ir.rule">
+            <field name="name">Vet patient: multi-company</field>
+            <field name="model_id" ref="model_vet_patient"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_vet_patient_owner_company" model="ir.rule">
+            <field name="name">Patient ownership: multi-company</field>
+            <field name="model_id" ref="model_vet_patient_owner"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>
+

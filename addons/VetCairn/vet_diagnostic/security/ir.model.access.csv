@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_diagnostic_receptionist,diagnostic receptionist,model_vet_diagnostic_order,vet_base.group_vet_receptionist,1,0,0,0
+access_vet_diagnostic_technician,diagnostic technician,model_vet_diagnostic_order,vet_base.group_vet_technician,1,1,1,0
+access_vet_diagnostic_veterinarian,diagnostic veterinarian,model_vet_diagnostic_order,vet_base.group_vet_veterinarian,1,1,1,1
+access_vet_diagnostic_type_user,diagnostic type user,model_vet_diagnostic_type,vet_base.group_vet_user,1,0,0,0
+access_vet_diagnostic_type_manager,diagnostic type manager,model_vet_diagnostic_type,vet_base.group_vet_manager,1,1,1,1

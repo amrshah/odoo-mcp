@@ -1,0 +1,21 @@
+{
+    "name": "VetCairn Vaccinations",
+    "summary": "Veterinary vaccination protocols, history, and due-date tracking",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "website": "https://vetcairn.example.com",
+    "license": "LGPL-3",
+    "depends": ["vet_clinical"],
+    "data": [
+        "security/vet_vaccination_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_vaccination_sequence.xml",
+        "views/vet_vaccine_protocol_views.xml",
+        "views/vet_vaccination_views.xml",
+        "views/vet_patient_views.xml",
+        "views/vet_vaccination_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_schedule" name="Schedule" parent="vet_base.menu_vetcairn_root" sequence="5" groups="vet_base.group_vet_user"/>
+    <menuitem id="menu_vet_appointment_calendar" name="Appointments" parent="menu_vet_schedule" action="action_vet_appointment" sequence="10"/>
+    <menuitem id="menu_vet_appointment_today" name="Today" parent="menu_vet_schedule" action="action_vet_appointment_today" sequence="20"/>
+    <menuitem id="menu_vet_appointment_type" name="Appointment Types" parent="vet_base.menu_vetcairn_configuration" action="action_vet_appointment_type" sequence="40" groups="vet_base.group_vet_manager"/>
+</odoo>

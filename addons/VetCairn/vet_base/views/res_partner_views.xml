@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_vetcairn" model="ir.ui.view">
+        <field name="name">res.partner.form.vetcairn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_vet_patients" type="object" class="oe_stat_button" icon="fa-paw" invisible="not is_vet_client">
+                    <field name="vet_patient_count" widget="statinfo" string="Patients"/>
+                </button>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Veterinary" name="vetcairn" groups="vet_base.group_vet_user">
+                    <group>
+                        <group string="Client">
+                            <field name="is_vet_client"/>
+                            <field name="vet_client_status" invisible="not is_vet_client"/>
+                            <field name="vet_preferred_clinic_id" invisible="not is_vet_client"/>
+                        </group>
+                        <group string="Communication Preferences" invisible="not is_vet_client">
+                            <field name="vet_transactional_email"/>
+                            <field name="vet_transactional_sms"/>
+                            <field name="vet_marketing_email"/>
+                            <field name="vet_marketing_sms"/>
+                        </group>
+                    </group>
+                    <field name="vet_ownership_ids" invisible="not is_vet_client" readonly="1">
+                        <list>
+                            <field name="is_primary"/>
+                            <field name="patient_id"/>
+                            <field name="relationship_type"/>
+                            <field name="start_date"/>
+                            <field name="end_date" optional="hide"/>
+                            <field name="active" optional="hide"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter_vetcairn" model="ir.ui.view">
+        <field name="name">res.partner.search.vetcairn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter string="Veterinary Clients" name="vet_clients" domain="[('is_vet_client', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_vet_client" model="ir.actions.act_window">
+        <field name="name">Clients</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_vet_client', '=', True)]</field>
+        <field name="context">{'default_is_vet_client': True, 'default_customer_rank': 1}</field>
+    </record>
+</odoo>
+

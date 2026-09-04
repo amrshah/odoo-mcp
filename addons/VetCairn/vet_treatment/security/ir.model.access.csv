@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_treatment_plan_technician,plan technician,model_vet_treatment_plan,vet_base.group_vet_technician,1,1,1,0
+access_treatment_plan_veterinarian,plan veterinarian,model_vet_treatment_plan,vet_base.group_vet_veterinarian,1,1,1,1
+access_treatment_line_technician,line technician,model_vet_treatment_line,vet_base.group_vet_technician,1,1,1,0
+access_treatment_line_veterinarian,line veterinarian,model_vet_treatment_line,vet_base.group_vet_veterinarian,1,1,1,1
+access_diagnosis_user,diagnosis user,model_vet_diagnosis,vet_base.group_vet_user,1,0,0,0
+access_diagnosis_manager,diagnosis manager,model_vet_diagnosis,vet_base.group_vet_manager,1,1,1,1

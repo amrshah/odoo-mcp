@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ward_staff,ward staff,model_vet_ward,vet_base.group_vet_technician,1,0,0,0
+ward_manager,ward manager,model_vet_ward,vet_completion.group_hospital_manager,1,1,1,1
+bed_staff,bed staff,model_vet_bed,vet_base.group_vet_technician,1,1,0,0
+bed_manager,bed manager,model_vet_bed,vet_completion.group_hospital_manager,1,1,1,1
+admission_staff,admission staff,model_vet_admission,vet_base.group_vet_technician,1,1,1,0
+admission_manager,admission manager,model_vet_admission,vet_completion.group_hospital_manager,1,1,1,1
+claim_user,claim user,model_vet_insurance_claim,vet_billing.group_vet_billing_user,1,1,1,0
+claim_manager,claim manager,model_vet_insurance_claim,vet_billing.group_vet_billing_manager,1,1,1,1
+adjustment_user,adjustment user,model_vet_financial_adjustment,vet_billing.group_vet_billing_user,1,0,1,0
+adjustment_manager,adjustment manager,model_vet_financial_adjustment,vet_billing.group_vet_billing_manager,1,1,1,1
+migration_batch,migration batch,model_vet_migration_batch,vet_completion.group_migration_manager,1,1,1,1
+migration_line,migration line,model_vet_migration_line,vet_completion.group_migration_manager,1,1,1,1

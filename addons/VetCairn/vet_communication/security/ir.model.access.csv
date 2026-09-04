@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_communication_staff,communication staff,model_vet_communication,vet_base.group_vet_receptionist,1,1,1,0
+access_vet_communication_supervisor,communication supervisor,model_vet_communication,vet_communication.group_vet_communication_supervisor,1,1,1,1
+access_vet_communication_template_staff,communication template staff,model_vet_communication_template,vet_base.group_vet_receptionist,1,0,0,0
+access_vet_communication_template_supervisor,communication template supervisor,model_vet_communication_template,vet_communication.group_vet_communication_supervisor,1,1,1,1

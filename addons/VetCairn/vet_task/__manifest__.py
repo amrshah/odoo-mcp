@@ -1,0 +1,21 @@
+{
+    "name": "VetCairn Tasks",
+    "summary": "Veterinary clinical and operational task work queues",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "license": "LGPL-3",
+    "depends": ["vet_dashboard"],
+    "data": [
+        "security/vet_task_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_task_sequence.xml",
+        "data/vet_task_type_data.xml",
+        "views/vet_task_type_views.xml",
+        "views/vet_task_views.xml",
+        "views/vet_patient_views.xml",
+        "views/vet_task_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}

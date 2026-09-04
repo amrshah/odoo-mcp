@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_appointment_user,vet.appointment user,model_vet_appointment,vet_base.group_vet_user,1,0,0,0
+access_vet_appointment_receptionist,vet.appointment receptionist,model_vet_appointment,vet_base.group_vet_receptionist,1,1,1,1
+access_vet_appointment_type_user,vet.appointment.type user,model_vet_appointment_type,vet_base.group_vet_user,1,0,0,0
+access_vet_appointment_type_manager,vet.appointment.type manager,model_vet_appointment_type,vet_base.group_vet_manager,1,1,1,1

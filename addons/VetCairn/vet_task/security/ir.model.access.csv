@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_task_staff,vet task staff,model_vet_task,vet_base.group_vet_receptionist,1,1,1,0
+access_vet_task_manager,vet task manager,model_vet_task,vet_task.group_vet_task_manager,1,1,1,1
+access_vet_task_checklist_staff,vet task checklist staff,model_vet_task_checklist,vet_base.group_vet_receptionist,1,1,1,0
+access_vet_task_checklist_manager,vet task checklist manager,model_vet_task_checklist,vet_task.group_vet_task_manager,1,1,1,1
+access_vet_task_type_staff,vet task type staff,model_vet_task_type,vet_base.group_vet_receptionist,1,0,0,0
+access_vet_task_type_manager,vet task type manager,model_vet_task_type,vet_task.group_vet_task_manager,1,1,1,1

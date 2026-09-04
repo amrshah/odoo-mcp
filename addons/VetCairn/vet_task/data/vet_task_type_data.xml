@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="task_type_clinical_followup" model="vet.task.type"><field name="name">Clinical Follow-up</field><field name="code">CLINICAL</field><field name="clinical" eval="True"/><field name="color">2</field><field name="default_priority">1</field><field name="default_due_days">1</field></record>
+    <record id="task_type_client_call" model="vet.task.type"><field name="name">Client Call</field><field name="code">CALL</field><field name="color">4</field><field name="default_due_days">0</field></record>
+    <record id="task_type_lab_followup" model="vet.task.type"><field name="name">Diagnostic Follow-up</field><field name="code">DIAGNOSTIC</field><field name="clinical" eval="True"/><field name="color">3</field><field name="default_priority">1</field><field name="default_due_days">1</field></record>
+    <record id="task_type_inventory" model="vet.task.type"><field name="name">Inventory Action</field><field name="code">INVENTORY</field><field name="color">6</field><field name="default_due_days">2</field></record>
+    <record id="task_type_admin" model="vet.task.type"><field name="name">Administrative</field><field name="code">ADMIN</field><field name="color">7</field><field name="default_due_days">2</field></record>
+</odoo>

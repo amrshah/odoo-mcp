@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_prescription_technician,prescription technician,model_vet_prescription,vet_base.group_vet_technician,1,0,0,0
+access_prescription_veterinarian,prescription veterinarian,model_vet_prescription,vet_base.group_vet_veterinarian,1,1,1,1
+access_medication_user,medication user,model_vet_medication,vet_base.group_vet_user,1,0,0,0
+access_medication_manager,medication manager,model_vet_medication,vet_base.group_vet_manager,1,1,1,1

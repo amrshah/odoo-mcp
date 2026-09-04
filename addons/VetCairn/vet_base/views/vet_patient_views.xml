@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_patient_search" model="ir.ui.view">
+        <field name="name">vet.patient.search</field>
+        <field name="model">vet.patient</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="identifier"/>
+                <field name="microchip_number"/>
+                <field name="primary_owner_id"/>
+                <field name="clinic_id"/>
+                <filter string="Active" name="active_patients" domain="[('status', '=', 'active')]"/>
+                <filter string="Inactive" name="inactive_patients" domain="[('status', '=', 'inactive')]"/>
+                <filter string="Deceased" name="deceased_patients" domain="[('status', '=', 'deceased')]"/>
+                <separator/>
+                <filter string="Clinic" name="clinic_id" context="{'group_by': 'clinic_id'}"/>
+                <filter string="Species" name="species_id" context="{'group_by': 'species_id'}"/>
+                <filter string="Status" name="status" context="{'group_by': 'status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_vet_patient_list" model="ir.ui.view">
+        <field name="name">vet.patient.list</field>
+        <field name="model">vet.patient</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="status == 'inactive'" decoration-danger="status == 'deceased'">
+                <field name="identifier"/>
+                <field name="name"/>
+                <field name="primary_owner_id"/>
+                <field name="species_id"/>
+                <field name="breed_id"/>
+                <field name="sex" optional="show"/>
+                <field name="age_display" optional="show"/>
+                <field name="clinic_id"/>
+                <field name="status" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_patient_form" model="ir.ui.view">
+        <field name="name">vet.patient.form</field>
+        <field name="model">vet.patient</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="status" widget="statusbar" statusbar_visible="active,inactive,deceased"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Patient name"/></h1>
+                        <div><field name="identifier" class="oe_inline" readonly="1"/></div>
+                    </div>
+                    <group>
+                        <group string="Patient">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="clinic_id"/>
+                            <field name="species_id"/>
+                            <field name="breed_id" options="{'no_create': True}"/>
+                            <field name="color"/>
+                            <field name="microchip_number"/>
+                        </group>
+                        <group string="Demographics">
+                            <field name="birthdate"/>
+                            <field name="approximate_birthdate" invisible="not birthdate"/>
+                            <field name="age_display" readonly="1"/>
+                            <field name="sex"/>
+                            <field name="reproductive_status"/>
+                            <field name="deceased_date" invisible="status != 'deceased'" required="status == 'deceased'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Owners" name="owners">
+                            <field name="ownership_ids" context="{'default_patient_id': id}">
+                                <list editable="bottom">
+                                    <field name="is_primary"/>
+                                    <field name="partner_id" domain="[('is_vet_client', '=', True)]"/>
+                                    <field name="relationship_type"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date" optional="hide"/>
+                                    <field name="active" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Internal Notes" name="notes">
+                            <field name="notes" placeholder="Non-clinical patient notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vet_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="res_model">vet.patient</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_vet_patient_search"/>
+        <field name="context">{'search_default_active_patients': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create the first veterinary patient</p>
+            <p>Patients are linked to one or more veterinary clients through ownership records.</p>
+        </field>
+    </record>
+</odoo>
+

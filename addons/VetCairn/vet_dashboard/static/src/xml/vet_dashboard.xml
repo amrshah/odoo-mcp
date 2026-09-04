@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="vet_dashboard.VetCairnDashboard">
+        <div class="o_vetcairn_dashboard">
+            <div t-if="state.loading" class="o_vet_loading">
+                <i class="fa fa-circle-o-notch fa-spin"/> Loading your practice dashboard…
+            </div>
+            <t t-else="">
+                <header class="o_vet_dashboard_hero">
+                    <div>
+                        <div class="o_vet_eyebrow">PRACTICE OVERVIEW</div>
+                        <h1>Good day, <t t-esc="state.data.user"/></h1>
+                        <p><t t-esc="state.data.company"/> · Live operational priorities across your clinic</p>
+                    </div>
+                    <button class="btn o_vet_refresh" t-on-click="loadDashboard">
+                        <i class="fa fa-refresh me-2"/>Refresh
+                    </button>
+                </header>
+
+                <section class="o_vet_metric_grid">
+                    <button t-foreach="state.data.metrics" t-as="metric" t-key="metric.label"
+                            t-att-class="'o_vet_metric_card o_vet_metric_' + metric.color"
+                            t-on-click="() => this.openAction(metric.action)">
+                        <span class="o_vet_metric_icon"><i t-att-class="'fa ' + metric.icon"/></span>
+                        <span class="o_vet_metric_content">
+                            <strong t-esc="metric.value"/>
+                            <span t-esc="metric.label"/>
+                        </span>
+                        <i class="fa fa-chevron-right o_vet_metric_arrow"/>
+                    </button>
+                </section>
+
+                <div class="o_vet_dashboard_body">
+                    <section class="o_vet_charts">
+                        <div class="o_vet_section_heading">
+                            <div><span>LIVE ANALYTICS</span><h2>Practice activity</h2></div>
+                            <small>Updated <t t-esc="state.data.generated_at"/></small>
+                        </div>
+                        <div class="o_vet_chart_grid">
+                            <article class="o_vet_chart_card" t-foreach="state.data.charts" t-as="chart" t-key="chart.title">
+                                <div class="o_vet_chart_header">
+                                    <h3 t-esc="chart.title"/>
+                                    <button class="btn btn-sm btn-light" t-on-click="() => this.openAction(chart.action)">Explore</button>
+                                </div>
+                                <div t-if="chart.items.length" class="o_vet_bar_chart">
+                                    <div class="o_vet_bar_row" t-foreach="chart.items" t-as="item" t-key="item.label">
+                                        <div class="o_vet_bar_label"><span t-esc="item.label"/><strong t-esc="item.value"/></div>
+                                        <div class="o_vet_bar_track"><span t-attf-style="width: {{ item.percent }}%;"/></div>
+                                    </div>
+                                </div>
+                                <div t-else="" class="o_vet_empty_chart">
+                                    <i class="fa fa-line-chart"/><span>No activity to display yet</span>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <aside class="o_vet_quick_panel">
+                        <div class="o_vet_section_heading"><div><span>QUICK ACCESS</span><h2>Clinic workspace</h2></div></div>
+                        <div class="o_vet_quick_grid">
+                            <button t-foreach="state.data.quick_actions" t-as="quick" t-key="quick.label"
+                                    t-on-click="() => this.openAction(quick.action)">
+                                <i t-att-class="'fa ' + quick.icon"/><span t-esc="quick.label"/>
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

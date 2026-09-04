@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_clinical" name="Clinical" parent="vet_base.menu_vetcairn_root" sequence="15" groups="vet_base.group_vet_technician"/>
+    <menuitem id="menu_vet_census" name="Today's Census" parent="menu_vet_clinical" action="action_vet_encounter_census" sequence="10"/>
+    <menuitem id="menu_vet_encounters" name="Clinical Encounters" parent="menu_vet_clinical" action="action_vet_encounter_all" sequence="20"/>
+</odoo>

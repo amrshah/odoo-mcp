@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_vaccination_report_pivot" model="ir.ui.view"><field name="name">vet.vaccination.report.pivot</field><field name="model">vet.vaccination</field><field name="arch" type="xml"><pivot string="Vaccination Analysis" sample="1"><field name="planned_date" type="row" interval="month"/><field name="clinic_id" type="row"/><field name="protocol_id" type="col"/><field name="state" type="col"/></pivot></field></record>
+    <record id="view_vet_vaccination_report_graph" model="ir.ui.view"><field name="name">vet.vaccination.report.graph</field><field name="model">vet.vaccination</field><field name="arch" type="xml"><graph string="Vaccinations" type="bar" sample="1"><field name="planned_date" interval="month"/><field name="state"/></graph></field></record>
+    <record id="action_vet_report_vaccinations" model="ir.actions.act_window"><field name="name">Vaccination Analysis</field><field name="res_model">vet.vaccination</field><field name="view_mode">pivot,graph,list</field><field name="search_view_id" ref="vet_vaccination.view_vet_vaccination_search"/></record>
+</odoo>

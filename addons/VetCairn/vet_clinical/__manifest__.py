@@ -1,0 +1,21 @@
+{
+    "name": "VetCairn Clinical",
+    "summary": "Veterinary encounters, census, triage, and SOAP clinical notes",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "website": "https://vetcairn.example.com",
+    "license": "LGPL-3",
+    "depends": ["vet_appointment"],
+    "data": [
+        "security/vet_clinical_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_encounter_sequence.xml",
+        "views/vet_encounter_views.xml",
+        "views/vet_appointment_views.xml",
+        "views/vet_patient_views.xml",
+        "views/vet_clinical_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}

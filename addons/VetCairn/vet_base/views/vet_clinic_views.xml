@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_clinic_list" model="ir.ui.view">
+        <field name="name">vet.clinic.list</field>
+        <field name="model">vet.clinic</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="partner_id"/>
+                <field name="timezone" optional="hide"/>
+                <field name="patient_count"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_clinic_form" model="ir.ui.view">
+        <field name="name">vet.clinic.form</field>
+        <field name="model">vet.clinic</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="action" name="%(action_vet_patient)d" icon="fa-paw" context="{'search_default_clinic_id': id}">
+                            <field name="patient_count" widget="statinfo" string="Patients"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="timezone"/>
+                        </group>
+                    </group>
+                    <group string="Internal Notes">
+                        <field name="notes" placeholder="Clinic-specific operational notes..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vet_clinic" model="ir.actions.act_window">
+        <field name="name">Clinics</field>
+        <field name="res_model">vet.clinic</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
+

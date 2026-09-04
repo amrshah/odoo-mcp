@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_encounter_list" model="ir.ui.view">
+        <field name="name">vet.encounter.list</field>
+        <field name="model">vet.encounter</field>
+        <field name="arch" type="xml">
+            <list string="Clinical Census" decoration-danger="triage_priority == 'emergency'" decoration-warning="triage_priority == 'urgent'" decoration-info="state == 'in_progress'" decoration-success="state in ('completed', 'locked')">
+                <field name="triage_priority" widget="badge"/>
+                <field name="start_datetime"/>
+                <field name="patient_id"/>
+                <field name="client_id" optional="show"/>
+                <field name="chief_complaint"/>
+                <field name="provider_id"/>
+                <field name="clinic_id" optional="show"/>
+                <field name="weight_kg" optional="show"/>
+                <field name="temperature_c" optional="show"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_encounter_form" model="ir.ui.view">
+        <field name="name">vet.encounter.form</field>
+        <field name="model">vet.encounter</field>
+        <field name="arch" type="xml">
+            <form string="Clinical Encounter">
+                <header>
+                    <button name="action_start" type="object" string="Start Consultation" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_complete" type="object" string="Complete Note" class="btn-primary" invisible="state not in ('draft', 'in_progress')" groups="vet_base.group_vet_veterinarian"/>
+                    <button name="action_reopen" type="object" string="Reopen" invisible="state != 'completed'" groups="vet_base.group_vet_manager"/>
+                    <button name="action_lock" type="object" string="Lock Clinical Note" invisible="state != 'completed'" groups="vet_base.group_vet_veterinarian" confirm="A locked clinical note cannot be edited. Continue?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,completed,locked"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Locked" bg_color="text-bg-success" invisible="state != 'locked'"/>
+                    <div class="oe_title">
+                        <div class="d-flex align-items-center gap-2">
+                            <field name="triage_priority" widget="badge"/>
+                            <h1 class="mb-0"><field name="patient_id" readonly="1"/></h1>
+                        </div>
+                        <h2 class="text-muted"><field name="chief_complaint" placeholder="Chief complaint"/></h2>
+                        <div class="text-muted"><field name="name" readonly="1"/></div>
+                    </div>
+                    <group>
+                        <group string="Visit">
+                            <field name="appointment_id" readonly="1"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="provider_id" readonly="1"/>
+                            <field name="clinic_id" readonly="1"/>
+                            <field name="start_datetime" readonly="1"/>
+                        </group>
+                        <group string="Triage &amp; Vitals">
+                            <field name="triage_priority"/>
+                            <field name="weight_kg"/>
+                            <field name="temperature_c"/>
+                            <field name="heart_rate"/>
+                            <field name="respiratory_rate"/>
+                            <field name="pain_score"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="S — Subjective" name="subjective">
+                            <field name="subjective" placeholder="History, owner observations, current medications, appetite and behaviour..."/>
+                        </page>
+                        <page string="O — Objective" name="objective">
+                            <field name="objective" placeholder="Physical examination and objective findings..."/>
+                        </page>
+                        <page string="A — Assessment" name="assessment">
+                            <field name="diagnosis_summary" placeholder="Concise diagnosis or problem summary"/>
+                            <field name="assessment" placeholder="Clinical assessment and differential diagnoses..."/>
+                        </page>
+                        <page string="P — Plan" name="plan">
+                            <field name="plan" placeholder="Treatment, diagnostics, medication, monitoring and follow-up plan..."/>
+                        </page>
+                        <page string="Audit" name="audit">
+                            <group>
+                                <field name="completed_at"/>
+                                <field name="locked_at"/>
+                                <field name="locked_by_id"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vet_encounter_search" model="ir.ui.view">
+        <field name="name">vet.encounter.search</field>
+        <field name="model">vet.encounter</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="client_id"/>
+                <field name="provider_id"/>
+                <field name="clinic_id"/>
+                <filter name="today" string="Today" domain="[('start_datetime', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('start_datetime', '&lt;', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="waiting" string="Waiting" domain="[('state', '=', 'draft')]"/>
+                <filter name="in_progress" string="In Consultation" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="emergency" string="Emergency" domain="[('triage_priority', '=', 'emergency')]"/>
+                <separator/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                <filter name="group_provider" string="Provider" context="{'group_by': 'provider_id'}"/>
+                <filter name="group_clinic" string="Clinic" context="{'group_by': 'clinic_id'}"/>
+                <filter name="group_day" string="Day" context="{'group_by': 'start_datetime:day'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vet_encounter_census" model="ir.actions.act_window">
+        <field name="name">Clinical Census</field>
+        <field name="res_model">vet.encounter</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_vet_encounter_search"/>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No patients are in today's clinical census</p>
+            <p>Checking in and starting an appointment creates its clinical encounter.</p>
+        </field>
+    </record>
+
+    <record id="action_vet_encounter_all" model="ir.actions.act_window">
+        <field name="name">Clinical Encounters</field>
+        <field name="res_model">vet.encounter</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_vet_encounter_search"/>
+    </record>
+</odoo>

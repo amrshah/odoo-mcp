@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_reminder_receptionist,reminder receptionist,model_vet_reminder,vet_base.group_vet_receptionist,1,1,1,0
+access_vet_reminder_manager,reminder manager,model_vet_reminder,vet_reminder.group_vet_communication_manager,1,1,1,1
+access_vet_reminder_type_user,reminder type user,model_vet_reminder_type,vet_base.group_vet_user,1,0,0,0
+access_vet_reminder_type_manager,reminder type manager,model_vet_reminder_type,vet_reminder.group_vet_communication_manager,1,1,1,1

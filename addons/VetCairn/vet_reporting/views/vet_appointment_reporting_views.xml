@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_appointment_report_pivot" model="ir.ui.view">
+        <field name="name">vet.appointment.report.pivot</field><field name="model">vet.appointment</field>
+        <field name="arch" type="xml"><pivot string="Appointment Analysis" sample="1"><field name="start_datetime" type="row" interval="day"/><field name="clinic_id" type="row"/><field name="provider_id" type="col"/><field name="state" type="col"/><field name="duration" type="measure"/></pivot></field>
+    </record>
+    <record id="view_vet_appointment_report_graph" model="ir.ui.view">
+        <field name="name">vet.appointment.report.graph</field><field name="model">vet.appointment</field>
+        <field name="arch" type="xml"><graph string="Appointments by Status" type="bar" sample="1"><field name="start_datetime" interval="month"/><field name="state"/></graph></field>
+    </record>
+    <record id="action_vet_report_appointments" model="ir.actions.act_window"><field name="name">Appointment Analysis</field><field name="res_model">vet.appointment</field><field name="view_mode">pivot,graph,list</field><field name="search_view_id" ref="vet_appointment.view_vet_appointment_search"/><field name="context">{'search_default_group_provider': 1}</field></record>
+</odoo>

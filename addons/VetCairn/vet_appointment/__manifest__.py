@@ -1,0 +1,21 @@
+{
+    "name": "VetCairn Appointments",
+    "summary": "Veterinary appointment scheduling and visit status workflow",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "website": "https://vetcairn.example.com",
+    "license": "LGPL-3",
+    "depends": ["vet_base", "mail"],
+    "data": [
+        "security/vet_appointment_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_appointment_sequence.xml",
+        "data/vet_appointment_type_data.xml",
+        "views/vet_appointment_type_views.xml",
+        "views/vet_appointment_views.xml",
+        "views/vet_appointment_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}

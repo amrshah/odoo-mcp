@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_tasks" name="Tasks" parent="vet_base.menu_vetcairn_operations" sequence="35" groups="vet_base.group_vet_receptionist"/>
+    <menuitem id="menu_vet_task_my_work" name="My Tasks" parent="menu_vet_tasks" action="action_vet_task_my_work" sequence="10"/>
+    <menuitem id="menu_vet_task_all" name="All Tasks" parent="menu_vet_tasks" action="action_vet_task" sequence="20"/>
+    <menuitem id="menu_vet_task_type" name="Task Types" parent="vet_base.menu_vetcairn_configuration" action="action_vet_task_type" sequence="75" groups="vet_task.group_vet_task_manager"/>
+</odoo>

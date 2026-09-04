@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_vet_dashboard" model="ir.actions.client">
+        <field name="name">VetCairn Dashboard</field>
+        <field name="tag">vetcairn.dashboard</field>
+    </record>
+    <menuitem id="menu_vet_dashboard" name="Dashboard" parent="vet_base.menu_vetcairn_root" action="action_vet_dashboard" sequence="1" groups="vet_base.group_vet_user"/>
+    <record id="vet_base.menu_vetcairn_root" model="ir.ui.menu">
+        <field name="action" ref="action_vet_dashboard"/>
+    </record>
+</odoo>

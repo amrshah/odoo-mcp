@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><menuitem id="menu_vet_diagnostics" name="Diagnostics" parent="vet_clinical.menu_vet_clinical" action="action_vet_diagnostic_order" sequence="30"/><menuitem id="menu_vet_diagnostic_type" name="Diagnostic Types" parent="vet_base.menu_vetcairn_configuration" action="action_vet_diagnostic_type" sequence="60" groups="vet_base.group_vet_manager"/></odoo>

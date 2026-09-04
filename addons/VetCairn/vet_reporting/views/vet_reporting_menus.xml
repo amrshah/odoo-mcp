@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_reporting" name="Reports" parent="vet_base.menu_vetcairn_root" sequence="70" groups="vet_reporting.group_vet_reporting_user"/>
+    <menuitem id="menu_report_appointments" name="Appointments" parent="menu_vet_reporting" action="action_vet_report_appointments" sequence="10"/>
+    <menuitem id="menu_report_clinical" name="Clinical Census" parent="menu_vet_reporting" action="action_vet_report_clinical" sequence="20"/>
+    <menuitem id="menu_report_vaccinations" name="Vaccinations" parent="menu_vet_reporting" action="action_vet_report_vaccinations" sequence="30"/>
+    <menuitem id="menu_report_diagnostics" name="Diagnostics" parent="menu_vet_reporting" action="action_vet_report_diagnostics" sequence="40"/>
+    <menuitem id="menu_report_prescriptions" name="Prescriptions" parent="menu_vet_reporting" action="action_vet_report_prescriptions" sequence="50"/>
+    <menuitem id="menu_report_inventory" name="Inventory" parent="menu_vet_reporting" action="action_vet_report_inventory" sequence="60"/>
+    <menuitem id="menu_report_billing" name="Billing Charges" parent="menu_vet_reporting" action="action_vet_report_billing" sequence="70"/>
+    <menuitem id="menu_report_reminders" name="Reminders" parent="menu_vet_reporting" action="action_vet_report_reminders" sequence="80"/>
+</odoo>

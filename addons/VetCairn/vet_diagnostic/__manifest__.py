@@ -1,0 +1,20 @@
+{
+    "name": "VetCairn Diagnostics",
+    "summary": "Veterinary laboratory and imaging orders and results",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "license": "LGPL-3",
+    "depends": ["vet_clinical", "vet_vaccination"],
+    "data": [
+        "security/vet_diagnostic_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_diagnostic_sequence.xml",
+        "views/vet_diagnostic_type_views.xml",
+        "views/vet_diagnostic_order_views.xml",
+        "views/vet_patient_views.xml",
+        "views/vet_diagnostic_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}

@@ -1,0 +1,21 @@
+{
+    "name": "VetCairn Treatment",
+    "summary": "Veterinary diagnoses, treatment plans, hospitalization, and treatment board",
+    "version": "19.0.1.0.0",
+    "category": "Services/Veterinary",
+    "author": "VetCairn",
+    "license": "LGPL-3",
+    "depends": ["vet_reporting"],
+    "data": [
+        "security/vet_treatment_security.xml",
+        "security/ir.model.access.csv",
+        "data/vet_treatment_sequence.xml",
+        "views/vet_diagnosis_views.xml",
+        "views/vet_treatment_plan_views.xml",
+        "views/vet_treatment_line_views.xml",
+        "views/vet_patient_views.xml",
+        "views/vet_treatment_menus.xml",
+    ],
+    "application": False,
+    "installable": True,
+}
