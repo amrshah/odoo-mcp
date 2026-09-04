@@ -9,6 +9,13 @@ from odoo.http import request
 logger = logging.getLogger(__name__)
 
 
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code (e.g. datetime, date, Decimal)."""
+    if hasattr(obj, "isoformat"):
+        return obj.isoformat()
+    return str(obj)
+
+
 class ZelixCopilotController(http.Controller):
 
     def _get_backend_url(self):
@@ -217,7 +224,7 @@ class ZelixCopilotController(http.Controller):
             try:
                 req = urllib.request.Request(
                     f"{url}/api/copilot/chat",
-                    data=json.dumps(payload).encode("utf-8"),
+                    data=json.dumps(payload, default=json_serial).encode("utf-8"),
                     headers={"Content-Type": "application/json"},
                     method="POST",
                 )
@@ -273,7 +280,7 @@ class ZelixCopilotController(http.Controller):
             try:
                 req = urllib.request.Request(
                     f"{url}/api/copilot/action/approve",
-                    data=json.dumps(payload).encode("utf-8"),
+                    data=json.dumps(payload, default=json_serial).encode("utf-8"),
                     headers={"Content-Type": "application/json"},
                     method="POST",
                 )
@@ -303,7 +310,7 @@ class ZelixCopilotController(http.Controller):
             try:
                 req = urllib.request.Request(
                     f"{url}/api/copilot/action/reject",
-                    data=json.dumps(payload).encode("utf-8"),
+                    data=json.dumps(payload, default=json_serial).encode("utf-8"),
                     headers={"Content-Type": "application/json"},
                     method="POST",
                 )
