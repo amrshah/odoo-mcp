@@ -54,13 +54,15 @@ class ContextEngine:
         self.client = odoo_client or OdooClient()
 
     def resolve_patient_id(self, context: ActiveContext) -> Optional[int]:
-        """Resolves patient ID from encounter, appointment, or direct patient record."""
+        """Resolves patient ID from encounter, appointment, or direct patient record (VetCairn or HMS)."""
         if context.patient_id:
             return context.patient_id
 
-        if context.model == "vet.patient" and context.record_id:
+        # Direct patient records
+        if context.model in ["vet.patient", "hms.patient"] and context.record_id:
             return context.record_id
 
+        # Veterinary encounters & appointments
         if context.model == "vet.encounter" and context.record_id:
             enc = self.client.read("vet.encounter", [context.record_id], ["patient_id"])
             if enc and enc[0].get("patient_id"):
@@ -71,71 +73,121 @@ class ContextEngine:
             if appt and appt[0].get("patient_id"):
                 return appt[0]["patient_id"][0]
 
+        # HMS consultations & appointments
+        if context.model == "hms.consultation" and context.record_id:
+            enc = self.client.read("hms.consultation", [context.record_id], ["patient_id"])
+            if enc and enc[0].get("patient_id"):
+                return enc[0]["patient_id"][0]
+
+        if context.model == "hms.appointment" and context.record_id:
+            appt = self.client.read("hms.appointment", [context.record_id], ["patient_id"])
+            if appt and appt[0].get("patient_id"):
+                return appt[0]["patient_id"][0]
+
         return None
 
-    def fetch_patient_context(self, patient_id: int) -> Optional[PatientClinicalSummary]:
-        """Fetches structured longitudinal patient summary."""
+    def fetch_patient_context(self, patient_id: int, model: Optional[str] = None) -> Optional[PatientClinicalSummary]:
+        """Fetches structured longitudinal patient summary from VetCairn or Stratos HMS."""
+        # 1. Try vet.patient first unless explicitly hms.patient
+        if model != "hms.patient":
+            try:
+                records = self.client.read(
+                    "vet.patient",
+                    [patient_id],
+                    [
+                        "name", "identifier", "species_id", "breed_id", "sex",
+                        "birthdate", "age_display", "microchip_number", "primary_owner_id",
+                        "clinic_id", "notes"
+                    ]
+                )
+                if records:
+                    p = records[0]
+                    encounters = self.client.search_read(
+                        "vet.encounter",
+                        [("patient_id", "=", patient_id)],
+                        ["start_datetime", "provider_id", "chief_complaint", "assessment", "state"],
+                        limit=3,
+                        order="start_datetime desc"
+                    )
+                    prescriptions = self.client.search_read(
+                        "vet.prescription",
+                        [("patient_id", "=", patient_id)],
+                        ["name", "medication_id", "dose", "frequency", "duration", "state"],
+                        limit=3,
+                        order="id desc"
+                    )
+                    appointments = self.client.search_read(
+                        "vet.appointment",
+                        [("patient_id", "=", patient_id), ("state", "!=", "cancelled")],
+                        ["name", "appointment_type_id", "start_datetime", "state", "reason"],
+                        limit=2,
+                        order="start_datetime desc"
+                    )
+                    return PatientClinicalSummary(
+                        id=p["id"],
+                        name=p.get("name", "Unknown"),
+                        identifier=p.get("identifier", f"PAT-{p['id']:05d}"),
+                        species=p.get("species_id", [0, "Unknown"])[1] if p.get("species_id") else "Unknown",
+                        breed=p.get("breed_id", [0, "Unknown"])[1] if p.get("breed_id") else "Unknown",
+                        sex=p.get("sex", "Unknown"),
+                        age_or_birthdate=p.get("age_display") or str(p.get("birthdate") or ""),
+                        microchip=p.get("microchip_number"),
+                        primary_owner=p.get("primary_owner_id", [0, "None"])[1] if p.get("primary_owner_id") else "None",
+                        clinic=p.get("clinic_id", [0, "None"])[1] if p.get("clinic_id") else "None",
+                        recent_encounters=encounters,
+                        active_prescriptions=prescriptions,
+                        upcoming_appointments=appointments,
+                        notes=p.get("notes"),
+                    )
+            except Exception as e:
+                logger.debug(f"vet.patient read skipped/failed: {e}")
+
+        # 2. Try hms.patient (Stratos HMS Human Hospital)
         try:
             records = self.client.read(
-                "vet.patient",
+                "hms.patient",
                 [patient_id],
                 [
-                    "name", "identifier", "species_id", "breed_id", "sex",
-                    "birthdate", "age_display", "microchip_number", "primary_owner_id",
-                    "clinic_id", "notes"
+                    "name", "code", "gender", "age", "birthday",
+                    "blood_group", "mobile", "phone", "email", "address"
                 ]
             )
-            if not records:
-                return None
-
-            p = records[0]
-
-            # 1. Recent Encounters
-            encounters = self.client.search_read(
-                "vet.encounter",
-                [("patient_id", "=", patient_id)],
-                ["start_datetime", "provider_id", "chief_complaint", "assessment", "state"],
-                limit=3,
-                order="start_datetime desc"
-            )
-
-            # 2. Active / Recent Prescriptions
-            prescriptions = self.client.search_read(
-                "vet.prescription",
-                [("patient_id", "=", patient_id)],
-                ["name", "medication_id", "dose", "frequency", "duration", "state"],
-                limit=3,
-                order="id desc"
-            )
-
-            # 3. Upcoming Appointments
-            appointments = self.client.search_read(
-                "vet.appointment",
-                [("patient_id", "=", patient_id), ("state", "!=", "cancelled")],
-                ["name", "appointment_type_id", "start_datetime", "state", "reason"],
-                limit=2,
-                order="start_datetime desc"
-            )
-
-            return PatientClinicalSummary(
-                id=p["id"],
-                name=p.get("name", "Unknown"),
-                identifier=p.get("identifier", f"PAT-{p['id']:05d}"),
-                species=p.get("species_id", [0, "Unknown"])[1] if p.get("species_id") else "Unknown",
-                breed=p.get("breed_id", [0, "Unknown"])[1] if p.get("breed_id") else "Unknown",
-                sex=p.get("sex", "Unknown"),
-                age_or_birthdate=p.get("age_display") or str(p.get("birthdate") or ""),
-                microchip=p.get("microchip_number"),
-                primary_owner=p.get("primary_owner_id", [0, "None"])[1] if p.get("primary_owner_id") else "None",
-                clinic=p.get("clinic_id", [0, "None"])[1] if p.get("clinic_id") else "None",
-                recent_encounters=encounters,
-                active_prescriptions=prescriptions,
-                upcoming_appointments=appointments,
-                notes=p.get("notes"),
-            )
+            if records:
+                p = records[0]
+                consults = self.client.search_read(
+                    "hms.consultation",
+                    [("patient_id", "=", patient_id)],
+                    ["name", "physician_id", "chief_complaint", "diagnosis", "state", "date"],
+                    limit=3,
+                    order="date desc"
+                )
+                appts = self.client.search_read(
+                    "hms.appointment",
+                    [("patient_id", "=", patient_id)],
+                    ["name", "physician_id", "state", "date"],
+                    limit=2,
+                    order="date desc"
+                )
+                return PatientClinicalSummary(
+                    id=p["id"],
+                    name=p.get("name", "Unknown"),
+                    identifier=p.get("code", f"MED-{p['id']:05d}"),
+                    species="Human",
+                    breed=p.get("blood_group") or "Standard",
+                    sex=(p.get("gender") or "Unknown").capitalize(),
+                    age_or_birthdate=f"{p.get('age', '')} yrs" if p.get("age") else str(p.get("birthday") or ""),
+                    microchip=None,
+                    primary_owner=p.get("mobile") or p.get("email") or "Self",
+                    clinic="Stratos Hospital",
+                    recent_encounters=consults,
+                    active_prescriptions=[],
+                    upcoming_appointments=appts,
+                    notes=f"Blood Group: {p.get('blood_group') or 'N/A'}, Phone: {p.get('mobile') or p.get('phone') or 'N/A'}",
+                )
         except Exception as e:
-            logger.error(f"Error building patient context for ID {patient_id}: {e}")
-            return None
+            logger.debug(f"hms.patient read skipped/failed: {e}")
+
+        return None
 
     def format_context_prompt(self, summary: PatientClinicalSummary, query_text: str = "") -> str:
         """Formats compact prompt string for BitNet / SLM context injection including Learned Rules and Memory."""

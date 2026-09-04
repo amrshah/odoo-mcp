@@ -19,9 +19,13 @@ class OdooClient:
         username: Optional[str] = None,
         password: Optional[str] = None,
     ):
-        default_url = os.getenv("ODOO_LOCAL_URL") or os.getenv("ODOO_URL", "http://localhost:8069")
-        if "web:" in default_url and not os.path.exists("/.dockerenv"):
-            default_url = "http://localhost:8069"
+        default_url = os.getenv("ODOO_URL") or os.getenv("ODOO_LOCAL_URL") or "http://localhost:8069"
+        if "://web" in default_url:
+            import socket
+            try:
+                socket.gethostbyname("web")
+            except Exception:
+                default_url = default_url.replace("://web", "://localhost")
         self.url = (url or default_url).rstrip("/")
         self.db = db or os.getenv("ODOO_DB", "odoo_hospital")
         self.username = username or os.getenv("ODOO_USERNAME", "admin")

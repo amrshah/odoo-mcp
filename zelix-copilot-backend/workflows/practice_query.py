@@ -41,29 +41,42 @@ class PracticeQueryWorkflow(BaseWorkflow):
         client = odoo_client
         prompt_lower = user_input.lower()
 
-        # 1. Fetch live authoritative records from Odoo
-        patients_data = []
-        appts_data = []
-        encs_data = []
+        # 1. Fetch live authoritative records from Odoo (VetCairn + Stratos HMS + Inventory + Users)
+        vet_patients = []
+        hms_patients = []
+        vet_appts = []
+        hms_appts = []
+        vet_encs = []
+        hms_consults = []
         inventory_data = []
         formulary_data = []
         users_data = []
 
         if client:
-            # A. Patients
+            # A. Patients (Vet & HMS)
             try:
-                patients_data = client.search_read(
+                vet_patients = client.search_read(
                     "vet.patient",
                     [],
                     ["id", "name", "identifier", "species_id", "breed_id", "status"],
                     limit=50,
                 )
             except Exception as e:
-                logger.warning(f"Error querying vet.patient: {e}")
+                logger.debug(f"vet.patient query skipped: {e}")
 
-            # B. Appointments
             try:
-                appts_data = client.search_read(
+                hms_patients = client.search_read(
+                    "hms.patient",
+                    [],
+                    ["id", "name", "mrn", "sex", "age", "phone", "blood_group"],
+                    limit=50,
+                )
+            except Exception as e:
+                logger.debug(f"hms.patient query skipped: {e}")
+
+            # B. Appointments / Visits (Vet & HMS)
+            try:
+                vet_appts = client.search_read(
                     "vet.appointment",
                     [],
                     ["id", "name", "patient_id", "provider_id", "state", "start_datetime"],
@@ -71,24 +84,45 @@ class PracticeQueryWorkflow(BaseWorkflow):
                     order="start_datetime desc",
                 )
             except Exception as e:
-                logger.warning(f"Error querying vet.appointment: {e}")
+                logger.debug(f"vet.appointment query skipped: {e}")
 
-            # C. Encounters
             try:
-                encs_data = client.search_read(
+                hms_appts = client.search_read(
+                    "hms.visit",
+                    [],
+                    ["id", "name", "patient_id", "doctor_id", "stage", "state", "complaint", "arrival_time"],
+                    limit=50,
+                    order="arrival_time desc",
+                )
+            except Exception as e:
+                logger.debug(f"hms.visit query skipped: {e}")
+
+            # C. Encounters / Consultations (Vet & HMS)
+            try:
+                vet_encs = client.search_read(
                     "vet.encounter",
                     [],
                     ["id", "name", "patient_id", "provider_id", "state", "chief_complaint"],
                     limit=50,
                 )
             except Exception as e:
-                logger.warning(f"Error querying vet.encounter: {e}")
+                logger.debug(f"vet.encounter query skipped: {e}")
+
+            try:
+                hms_consults = client.search_read(
+                    "hms.consult",
+                    [],
+                    ["id", "name", "patient_id", "doctor_id", "state"],
+                    limit=50,
+                )
+            except Exception as e:
+                logger.debug(f"hms.consult query skipped: {e}")
 
             # D. Physical Inventory Stock (product.product)
             try:
                 inventory_data = client.search_read(
                     "product.product",
-                    [("is_vet_item", "=", True)],
+                    [],
                     [
                         "id",
                         "name",
@@ -104,18 +138,30 @@ class PracticeQueryWorkflow(BaseWorkflow):
                     limit=50,
                 )
             except Exception as e:
-                logger.warning(f"Error querying product.product inventory: {e}")
+                logger.debug(f"product.product query skipped: {e}")
 
-            # E. Prescription Formulary Master (vet.medication)
+            # E. Prescription Formulary Master (vet.medication & hms.medicine)
             try:
-                formulary_data = client.search_read(
+                v_meds = client.search_read(
                     "vet.medication",
                     [],
                     ["id", "name", "dosage_form", "controlled", "strength"],
                     limit=50,
                 )
+                formulary_data.extend(v_meds)
             except Exception as e:
-                logger.warning(f"Error querying vet.medication: {e}")
+                pass
+
+            try:
+                h_meds = client.search_read(
+                    "hms.drug",
+                    [],
+                    ["id", "name", "form", "strength", "brand", "generic_name"],
+                    limit=50,
+                )
+                formulary_data.extend(h_meds)
+            except Exception as e:
+                pass
 
             # F. Staff & Users
             try:
@@ -126,11 +172,20 @@ class PracticeQueryWorkflow(BaseWorkflow):
                     limit=20,
                 )
             except Exception as e:
-                logger.warning(f"Error querying res.users: {e}")
+                logger.debug(f"res.users query skipped: {e}")
 
-        total_patients = len(patients_data)
-        total_appts = len(appts_data)
-        total_encs = len(encs_data)
+        total_vet_patients = len(vet_patients)
+        total_hms_patients = len(hms_patients)
+        total_patients = total_vet_patients + total_hms_patients
+
+        total_vet_appts = len(vet_appts)
+        total_hms_appts = len(hms_appts)
+        total_appts = total_vet_appts + total_hms_appts
+
+        total_vet_encs = len(vet_encs)
+        total_hms_consults = len(hms_consults)
+        total_encs = total_vet_encs + total_hms_consults
+
         total_stock_items = len(inventory_data)
         total_formulary = len(formulary_data)
         total_staff = len(users_data)
@@ -141,31 +196,39 @@ class PracticeQueryWorkflow(BaseWorkflow):
         # A. Patient count / census queries
         if any(w in prompt_lower for w in ["how many patient", "patient count", "number of patient", "patients in", "census", "list patient"]):
             if total_patients == 0:
-                response_lines.append("There are currently **no patients registered** in the clinic database.")
-            elif total_patients == 1:
-                p = patients_data[0]
-                species_name = p.get("species_id", [0, "Unknown"])[1] if p.get("species_id") else "Unknown"
-                status_str = p.get("status", "active").capitalize()
-                response_lines.append(f"There is currently **1 registered patient** in the clinic database:")
-                response_lines.append(f"- **{p.get('name')}** (ID #{p.get('id')}, Species: {species_name}, Status: {status_str})")
+                response_lines.append("There are currently **no patients registered** in the system database.")
             else:
-                response_lines.append(f"There are currently **{total_patients} registered patients** in the clinic database:")
-                for p in patients_data[:10]:
-                    species_name = p.get("species_id", [0, "Unknown"])[1] if p.get("species_id") else "Unknown"
-                    response_lines.append(f"- **{p.get('name')}** (ID #{p.get('id')}, {species_name})")
+                summary_breakdown = []
+                if total_hms_patients > 0:
+                    summary_breakdown.append(f"{total_hms_patients} Hospital")
+                if total_vet_patients > 0:
+                    summary_breakdown.append(f"{total_vet_patients} Veterinary")
+                breakdown_str = f" ({', '.join(summary_breakdown)})" if summary_breakdown else ""
+
+                response_lines.append(f"There are currently **{total_patients} registered patients** in the database{breakdown_str}:")
+                if hms_patients:
+                    response_lines.append("\n**🏥 Stratos Hospital Patients:**")
+                    for p in hms_patients[:5]:
+                        age_str = f", {p.get('age')}y" if p.get('age') else ""
+                        gen_str = f" ({p.get('gender', 'N/A').capitalize()}{age_str})" if p.get('gender') else ""
+                        response_lines.append(f"- **{p.get('name')}** (Code: `{p.get('code', 'N/A')}`{gen_str})")
+                if vet_patients:
+                    response_lines.append("\n**🐾 VetCairn Veterinary Patients:**")
+                    for p in vet_patients[:5]:
+                        sp = p.get("species_id", [0, "Pet"])[1] if p.get("species_id") else "Pet"
+                        response_lines.append(f"- **{p.get('name')}** (ID #{p.get('id')}, Species: {sp})")
 
         # B. Medication / Physical Inventory Stock Queries
         elif any(w in prompt_lower for w in ["medicine", "medication", "drug", "stock", "pharmacy", "inventory", "supplies"]):
             if total_stock_items > 0:
                 response_lines.append(f"### Pharmacy & Clinical Inventory Stock ({total_stock_items} Products Tracked)")
-                
                 low_stock_items = []
-                for item in inventory_data:
+                for item in inventory_data[:15]:
                     qty = item.get("qty_available", 0.0)
-                    min_stock = item.get("vet_reorder_min", 0.0)
+                    min_stock = item.get("vet_reorder_min", 0.0) or 0.0
                     loc = item.get("vet_storage_location") or "Main Clinic Storage"
                     ctrl_str = " *(Controlled)*" if item.get("vet_controlled") else ""
-                    
+
                     status_badge = "In Stock"
                     if qty == 0:
                         status_badge = "OUT OF STOCK"
@@ -185,47 +248,59 @@ class PracticeQueryWorkflow(BaseWorkflow):
                         response_lines.append(f"  - {lsi}")
 
             elif total_formulary > 0:
-                response_lines.append("### Prescription Formulary (No Physical Stock Logged)")
-                response_lines.append("No active inventory stock levels (`product.product`) were found in the warehouse, but the following medications are registered in the Rx Formulary:")
-                for m in formulary_data:
-                    form_str = f" ({m.get('dosage_form', 'Tablet')})" if m.get("dosage_form") else ""
-                    strength_str = f" - {m.get('strength')}" if m.get("strength") else ""
-                    response_lines.append(f"- **{m.get('name')}**{strength_str}{form_str} *(0 physical units in inventory)*")
+                response_lines.append(f"### Healthcare Prescription Formulary ({total_formulary} Registered Medications)")
+                for m in formulary_data[:10]:
+                    form_str = f" ({m.get('dosage_form') or m.get('form', 'Tablet')})"
+                    strength_str = f" - {m.get('strength') or m.get('dosage', '')}"
+                    response_lines.append(f"- **{m.get('name')}**{strength_str}{form_str}")
             else:
                 response_lines.append("No medication inventory or formulary catalog items found in the database.")
 
         # C. Staff / doctor queries
-        elif any(w in prompt_lower for w in ["staff", "doctor", "veterinarian", "who is", "team", "who are"]):
-            response_lines.append(f"### Clinic Staff & Users ({total_staff} Active Members)")
+        elif any(w in prompt_lower for w in ["staff", "doctor", "veterinarian", "physician", "who is", "team", "who are"]):
+            response_lines.append(f"### Healthcare Staff & Users ({total_staff} Active Members)")
             for u in users_data:
                 response_lines.append(f"- **{u.get('name')}** (Login: `{u.get('login')}`)")
 
         # D. Operational summary / appointments / general activity
         else:
-            response_lines.append("### Clinic Operations & Daily Summary")
-            response_lines.append(f"- **Registered Patients**: {total_patients}")
-            if total_patients > 0:
-                p_names = ", ".join(p.get("name") for p in patients_data[:5])
-                response_lines.append(f"  *(Active: {p_names})*")
+            response_lines.append("### Clinic & Hospital Operations Daily Summary")
+            
+            # Patients Breakdown
+            patient_breakdown = []
+            if total_hms_patients > 0:
+                patient_breakdown.append(f"{total_hms_patients} Hospital")
+            if total_vet_patients > 0:
+                patient_breakdown.append(f"{total_vet_patients} Vet")
+            pt_detail = f" ({', '.join(patient_breakdown)})" if patient_breakdown else ""
+            response_lines.append(f"- **Registered Patients**: {total_patients}{pt_detail}")
+            
+            # Active patient names preview
+            all_pt_names = [p.get("name") for p in (hms_patients + vet_patients)[:6] if p.get("name")]
+            if all_pt_names:
+                response_lines.append(f"  *(Active: {', '.join(all_pt_names)})*")
 
             # Appointments Breakdown
-            response_lines.append(f"- **Scheduled Appointments**: {total_appts}")
-            if total_appts > 0:
-                status_counts = {}
-                for a in appts_data:
-                    st = a.get("state", "draft").capitalize()
-                    status_counts[st] = status_counts.get(st, 0) + 1
-                breakdown = ", ".join(f"{k}: {v}" for k, v in status_counts.items())
-                response_lines.append(f"  *(Status: {breakdown})*")
-                for a in appts_data[:3]:
-                    pt_name = a.get("patient_id", [0, "Patient"])[1] if a.get("patient_id") else "Patient"
-                    dr_name = a.get("provider_id", [0, "Doctor"])[1] if a.get("provider_id") else "Assigned Vet"
-                    response_lines.append(f"  - `{a.get('name')}`: {pt_name} with {dr_name} ({a.get('state')})")
+            appt_breakdown = []
+            if total_hms_appts > 0:
+                appt_breakdown.append(f"{total_hms_appts} Hospital")
+            if total_vet_appts > 0:
+                appt_breakdown.append(f"{total_vet_appts} Vet")
+            appt_detail = f" ({', '.join(appt_breakdown)})" if appt_breakdown else ""
+            response_lines.append(f"- **Scheduled Appointments**: {total_appts}{appt_detail}")
+            
+            # Clinical Encounters / Consultations
+            enc_breakdown = []
+            if total_hms_consults > 0:
+                enc_breakdown.append(f"{total_hms_consults} Consultations")
+            if total_vet_encs > 0:
+                enc_breakdown.append(f"{total_vet_encs} Vet SOAP Encounters")
+            enc_detail = f" ({', '.join(enc_breakdown)})" if enc_breakdown else ""
+            response_lines.append(f"- **Clinical Encounters**: {total_encs} recorded{enc_detail}")
 
-            # Clinical Encounters
-            response_lines.append(f"- **Clinical Encounters**: {total_encs} recorded")
             # Pharmacy Inventory Stock
             response_lines.append(f"- **Physical Inventory Items**: {total_stock_items} tracked in warehouse")
+            
             # Staff
             response_lines.append(f"- **Personnel on Duty**: {total_staff} active users")
 
