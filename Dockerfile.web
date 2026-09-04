@@ -2,21 +2,29 @@ FROM odoo:19.0
 
 USER root
 
-# Install postgresql-client and curl for health checks
+# Install postgresql-client and curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy configuration, addons, scripts, and entrypoint directly into image
+# Create /etc/odoo and copy odoo.conf permanently into the container filesystem
+RUN mkdir -p /etc/odoo /mnt/extra-addons /scripts
 COPY config/odoo.conf /etc/odoo/odoo.conf
+
+# Copy addons and scripts
 COPY addons /mnt/extra-addons
 COPY scripts /scripts
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-RUN chmod +x /docker-entrypoint.sh \
-    && chown -R odoo:odoo /etc/odoo /mnt/extra-addons /scripts /docker-entrypoint.sh
+# Set ownership and execute permissions
+RUN chmod 644 /etc/odoo/odoo.conf \
+    && chmod +x /docker-entrypoint.sh \
+    && chown -R odoo:odoo /etc/odoo /var/lib/odoo /mnt/extra-addons /scripts /docker-entrypoint.sh
+
+ENV ODOO_RC="/etc/odoo/odoo.conf"
+ENV PYTHONUNBUFFERED=1
 
 USER odoo
 
-ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

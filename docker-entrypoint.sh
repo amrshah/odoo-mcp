@@ -1,23 +1,20 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Robust Container Entrypoint for Odoo 19 + VetCairn + Stratos HMS
-# Compatible with Portainer Git Clone, Volume Mounts, and Standard Deployments
+# Robust Container Entrypoint for Odoo 19 Healthcare Stack
 # ==============================================================================
 
 set -e
 
-CONFIG_DIR="/etc/odoo"
-CONFIG_FILE="${CONFIG_DIR}/odoo.conf"
+CONFIG_FILE="/etc/odoo/odoo.conf"
 DATABASE="${ODOO_DB:-odoo_hospital}"
 INIT_LOCK="/var/lib/odoo/.hms_initialized"
 
-# 1. Guarantee /etc/odoo/odoo.conf exists with valid [options]
-mkdir -p "$CONFIG_DIR"
+# Ensure config file exists
 if [ ! -f "$CONFIG_FILE" ] || [ ! -s "$CONFIG_FILE" ]; then
-    echo "[+] Creating production ${CONFIG_FILE}..."
+    mkdir -p /etc/odoo
     cat <<EOF > "$CONFIG_FILE"
 [options]
-addons_path = /mnt/extra-addons,/mnt/extra-addons/VetCairn
+addons_path = /usr/lib/python3/dist-packages/odoo/addons,/var/lib/odoo/addons/19.0,/mnt/extra-addons,/mnt/extra-addons/VetCairn
 data_dir = /var/lib/odoo
 admin_passwd = ${ADMIN_PASSWORD:-admin_master_secret}
 db_host = ${HOST:-db}
@@ -38,12 +35,15 @@ echo "=========================================================="
 echo "🏥 Starting Odoo 19 Healthcare Stack (1-Click Deployment)"
 echo "=========================================================="
 
-# 2. Wait for Postgres database
+# 1. Wait for Postgres database
 echo "[*] Waiting for PostgreSQL at ${HOST:-db}:${PORT:-5432}..."
-wait-for-psql.py --db_host="${HOST:-db}" --db_port="${PORT:-5432}" --db_user="${USER:-odoo}" --db_password="${PASSWORD:-odoo_db_password_123}" --timeout=60
+until pg_isready -h "${HOST:-db}" -p "${PORT:-5432}" -U "${USER:-odoo}" >/dev/null 2>&1; do
+    echo "    Postgres not ready yet, retrying in 2 seconds..."
+    sleep 2
+done
 echo "[+] PostgreSQL connection established!"
 
-# 3. First-time auto install vs update
+# 2. First-time auto install vs update
 if [ ! -f "$INIT_LOCK" ]; then
     echo "[1/3] First-time startup detected. Auto-installing Healthcare modules..."
     odoo -c "$CONFIG_FILE" -d "$DATABASE" -i vet_installer,stratos_hms,zelix_ai,mcp_server --stop-after-init
