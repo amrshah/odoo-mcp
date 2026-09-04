@@ -21,6 +21,8 @@ class PatientSummaryWorkflow(BaseWorkflow):
         context_prompt: str,
         active_context: Any,
         provider: Any,
+        odoo_client: Any = None,
+        **kwargs,
     ) -> WorkflowResult:
         system_prompt = f"""You are Zelix AI Copilot. Synthesize a structured medical summary for the veterinary patient.
 

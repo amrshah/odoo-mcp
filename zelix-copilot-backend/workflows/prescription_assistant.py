@@ -24,6 +24,8 @@ class PrescriptionAssistantWorkflow(BaseWorkflow):
         context_prompt: str,
         active_context: Any,
         provider: Any,
+        odoo_client: Any = None,
+        **kwargs,
     ) -> WorkflowResult:
         system_prompt = f"""You are Zelix AI Prescription Copilot for veterinary medicine.
 Extract the medication prescription parameters from the doctor's request.

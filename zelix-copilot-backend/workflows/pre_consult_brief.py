@@ -25,6 +25,8 @@ class PreConsultBriefWorkflow(BaseWorkflow):
         context_prompt: str,
         active_context: Any,
         provider: Any,
+        odoo_client: Any = None,
+        **kwargs,
     ) -> WorkflowResult:
         patient_summary = getattr(active_context, "patient_summary_obj", None)
 

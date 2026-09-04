@@ -53,6 +53,8 @@ class BaseWorkflow(ABC):
         context_prompt: str,
         active_context: Any,
         provider: Any,
+        odoo_client: Any = None,
+        **kwargs,
     ) -> WorkflowResult:
         """Executes reasoning and generates response + proposed action cards."""
         pass

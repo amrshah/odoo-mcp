@@ -24,6 +24,8 @@ class AmbientScribeSOAPWorkflow(BaseWorkflow):
         context_prompt: str,
         active_context: Any,
         provider: Any,
+        odoo_client: Any = None,
+        **kwargs,
     ) -> WorkflowResult:
         system_prompt = f"""You are Zelix AI Clinical Scribe for veterinary medicine.
 Analyze the consultation transcript and generate a structured SOAP note.
