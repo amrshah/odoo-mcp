@@ -19,6 +19,7 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 # Set ownership and execute permissions
 RUN chmod 644 /etc/odoo/odoo.conf \
+    && chmod -R 755 /mnt/extra-addons /scripts \
     && chmod +x /docker-entrypoint.sh \
     && chown -R odoo:odoo /etc/odoo /var/lib/odoo /mnt/extra-addons /scripts /docker-entrypoint.sh
 
