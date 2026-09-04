@@ -24,7 +24,12 @@ for mod_name in target_modules:
         except Exception as e:
             print(f"[!] Error installing {mod_name}: {e}")
     elif mod and mod.state == 'installed':
-        print(f"[+] Module already installed: {mod_name}")
+        print(f"[*] Upgrading {mod_name} to sync latest views and models...")
+        try:
+            mod.button_immediate_upgrade()
+            print(f"[+] Successfully upgraded: {mod_name}")
+        except Exception as e:
+            print(f"[!] Error upgrading {mod_name}: {e}")
     else:
         print(f"[!] Module '{mod_name}' not found in module list!")
 

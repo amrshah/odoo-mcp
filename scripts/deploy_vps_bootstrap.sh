@@ -17,15 +17,18 @@ until docker exec odoo_web python3 -c "import urllib.request; urllib.request.url
 done
 echo "      [+] Odoo 19 is online!"
 
-echo "[2/4] Installing / Updating VetCairn and Stratos HMS modules..."
-docker exec odoo_web odoo -c /etc/odoo/odoo.conf -d odoo_hospital -i vet_installer,stratos_hms,zelix_ai,mcp_server --stop-after-init
-echo "      [+] Modules installed successfully!"
+echo "[2/5] Ensuring Python dependencies for MCP (packaging, authlib, defusedxml)..."
+docker exec odoo_web pip install --no-cache-dir "packaging" "authlib>=1.6.12,<1.7.0" "defusedxml" || true
 
-echo "[3/4] Enabling MCP Master Switch & Registering 81 Clinical Models..."
+echo "[3/5] Installing / Upgrading VetCairn, Stratos HMS, and Zelix AI modules..."
+docker exec odoo_web odoo -c /etc/odoo/odoo.conf -d odoo_hospital -i vet_installer,stratos_hms,zelix_ai,mcp_server -u vet_installer,stratos_hms,zelix_ai,mcp_server --stop-after-init
+echo "      [+] Modules installed and upgraded successfully!"
+
+echo "[4/5] Enabling MCP Master Switch & Registering 84 Clinical Models..."
 docker exec odoo_web python3 /mnt/extra-addons/../scripts/setup_odoo_mcp.py
-echo "      [+] 81 Healthcare Models registered in MCP!"
+echo "      [+] 84 Healthcare Models registered in MCP!"
 
-echo "[4/4] Restarting odoo_web to finalize in-memory registries..."
+echo "[5/5] Restarting odoo_web to finalize in-memory registries..."
 docker restart odoo_web
 echo "      [+] Odoo web restarted and fully synchronized!"
 

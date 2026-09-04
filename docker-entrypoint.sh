@@ -54,7 +54,14 @@ DB_CLI_ARGS=(
     "--addons-path=${ADDONS_PATH}"
 )
 
-# 2. Automated Module Verification & MCP Setup
+# 2. Ensure external Python dependencies for mcp_server & AI integrations
+echo "[*] Checking Python dependencies (packaging, authlib, defusedxml)..."
+python3 -c "import packaging, authlib, defusedxml" 2>/dev/null || {
+    echo "    Installing missing packages (packaging, authlib, defusedxml)..."
+    pip install --no-cache-dir "packaging" "authlib>=1.6.12,<1.7.0" "defusedxml" || true
+}
+
+# 3. Automated Module Verification & MCP Setup
 echo "[*] Checking and installing Healthcare modules (VetCairn, Stratos HMS, Zelix AI, MCP)..."
 if [ -f "/scripts/setup_odoo_mcp_orm.py" ]; then
     odoo shell -c "$CONFIG_FILE" "${DB_CLI_ARGS[@]}" -d "$DATABASE" --no-http < /scripts/setup_odoo_mcp_orm.py || true
