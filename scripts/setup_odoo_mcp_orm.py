@@ -6,6 +6,17 @@ print("==========================================================")
 print("📦 Verifying Healthcare Modules Installation...")
 print("==========================================================")
 
+# 0. Synchronize admin user password for MCP / XML-RPC client access
+import os
+try:
+    admin_password = os.getenv('ODOO_PASSWORD', 'admin')
+    admin_user = env.ref('base.user_admin', raise_if_not_found=False)
+    if admin_user:
+        admin_user.sudo().write({'password': admin_password})
+        print(f"[+] Verified/Updated admin user credentials for XML-RPC & Copilot API access.")
+except Exception as e:
+    print(f"[*] Note on admin password sync: {e}")
+
 target_modules = ['vet_installer', 'stratos_hms', 'zelix_ai', 'mcp_server']
 Module = env['ir.module.module'].sudo()
 

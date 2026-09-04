@@ -1,83 +1,72 @@
-==========================================================
-🏥 Starting Odoo 19 Healthcare Stack (1-Click Deployment)
-==========================================================
-[*] Waiting for PostgreSQL at db:5432 (DB: postgres) as odoo...
-[+] PostgreSQL connection established!
-[*] Checking and installing Healthcare modules (VetCairn, Stratos HMS, Zelix AI, MCP)...
-2026-09-04 12:14:30,100 8 WARNING ? odoo.tools.config: option addons_path, invalid addons directory '/var/lib/odoo/addons/19.0', skipped 
-2026-09-04 12:14:30,100 8 WARNING ? odoo.tools.config: option addons_path, invalid addons directory '/var/lib/odoo/addons/19.0', skipped 
-2026-09-04 12:14:30,101 8 INFO ? odoo: Odoo version 19.0-20260817 
-2026-09-04 12:14:30,101 8 INFO ? odoo: Using configuration file at /etc/odoo/odoo.conf 
-2026-09-04 12:14:30,101 8 INFO ? odoo: addons paths: _NamespacePath(['/usr/lib/python3/dist-packages/odoo/addons', '/var/lib/odoo/addons/19.0', '/mnt/extra-addons', '/mnt/extra-addons/VetCairn', '/usr/lib/python3/dist-packages/addons']) 
-2026-09-04 12:14:30,101 8 INFO ? odoo: database: odoo@db:5432 
-2026-09-04 12:14:30,675 8 INFO ? odoo.service.server: Initiating shutdown 
-2026-09-04 12:14:30,676 8 INFO ? odoo.service.server: Hit CTRL-C again or send a second signal to force the shutdown. 
-2026-09-04 12:14:30,770 8 INFO odoo_hospital odoo.modules.loading: loading 1 modules... 
-2026-09-04 12:14:30,776 8 INFO odoo_hospital odoo.modules.loading: 1 modules loaded in 0.01s, 0 queries (+0 extra) 
-2026-09-04 12:14:30,836 8 INFO odoo_hospital odoo.modules.loading: loading 94 modules... 
-2026-09-04 12:14:31,919 8 INFO odoo_hospital odoo.modules.loading: 94 modules loaded in 1.08s, 0 queries (+0 extra) 
-2026-09-04 12:14:32,255 8 INFO odoo_hospital odoo.modules.loading: Modules loaded. 
-2026-09-04 12:14:32,290 8 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.user_id 
-2026-09-04 12:14:32,290 8 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.scope 
-2026-09-04 12:14:32,291 8 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.trigger_keywords 
-2026-09-04 12:14:32,291 8 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.medication_id 
-2026-09-04 12:14:32,291 8 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.dosage 
-2026-09-04 12:14:32,291 8 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.frequency 
-2026-09-04 12:14:32,362 8 INFO odoo_hospital odoo.registry: Registry loaded in 1.686s 
-==========================================================
-📦 Verifying Healthcare Modules Installation...
-==========================================================
-2026-09-04 12:14:32,438 8 INFO odoo_hospital odoo.addons.base.models.ir_module: ALLOW access to module.update_list on [] to user __system__ #1 via n/a 
-[+] Module already installed: vet_installer
-[+] Module already installed: stratos_hms
-[+] Module already installed: zelix_ai
-[*] Installing mcp_server (current state: uninstalled)...
-2026-09-04 12:14:35,902 8 INFO odoo_hospital odoo.addons.base.models.ir_module: ALLOW access to module.button_immediate_install on ['MCP Server'] to user __system__ #1 via n/a 
-2026-09-04 12:14:35,902 8 INFO odoo_hospital odoo.addons.base.models.ir_module: User #1 triggered module installation 
-2026-09-04 12:14:35,907 8 INFO odoo_hospital odoo.addons.base.models.ir_module: ALLOW access to module.button_install on ['MCP Server'] to user __system__ #1 via n/a 
-[!] Error installing mcp_server: Package `packaging` is required to parse `authlib>=1.6.12,<1.7.0` external dependency and is not installed
-[+] Enabled 'mcp_server.enabled' in ir.config_parameter
-[!] Model 'mcp.enabled.model' not active in current registry.
-==========================================================
-🚀 Starting Odoo 19 Web Service on port 8069...
-==========================================================
-2026-09-04 12:14:37,113 1 WARNING ? odoo.tools.config: option addons_path, invalid addons directory '/var/lib/odoo/addons/19.0', skipped 
-2026-09-04 12:14:37,113 1 WARNING ? odoo.tools.config: option addons_path, invalid addons directory '/var/lib/odoo/addons/19.0', skipped 
-2026-09-04 12:14:37,113 1 WARNING ? odoo.tools.config: missing --http-interface/http_interface, using 0.0.0.0 by default, will change to 127.0.0.1 in 20.0 
-2026-09-04 12:14:37,114 1 INFO ? odoo: Odoo version 19.0-20260817 
-2026-09-04 12:14:37,114 1 INFO ? odoo: Using configuration file at /etc/odoo/odoo.conf 
-2026-09-04 12:14:37,114 1 INFO ? odoo: addons paths: _NamespacePath(['/usr/lib/python3/dist-packages/odoo/addons', '/var/lib/odoo/addons/19.0', '/mnt/extra-addons', '/mnt/extra-addons/VetCairn', '/usr/lib/python3/dist-packages/addons']) 
-2026-09-04 12:14:37,114 1 INFO ? odoo: database: odoo@db:5432 
-2026-09-04 12:14:37,623 1 INFO ? odoo.service.server: HTTP service (werkzeug) running on 8d8cc5090821:8069 
-2026-09-04 12:14:37,705 1 INFO odoo_hospital odoo.modules.loading: loading 1 modules... 
-2026-09-04 12:14:37,712 1 INFO odoo_hospital odoo.modules.loading: 1 modules loaded in 0.01s, 0 queries (+0 extra) 
-2026-09-04 12:14:37,766 1 INFO odoo_hospital odoo.modules.loading: loading 94 modules... 
-2026-09-04 12:14:38,701 1 INFO odoo_hospital odoo.modules.loading: 94 modules loaded in 0.93s, 0 queries (+0 extra) 
-2026-09-04 12:14:39,101 1 INFO odoo_hospital odoo.modules.loading: Modules loaded. 
-2026-09-04 12:14:39,157 1 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.user_id 
-2026-09-04 12:14:39,158 1 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.scope 
-2026-09-04 12:14:39,158 1 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.trigger_keywords 
-2026-09-04 12:14:39,158 1 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.medication_id 
-2026-09-04 12:14:39,158 1 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.dosage 
-2026-09-04 12:14:39,158 1 WARNING odoo_hospital odoo.schema: Missing not-null constraint on zelix.ai.rule.frequency 
-2026-09-04 12:14:39,241 1 INFO odoo_hospital odoo.registry: Registry loaded in 1.617s 
-2026-09-04 12:14:39,273 1 INFO odoo_hospital odoo.addons.base.models.ir_http: Generating routing map for key None 
-2026-09-04 12:14:40,126 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:40] "GET /odoo/settings HTTP/1.1" 200 - 91 0.170 1.149
-2026-09-04 12:14:40,488 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:40] "GET /websocket?version=19.0-2 HTTP/1.1" 101 - 1 0.004 0.009
-2026-09-04 12:14:41,007 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "GET /web/webclient/load_menus HTTP/1.1" 200 - 17 0.073 0.196
-2026-09-04 12:14:41,008 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "GET /web/manifest.webmanifest HTTP/1.1" 200 - 8 0.045 0.148
-2026-09-04 12:14:41,009 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "GET /web/webclient/translations?hash=c01cce98eabcbe4636c0df1b855bc9e2ed709754&lang=en_US HTTP/1.1" 200 - 2 0.022 0.168
-2026-09-04 12:14:41,010 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "GET /web/bundle/web_tour.interactive?lang=en_US HTTP/1.1" 200 - 3 0.013 0.176
-2026-09-04 12:14:41,011 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "GET /bus/websocket_worker_bundle?v=19.0-2 HTTP/1.1" 304 - 4 0.026 0.162
-2026-09-04 12:14:41,050 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "POST /zelix_ai/session_info HTTP/1.1" 200 - 3 0.035 0.189
-2026-09-04 12:14:41,940 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:41] "GET /web/image?model=res.users&field=avatar_128&id=2 HTTP/1.1" 304 - 15 0.061 0.043
-2026-09-04 12:14:42,031 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:42] "POST /mail/data HTTP/1.1" 200 - 27 0.132 0.060
-2026-09-04 12:14:42,340 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:42] "GET /websocket?version=19.0-2 HTTP/1.1" 101 - 1 0.004 0.009
-2026-09-04 12:14:42,403 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:42] "POST /web/dataset/call_kw/res.config.settings/onchange#res.config.settings.onchange HTTP/1.1" 200 - 201 0.432 0.130
-2026-09-04 12:14:42,746 1 INFO ? odoo.addons.bus.models.bus: Bus.loop listen imbus on db postgres 
-2026-09-04 12:14:43,287 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:43] "POST /web/dataset/call_kw/res.config.settings/get_views#res.config.settings.get_views HTTP/1.1" 200 - 411 0.470 0.972
-2026-09-04 12:14:49,862 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:49] "GET /websocket?version=19.0-2 HTTP/1.1" 101 - 2 0.007 0.008
-2026-09-04 12:14:50,109 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:14:50] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.005 0.008
-2026-09-04 12:15:10,628 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:15:10] "GET /websocket?version=19.0-2 HTTP/1.1" 101 - 2 0.007 0.009
-2026-09-04 12:15:10,894 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:15:10] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.003 0.007
-2026-09-04 12:15:34,460 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:15:34] "POST /web/dataset/call_kw/hms.dashboard/get_command_center#hms.dashboard.get_command_center HTTP/1.1" 200 - 68 0.142 0.082
+
+2026-09-04 12:46:45,217 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:45,908 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:45,910 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:45] "POST /xmlrpc/2/common HTTP/1.1" 200 - 6 0.011 0.687
+2026-09-04 12:46:45,926 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:46,671 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:46,673 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:46] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.010 0.748
+2026-09-04 12:46:46,682 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:47,371 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:47,372 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:47] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.006 0.689
+2026-09-04 12:46:47,380 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:48,083 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:48,085 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:48] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.009 0.701
+2026-09-04 12:46:48,095 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:48,823 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:48,824 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:48] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.008 0.728
+2026-09-04 12:46:48,835 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:49,554 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:49,555 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:49] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.008 0.718
+2026-09-04 12:46:49,561 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:50,248 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:50,249 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:50] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.006 0.686
+2026-09-04 12:46:50,259 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:50,940 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:50,941 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:50] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.008 0.680
+2026-09-04 12:46:50,954 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:51,635 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:51,636 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:51] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.009 0.680
+2026-09-04 12:46:51,647 1 WARNING odoo_hospital odoo.addons.rpc.controllers.xmlrpc: The /xmlrpc, /xmlrpc/2 and /jsonrpc endpoints are deprecated in Odoo 19 and scheduled for removal in Odoo 22. Please report the problem to the client making the request.
+Mute this logger: --log-handler odoo.addons.rpc.controllers.xmlrpc:ERROR
+https://www.odoo.com/documentation/latest/developer/reference/external_api.html#migrating-from-xml-rpc-json-rpc 
+2026-09-04 12:46:52,354 1 INFO None odoo.addons.base.models.res_users: Login failed for login:admin from n/a 
+2026-09-04 12:46:52,356 1 INFO None werkzeug: 192.168.16.4 - - [04/Sep/2026 12:46:52] "POST /xmlrpc/2/common HTTP/1.1" 200 - 5 0.009 0.706
+2026-09-04 12:46:52,377 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:46:52] "POST /zelix_ai/chat HTTP/1.1" 200 - 6 0.017 7.245
+2026-09-04 12:47:03,341 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:03] "POST /web/dataset/call_kw/res.config.settings/web_save#res.config.settings.web_save HTTP/1.1" 200 - 64 0.069 0.083
+2026-09-04 12:47:03,847 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:03] "POST /web/dataset/call_button/res.config.settings/action_zelix_test_ai#res.config.settings.action_zelix_test_ai HTTP/1.1" 200 - 2 0.021 0.148
+2026-09-04 12:47:08,242 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:08] "POST /web/action/load HTTP/1.1" 200 - 6 0.010 0.011
+2026-09-04 12:47:08,630 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:08] "GET /web/bundle/web.chartjs_lib?lang=en_US HTTP/1.1" 200 - 2 0.003 0.015
+2026-09-04 12:47:09,086 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:09] "POST /web/dataset/call_kw/hms.dashboard/get_command_center#hms.dashboard.get_command_center HTTP/1.1" 200 - 51 0.063 0.068
+2026-09-04 12:47:17,129 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:17] "POST /web/action/load HTTP/1.1" 200 - 6 0.010 0.010
+2026-09-04 12:47:17,757 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:17] "POST /web/dataset/call_kw/vet.dashboard/get_dashboard_data#vet.dashboard.get_dashboard_data HTTP/1.1" 200 - 68 0.179 0.108
+2026-09-04 12:47:20,027 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:20] "GET /websocket?version=19.0-2 HTTP/1.1" 101 - 1 0.005 0.009
+2026-09-04 12:47:20,301 1 INFO odoo_hospital werkzeug: 192.168.16.1 - - [04/Sep/2026 12:47:20] "POST /bus/has_missed_notifications HTTP/1.1" 200 - 2 0.005 0.005
+2026-09-04 12:47:28,288 1 INFO odoo_hospital odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) starting 
+2026-09-04 12:47:28,913 1 INFO odoo_hospital odoo.addons.api_doc.models.ir_attachment: GC'd 0 /doc cached index 
+2026-09-04 12:47:28,946 1 INFO odoo_hospital odoo.addons.base.models.res_device: GC device logs delete 1 entries 
+2026-09-04 12:47:29,186 1 INFO odoo_hospital odoo.addons.base.models.res_users: GC'd 0 user log entries 
+2026-09-04 12:47:29,288 1 INFO odoo_hospital odoo.addons.base.models.res_users: GC 'res.users.apikeys' delete 0 entries 
+2026-09-04 12:47:29,317 1 INFO odoo_hospital odoo.addons.base.models.ir_attachment: filestore gc 1 checked, 0 removed 
+2026-09-04 12:47:29,390 1 INFO odoo_hospital odoo.models.unlink: User #1 deleted account.payment.register records with IDs: [3] 
+2026-09-04 12:47:29,428 1 INFO odoo_hospital odoo.addons.sms.models.sms_sms: GC'd 0 sms marked for deletion 
+2026-09-04 12:47:29,537 1 INFO odoo_hospital odoo.addons.base.models.res_users: GC 'auth_totp.device' delete 0 entries 
+2026-09-04 12:47:29,857 1 INFO odoo_hospital odoo.addons.base.models.res_device: GC device logs delete 0 entries 
+2026-09-04 12:47:29,935 1 INFO odoo_hospital odoo.addons.base.models.ir_cron: Job 'Base: Auto-vacuum internal data' (1) fully done (#loop 1; done 0; remaining 0; duration 1.65s) 

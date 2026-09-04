@@ -26,6 +26,7 @@ limit_time_cpu = 600
 limit_time_real = 1200
 limit_memory_hard = 2684354560
 limit_memory_soft = 2147483648
+log_handler = :INFO,odoo.addons.rpc.controllers.xmlrpc:ERROR
 EOF
 fi
 
