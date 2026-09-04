@@ -37,8 +37,8 @@ echo "=========================================================="
 
 # 1. Wait for Postgres database
 export PGPASSWORD="${PASSWORD:-odoo_db_password_123}"
-echo "[*] Waiting for PostgreSQL at ${HOST:-db}:${PORT:-5432} as ${USER:-odoo}..."
-until pg_isready -h "${HOST:-db}" -p "${PORT:-5432}" -U "${USER:-odoo}" >/dev/null 2>&1; do
+echo "[*] Waiting for PostgreSQL at ${HOST:-db}:${PORT:-5432} (DB: ${POSTGRES_DB:-postgres}) as ${USER:-odoo}..."
+until pg_isready -h "${HOST:-db}" -p "${PORT:-5432}" -U "${USER:-odoo}" -d "${POSTGRES_DB:-postgres}" >/dev/null 2>&1; do
     echo "    Postgres not ready yet, retrying in 2 seconds..."
     sleep 2
 done
