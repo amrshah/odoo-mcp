@@ -48,13 +48,30 @@ app.add_middleware(
 )
 
 
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+
 class ActionApprovalRequest(BaseModel):
     action_id: str
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    """Root endpoint for Zelix Copilot Backend."""
+    """Serve standalone Zelix AI Copilot Web UI."""
+    index_file = os.path.join(static_dir, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return HTMLResponse("<h2>Zelix Copilot Backend Active</h2><p>Static UI not found.</p>")
+
+
+@app.get("/api/status")
+async def api_status():
+    """API metadata and active workflows endpoint."""
     return {
         "status": "healthy",
         "service": "Zelix Copilot Backend",

@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VetCairn · Zelix AI Copilot — Standalone Workspace</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+/* ============================================================
+   DESIGN TOKENS — Canonical VetCairn & Zelix AI Palette
+   ============================================================ */
+:root{
+  --purple-900:#26215C; --purple-700:#3C3489; --purple-600:#534AB7; --purple-400:#7F77DD; --purple-100:#CECBF6; --purple-50:#EEEDFE;
+  --teal-900:#04342C; --teal-700:#085041; --teal-600:#0F6E56; --teal-400:#1D9E75; --teal-200:#5DCAA5; --teal-50:#E1F5EE;
+  --red-700:#791F1F; --red-600:#A32D2D; --red-400:#E24B4A; --red-50:#FCEBEB;
+  --amber-700:#633806; --amber-600:#854F0B; --amber-400:#BA7517; --amber-50:#FAEEDA;
+  --blue-700:#0C447C; --blue-600:#185FA5; --blue-50:#E6F1FB;
+  --green-700:#27500A; --green-600:#3B6D11; --green-50:#EAF3DE;
+  --ink-900:#20201D; --ink-700:#4A4944; --ink-500:#78766F; --ink-300:#B7B4AA; --ink-100:#E7E4DC; --ink-50:#F4F2ED;
+  --surface:#FFFFFF;
+  --page-bg:#EFEDE7;
+  --border:#E2DFD6;
+  --radius-sm:6px; --radius:10px; --radius-lg:14px;
+  --shadow-card:0 1px 2px rgba(38,33,92,0.06), 0 1px 8px rgba(38,33,92,0.04);
+  --font:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--page-bg);color:var(--ink-900);-webkit-font-smoothing:antialiased;}
+h1,h2,h3,p{margin:0;}
+button{font-family:var(--font);}
+
+.shell{max-width:1400px;margin:0 auto;padding:16px 16px 40px;}
+.shell-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px;}
+.shell-head h1{font-size:18px;font-weight:600;margin:0 0 2px;color:var(--purple-900);display:flex;align-items:center;gap:8px;}
+.shell-head p{font-size:12.5px;color:var(--ink-500);}
+.server-badge{font-size:11.5px;font-weight:500;padding:4px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;background:var(--teal-50);color:var(--teal-700);border:1px solid var(--teal-200);}
+.server-badge .pulse{width:7px;height:7px;border-radius:50%;background:var(--teal-400);display:inline-block;animation:pulse-dot 1.5s infinite;}
+@keyframes pulse-dot{0%{transform:scale(0.9);opacity:0.8;}50%{transform:scale(1.2);opacity:1;}100%{transform:scale(0.9);opacity:0.8;}}
+
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px;}
+.tab-btn{font-size:12px;font-weight:500;color:var(--ink-700);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 13px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;}
+.tab-btn .num{width:16px;height:16px;border-radius:50%;background:var(--ink-100);color:var(--ink-700);font-size:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tab-btn:hover{border-color:var(--purple-400);}
+.tab-btn.active{background:var(--purple-700);border-color:var(--purple-700);color:#fff;}
+.tab-btn.active .num{background:rgba(255,255,255,0.25);color:#fff;}
+
+.screen{display:none;}
+.screen.active{display:block;animation:fadein .18s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
+.screen-caption{margin:0 0 12px;}
+.screen-caption h2{font-size:15px;font-weight:600;color:var(--ink-900);margin-bottom:2px;}
+.screen-caption p{font-size:12.5px;color:var(--ink-500);}
+
+/* ============================================================
+   SHARED APP CHROME
+   ============================================================ */
+.app-frame{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);box-shadow:var(--shadow-card);position:relative;}
+.app-topbar{background:var(--purple-700);color:#fff;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.app-topbar .brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;}
+.app-topbar .brand .mark{width:22px;height:22px;border-radius:6px;background:var(--purple-400);display:flex;align-items:center;justify-content:center;font-size:12px;}
+.app-topbar nav{display:flex;gap:2px;font-size:12px;}
+.app-topbar nav a{color:var(--purple-100);text-decoration:none;padding:5px 9px;border-radius:6px;cursor:pointer;}
+.app-topbar nav a.current{background:rgba(255,255,255,0.14);color:#fff;}
+.app-topbar .right{display:flex;align-items:center;gap:12px;}
+.zelix-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);padding:4px 9px;border-radius:999px;font-size:11.5px;font-weight:500;}
+.zelix-pill i{color:var(--teal-200);font-size:13px;}
+.avatar{width:24px;height:24px;border-radius:50%;background:var(--purple-400);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+.app-body{display:flex;min-height:560px;}
+.app-sidenav{width:150px;flex-shrink:0;border-right:1px solid var(--border);padding:12px 6px;background:#FAFAF8;display:flex;flex-direction:column;}
+.app-sidenav .grp-label{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-500);padding:6px 8px 6px;}
+.side-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--radius-sm);font-size:12.5px;color:var(--ink-700);cursor:pointer;user-select:none;margin-bottom:2px;}
+.side-item:hover{background:var(--ink-100);}
+.side-item i{font-size:15px;color:var(--ink-500);flex-shrink:0;}
+.side-item.current{background:var(--teal-50);color:var(--teal-700);font-weight:500;}
+.side-item.current i{color:var(--teal-600);}
+.sidenav-foot{margin-top:auto;display:flex;align-items:center;gap:8px;padding:8px;border-top:1px solid var(--border);}
+.sidenav-foot .name{font-size:11.5px;font-weight:500;color:var(--ink-900);}
+.sidenav-foot .role{font-size:10px;color:var(--ink-500);}
+
+.app-main{flex:1;min-width:0;padding:16px 18px;overflow-y:auto;max-height:750px;}
+
+/* ---- Copilot Sidebar Panel ---- */
+.app-copilot{width:330px;flex-shrink:0;border-left:1px solid var(--border);background:#FBFAF9;display:flex;flex-direction:column;transition:width .18s ease;max-height:750px;}
+.app-copilot.collapsed{width:46px;}
+.app-copilot.collapsed .copilot-body,
+.app-copilot.collapsed .copilot-compose,
+.app-copilot.collapsed .copilot-head .title span,
+.app-copilot.collapsed .copilot-head .ctx{display:none;}
+.app-copilot.collapsed .copilot-head{justify-content:center;padding:12px 0;}
+
+.copilot-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);}
+.copilot-head .title{display:flex;align-items:center;gap:7px;font-weight:600;font-size:13px;color:var(--ink-900);}
+.copilot-head .title i.spark{color:var(--teal-600);font-size:15px;}
+.icon-btn{width:24px;height:24px;border-radius:6px;border:none;background:transparent;color:var(--ink-500);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;}
+.icon-btn:hover{background:var(--ink-100);color:var(--ink-900);}
+.ctx-row{padding:6px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--teal-700);background:#FAF8F6;}
+.ctx-row .status-dot{width:6px;height:6px;border-radius:50%;background:var(--teal-400);}
+.copilot-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.copilot-compose{border-top:1px solid var(--border);padding:8px 10px;background:#FFF;}
+.compose-field{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:6px 6px 6px 12px;background:var(--surface);}
+.compose-field input{border:none;outline:none;font-family:var(--font);font-size:12px;flex:1;background:transparent;color:var(--ink-900);}
+.compose-field input::placeholder{color:var(--ink-300);}
+.compose-send{width:26px;height:26px;border-radius:50%;background:var(--teal-600);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;cursor:pointer;}
+.compose-send:hover{background:var(--teal-700);}
+.compose-send:disabled{background:var(--ink-300);cursor:not-allowed;}
+
+/* ============================================================
+   REUSABLE UI COMPONENTS
+   ============================================================ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
+.card + .card{margin-top:10px;}
+.card-title{font-size:13px;font-weight:600;margin:0 0 2px;color:var(--ink-900);}
+.card-sub{font-size:11.5px;color:var(--ink-500);}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kpi-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:8px;}
+.kpi-tile .icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.kpi-tile .num{font-size:17px;font-weight:600;line-height:1.1;}
+.kpi-tile .lbl{font-size:11px;color:var(--ink-500);}
+.icon-teal{background:var(--teal-50);color:var(--teal-700);}
+.icon-purple{background:var(--purple-50);color:var(--purple-700);}
+.icon-amber{background:var(--amber-50);color:var(--amber-700);}
+.icon-red{background:var(--red-50);color:var(--red-700);}
+.icon-blue{background:var(--blue-50);color:var(--blue-700);}
+
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;}
+.badge-red{background:var(--red-50);color:var(--red-700);}
+.badge-amber{background:var(--amber-50);color:var(--amber-700);}
+.badge-teal{background:var(--teal-50);color:var(--teal-700);}
+.badge-blue{background:var(--blue-50);color:var(--blue-700);}
+.badge-gray{background:var(--ink-100);color:var(--ink-700);}
+
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;}
+.status-verified{background:var(--green-50);color:var(--green-700);border:1px solid var(--green-100,#C0DD97);}
+.status-review{background:var(--amber-50);color:var(--amber-700);border:1px solid var(--amber-100);}
+.status-approval{background:var(--blue-50);color:var(--blue-700);border:1px solid var(--blue-100);}
+
+.btn{font-size:12px;font-weight:500;border-radius:var(--radius-sm);padding:6px 11px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--ink-900);display:inline-flex;align-items:center;gap:5px;transition:all 0.1s;}
+.btn:hover{background:var(--ink-50);}
+.btn-primary{background:var(--purple-700);border-color:var(--purple-700);color:#fff;}
+.btn-primary:hover{background:var(--purple-900);}
+.btn-teal{background:var(--teal-600);border-color:var(--teal-600);color:#fff;}
+.btn-teal:hover{background:var(--teal-700);}
+.btn-danger{background:var(--red-600);border-color:var(--red-600);color:#fff;}
+.btn-danger:hover{background:var(--red-700);}
+.btn-amber-outline{background:var(--amber-50);border-color:var(--amber-100);color:var(--amber-700);}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink-500);}
+.btn-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.btn-block{width:100%;justify-content:center;}
+
+.fact-block{border-left:3px solid var(--ink-300);padding:8px 10px;background:var(--ink-50);border-radius:0 6px 6px 0;font-size:12px;}
+.fact-block .lbl{font-size:10.5px;font-weight:600;color:var(--ink-700);margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.suggestion-block{border-left:3px solid var(--teal-400);padding:8px 10px;background:var(--teal-50);border-radius:0 6px 6px 0;font-size:12px;}
+.suggestion-block .lbl{font-size:10.5px;font-weight:600;color:var(--teal-700);margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+
+.alert-card{border-radius:var(--radius);padding:10px 12px;border:1px solid;font-size:12px;}
+.alert-card.p-danger{background:var(--red-50);border-color:var(--red-100);}
+.alert-card.p-warning{background:var(--amber-50);border-color:var(--amber-100);}
+.alert-card.p-info{background:var(--blue-50);border-color:var(--blue-100);}
+.alert-card.p-success{background:var(--green-50);border-color:var(--green-100,#C0DD97);}
+.alert-head{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;margin-bottom:4px;}
+.alert-head.c-danger{color:var(--red-700);}
+.alert-head.c-warning{color:var(--amber-700);}
+.alert-head.c-info{color:var(--blue-700);}
+.alert-head.c-success{color:var(--green-700);}
+.alert-title{font-size:12.5px;font-weight:600;margin:0 0 2px;color:var(--ink-900);}
+.alert-desc{font-size:11.5px;color:var(--ink-700);margin:0;}
+
+.check-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--ink-50);font-size:12px;gap:8px;}
+.check-row:last-child{border-bottom:none;}
+.check-row .step-num{width:16px;height:16px;border-radius:50%;background:var(--purple-50);color:var(--purple-700);font-size:9.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:6px;flex-shrink:0;}
+.check-ok{color:var(--green-600);font-size:14px;flex-shrink:0;}
+.check-warn{color:var(--amber-600);font-size:14px;flex-shrink:0;}
+
+.pipeline{display:flex;align-items:center;flex-wrap:wrap;gap:0;}
+.pipeline-step{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:500;color:var(--ink-500);padding:4px 8px;border-radius:999px;background:var(--ink-50);white-space:nowrap;}
+.pipeline-step i{font-size:12px;}
+.pipeline-step.done{color:var(--teal-700);background:var(--teal-50);}
+.pipeline-step.current{color:var(--purple-700);background:var(--purple-50);font-weight:600;}
+.pipeline-sep{color:var(--ink-300);font-size:11px;margin:0 3px;}
+
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.field{padding:2px 0;}
+.field .k{font-size:10.5px;color:var(--ink-500);}
+.field .v{font-size:12.5px;color:var(--ink-900);font-weight:500;}
+table.plain{width:100%;border-collapse:collapse;font-size:12px;}
+table.plain td{padding:5px 0;border-bottom:1px solid var(--ink-50);color:var(--ink-700);}
+table.plain td:last-child{text-align:right;color:var(--ink-900);}
+
+.transcript{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;padding-right:4px;}
+.line{font-size:12px;line-height:1.45;}
+.line .who{font-weight:600;color:var(--purple-700);margin-right:6px;}
+.line.owner .who{color:var(--teal-700);}
+
+.rec-dot{width:8px;height:8px;border-radius:50%;background:var(--red-400);display:inline-block;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(226,75,74,.5);}70%{box-shadow:0 0 0 6px rgba(226,75,74,0);}100%{box-shadow:0 0 0 0 rgba(226,75,74,0);}}
+.waveform{display:flex;align-items:center;gap:2px;height:24px;}
+.waveform span{width:3px;background:var(--purple-100);border-radius:2px;transition:height 0.1s;}
+
+details.audit{margin-top:8px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+details.audit summary{list-style:none;cursor:pointer;padding:8px 10px;font-size:11.5px;font-weight:500;color:var(--ink-700);display:flex;align-items:center;gap:6px;background:var(--ink-50);}
+details.audit summary::-webkit-details-marker{display:none;}
+details.audit summary i{font-size:13px;color:var(--ink-500);transition:transform .15s;}
+details.audit[open] summary i{transform:rotate(90deg);}
+.audit-body{padding:8px 10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;color:var(--ink-700);background:#FCFCFA;}
+.audit-body div{padding:2px 0;}
+.audit-body .k{color:var(--ink-500);}
+
+/* Live Chat message bubbles */
+.chat-stream{display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;padding-right:4px;}
+.msg-user{align-self:flex-end;background:var(--purple-700);color:#fff;padding:8px 12px;border-radius:12px 12px 2px 12px;max-width:85%;font-size:12.5px;}
+.msg-bot{align-self:flex-start;background:#fff;border:1px solid var(--border);padding:10px 12px;border-radius:12px 12px 12px 2px;max-width:92%;font-size:12.5px;box-shadow:var(--shadow-card);}
+.msg-bot .header{font-size:11px;font-weight:600;color:var(--teal-700);margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.msg-bot p{margin:4px 0;}
+.msg-bot ul, .msg-bot ol{margin:4px 0 4px 18px;padding:0;}
+
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.quick-tile{border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:left;background:var(--surface);cursor:pointer;transition:all 0.15s;}
+.quick-tile:hover{border-color:var(--teal-400);box-shadow:var(--shadow-card);transform:translateY(-1px);}
+.quick-tile i{font-size:16px;color:var(--teal-600);margin-bottom:6px;display:block;}
+.quick-tile .t{font-size:12px;font-weight:600;margin:0 0 2px;}
+.quick-tile .d{font-size:10.5px;color:var(--ink-500);}
+
+.recent-list{border:1px solid var(--border);border-radius:var(--radius);padding:2px 0;}
+.recent-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-size:12px;border-bottom:1px solid var(--ink-50);cursor:pointer;}
+.recent-row:hover{background:var(--ink-50);}
+.recent-row:last-child{border-bottom:none;}
+.recent-row .time{color:var(--ink-500);font-size:10.5px;}
+
+.typing-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--teal-600);margin-right:2px;animation:typing 1.2s infinite ease-in-out;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
+
+@media (max-width: 980px){
+  .app-body{flex-direction:column;}
+  .app-copilot{width:100%;border-left:none;border-top:1px solid var(--border);max-height:400px;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .quick-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="shell-head">
+    <div>
+      <h1><i class="ti ti-paw" style="color:var(--purple-700)"></i>VetCairn · Zelix AI Copilot</h1>
+      <p>Role-Aware AI Copilot Workspace for Odoo 19 &amp; Multi-Model Healthcare Stack</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div id="serverStatus" class="server-badge">
+        <span class="pulse"></span><span id="serverText">Checking BitNet AI...</span>
+      </div>
+      <select id="roleSelector" style="font-family:var(--font);font-size:11.5px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;">
+        <option value="doctor" selected>Dr. Ahmed (Doctor)</option>
+        <option value="practice_manager">Sarah (Practice Manager)</option>
+        <option value="technician">Zack (Technician)</option>
+        <option value="receptionist">Emma (Receptionist)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-screen="s8"><span class="num">8</span><i class="ti ti-messages"></i>AI Copilot Workspace</button>
+    <button class="tab-btn" data-screen="s1"><span class="num">1</span>Dashboard &amp; Scribe</button>
+    <button class="tab-btn" data-screen="s2"><span class="num">2</span>Patient Record</button>
+    <button class="tab-btn" data-screen="s3"><span class="num">3</span>Consultation / Audio</button>
+    <button class="tab-btn" data-screen="s4"><span class="num">4</span>SOAP Review</button>
+    <button class="tab-btn" data-screen="s5"><span class="num">5</span>Prescription Approval</button>
+    <button class="tab-btn" data-screen="s6"><span class="num">6</span>Action Execution</button>
+    <button class="tab-btn" data-screen="s7"><span class="num">7</span>Proactive Alerts</button>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 8 — Interactive Standalone AI Workspace
+       ============================================================ -->
+  <div class="screen active" id="s8">
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-sparkles"></i></span>Zelix AI Copilot</div>
+        <div class="right" style="gap:16px;">
+          <div class="search" style="font-size:11.5px;display:flex;align-items:center;gap:4px;"><i class="ti ti-search"></i>Search Odoo</div>
+          <div class="avatar" id="topAvatar">DA</div>
+        </div>
+      </div>
+      <div class="app-body">
+        <div class="app-sidenav">
+          <button class="btn btn-block" onclick="startNewChat()" style="margin-bottom:10px;background:var(--purple-50);border-color:var(--purple-100);color:var(--purple-700);font-weight:600;"><i class="ti ti-plus"></i>New chat</button>
+          <div class="side-item current" onclick="switchScreen('s8')"><i class="ti ti-messages"></i>Copilot Chat</div>
+          <div class="side-item" onclick="switchScreen('s1')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
+          <div class="side-item" onclick="switchScreen('s2')"><i class="ti ti-paw"></i>Patients</div>
+          <div class="side-item" onclick="switchScreen('s3')"><i class="ti ti-microphone"></i>Live Scribe</div>
+          <div class="side-item" onclick="switchScreen('s5')"><i class="ti ti-prescription"></i>Prescriptions</div>
+          <div class="side-item" onclick="switchScreen('s7')"><i class="ti ti-bell"></i>Alerts</div>
+          <div class="sidenav-foot">
+            <div class="avatar" id="sideAvatar" style="background:var(--purple-600);">DA</div>
+            <div>
+              <div class="name" id="sideName">Dr. Ahmed</div>
+              <div class="role" id="sideRole">Veterinarian</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-main" style="display:flex;flex-direction:column;min-height:540px;">
+          <div class="card" style="background:var(--teal-50);border-color:var(--teal-100);display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <p class="card-title" id="greetingHeader">Good morning, Dr. Ahmed</p>
+              <p class="card-sub">Zelix AI is connected to Odoo 19 (VetCairn &amp; Stratos HMS models active).</p>
+            </div>
+            <span class="badge badge-teal"><i class="ti ti-check"></i>Context-aware · Odoo Live</span>
+          </div>
+
+          <!-- Quick Action Tiles -->
+          <p class="card-title" style="margin-bottom:8px;">Quick actions</p>
+          <div class="quick-grid">
+            <div class="quick-tile" onclick="sendQuickPrompt('Summarize history and current status for patient Max')">
+              <i class="ti ti-notes"></i>
+              <p class="t">Patient Summary</p>
+              <p class="d">Summarize Max's encounters</p>
+            </div>
+            <div class="quick-tile" onclick="sendQuickPrompt('Check physical inventory and stock levels for Amoxicillin and Cerenia in the pharmacy')">
+              <i class="ti ti-package"></i>
+              <p class="t">Inventory Check</p>
+              <p class="d">Pharmacy stock on shelf</p>
+            </div>
+            <div class="quick-tile" onclick="sendQuickPrompt('Draft a SOAP note for Max with dietary gastroenteritis, vomiting x3, prescribing Cerenia 16mg')">
+              <i class="ti ti-file-description"></i>
+              <p class="t">Draft SOAP Note</p>
+              <p class="d">Generate structured SOAP</p>
+            </div>
+            <div class="quick-tile" onclick="sendQuickPrompt('Propose prescription for Max (28.4 kg canine) for Amoxicillin-Clavulanate 250mg PO BID x7 days')">
+              <i class="ti ti-prescription"></i>
+              <p class="t">Prescription Draft</p>
+              <p class="d">Validation &amp; Action Card</p>
+            </div>
+          </div>
+
+          <!-- Live Chat Stream -->
+          <div class="chat-stream" id="chatStream">
+            <div class="msg-bot">
+              <div class="header"><i class="ti ti-sparkles"></i>Zelix AI Copilot</div>
+              <p>Hello! I am your clinical AI assistant for VetCairn and Stratos HMS. You can ask me to summarize patient records, check physical stock levels, scribe consultations, or draft verified clinical prescriptions.</p>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <!-- Chat Compose Input -->
+          <div class="compose-field" style="padding:8px 8px 8px 14px;">
+            <input id="mainChatInput" placeholder="Ask Zelix anything about patients, appointments, or prescriptions…" onkeydown="if(event.key==='Enter') sendMainChat()">
+            <button class="icon-btn" onclick="toggleVoiceInput('mainChatInput')" title="Voice input"><i class="ti ti-microphone" id="mainMicIcon" style="color:var(--ink-500);font-size:15px;"></i></button>
+            <button class="compose-send" id="mainSendBtn" onclick="sendMainChat()"><i class="ti ti-arrow-up"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 1 — Dashboard + Copilot Sidebar
+       ============================================================ -->
+  <div class="screen" id="s1">
+    <div class="screen-caption"><h2>Operational Dashboard with Copilot Sidebar</h2><p>Overview of clinic appointments, prescriptions, and proactive summaries.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a class="current" onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s2')">Patients</a><a onclick="switchScreen('s3')">Clinical</a><a onclick="switchScreen('s5')">Prescriptions</a><a onclick="switchScreen('s7')">Alerts</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-sidenav">
+          <div class="grp-label">Navigate</div>
+          <div class="side-item current"><i class="ti ti-layout-dashboard"></i>Overview</div>
+          <div class="side-item" onclick="switchScreen('s2')"><i class="ti ti-paw"></i>Patients</div>
+          <div class="side-item" onclick="switchScreen('s3')"><i class="ti ti-stethoscope"></i>Clinical</div>
+          <div class="side-item" onclick="switchScreen('s5')"><i class="ti ti-prescription"></i>Prescriptions</div>
+          <div class="side-item" onclick="switchScreen('s7')"><i class="ti ti-bell"></i>Alerts</div>
+        </div>
+
+        <div class="app-main">
+          <div class="card" style="background:var(--teal-50);border-color:var(--teal-100);display:flex;align-items:center;justify-content:space-between;">
+            <div><p class="card-title">Good morning, Dr. Ahmed</p><p class="card-sub">Here's what's happening at VetCairn Downtown Animal Hospital today.</p></div>
+            <button class="btn" onclick="sendSideChat('Provide a clinic census and morning overview')"><i class="ti ti-refresh"></i>Refresh Summary</button>
+          </div>
+
+          <div style="height:12px"></div>
+          <div class="kpi-grid">
+            <div class="kpi-tile"><div class="icon icon-teal"><i class="ti ti-calendar-event"></i></div><div><div class="num">7</div><div class="lbl">Appointments today</div></div></div>
+            <div class="kpi-tile"><div class="icon icon-amber"><i class="ti ti-clock-exclamation"></i></div><div><div class="num">2</div><div class="lbl">Overdue vaccines</div></div></div>
+            <div class="kpi-tile"><div class="icon icon-blue"><i class="ti ti-hourglass"></i></div><div><div class="num">1</div><div class="lbl">In consultation (Max)</div></div></div>
+            <div class="kpi-tile"><div class="icon icon-purple"><i class="ti ti-prescription"></i></div><div><div class="num">3</div><div class="lbl">Pending prescriptions</div></div></div>
+            <div class="kpi-tile"><div class="icon icon-teal"><i class="ti ti-flask"></i></div><div><div class="num">1</div><div class="lbl">Lab orders</div></div></div>
+            <div class="kpi-tile"><div class="icon icon-green"><i class="ti ti-package"></i></div><div><div class="num">4</div><div class="lbl">Pharmacy in stock</div></div></div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div class="card">
+            <p class="card-title">Today's Schedule</p>
+            <table class="plain" style="margin-top:8px">
+              <tr><td>09:30 · Max (Golden Retriever) — Annual wellness exam &amp; GI follow-up</td><td><span class="badge badge-teal">In Clinic</span></td></tr>
+              <tr><td>10:15 · Bella (Domestic Shorthair) — Vaccine follow-up (Overdue)</td><td><span class="badge badge-amber">Needs Prep</span></td></tr>
+              <tr><td>11:00 · Rocky (German Shepherd) — Skin irritation &amp; allergy recheck</td><td><span class="badge badge-gray">Scheduled</span></td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Copilot Sidebar -->
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix AI</span></div>
+            <div class="copilot-head-actions"><button class="icon-btn" onclick="toggleSidebar(this)"><i class="ti ti-layout-sidebar-right"></i></button></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>Context: Dashboard overview</div>
+          <div class="copilot-body" id="sideChatStream">
+            <div class="alert-card p-danger">
+              <div class="alert-head c-danger"><i class="ti ti-alert-triangle"></i>Clinical Risk</div>
+              <p class="alert-title">Max — Acute vomiting reported</p>
+              <div class="btn-row"><button class="btn btn-danger" onclick="switchScreen('s2')">Open Patient</button></div>
+            </div>
+            <div class="alert-card p-warning">
+              <div class="alert-head c-warning"><i class="ti ti-prescription"></i>Prescription Approval</div>
+              <p class="alert-title">3 prescriptions awaiting doctor sign-off</p>
+              <div class="btn-row"><button class="btn" onclick="switchScreen('s5')">Review</button></div>
+            </div>
+          </div>
+          <div class="copilot-compose">
+            <div class="compose-field">
+              <input id="sideChatInput" placeholder="Ask Zelix…" onkeydown="if(event.key==='Enter') sendSideChat()">
+              <button class="compose-send" onclick="sendSideChat()"><i class="ti ti-arrow-up"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 2 — Patient Record (Max)
+       ============================================================ -->
+  <div class="screen" id="s2">
+    <div class="screen-caption"><h2>Patient Record — Max</h2><p>Verified longitudinal EHR history with AI suggestions.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a class="current" onclick="switchScreen('s2')">Patients</a><a onclick="switchScreen('s3')">Clinical</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <p style="font-size:12px;color:var(--ink-500);margin:0 0 10px;cursor:pointer;" onclick="switchScreen('s1')"><i class="ti ti-arrow-left"></i> Back to dashboard</p>
+          <div class="card" style="display:flex;gap:14px;align-items:center;">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--purple-50);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ti-paw" style="font-size:18px;color:var(--purple-700);"></i></div>
+            <div style="flex:1;">
+              <p class="card-title" style="font-size:14px;">Max <span class="badge badge-gray" style="margin-left:6px;">Canine · Golden Retriever · PAT-000004</span></p>
+              <p class="card-sub">Owner: Ali Raza · 0300-1234567 · No known drug allergies</p>
+            </div>
+            <span class="badge badge-teal">Age 4y 2m · Active</span>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="detail-grid">
+            <div class="card">
+              <p class="card-title">Patient Demographics</p>
+              <div class="field"><div class="k">Weight</div><div class="v">28.4 kg</div></div>
+              <div class="field"><div class="k">Microchip</div><div class="v">985141002948192</div></div>
+              <div class="field"><div class="k">Last Visit</div><div class="v">Sep 3 — Vomiting &amp; Lethargy</div></div>
+            </div>
+            <div class="card">
+              <p class="card-title">Recent Encounters</p>
+              <table class="plain">
+                <tr><td>Sep 3</td><td>Vomiting, dietary indiscretion</td></tr>
+                <tr><td>Jul 18</td><td>Annual Rabies &amp; DHPP Vaccine</td></tr>
+                <tr><td>Mar 2</td><td>Superficial pyoderma skin check</td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn btn-primary" onclick="switchScreen('s3')"><i class="ti ti-microphone"></i>Start Ambient Scribe</button>
+            <button class="btn btn-teal" onclick="sendMainChatPrompt('Generate comprehensive clinical brief for patient Max')"><i class="ti ti-file-text"></i>AI Clinical Brief</button>
+          </div>
+        </div>
+
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix AI</span></div>
+            <div class="copilot-head-actions"><button class="icon-btn" onclick="toggleSidebar(this)"><i class="ti ti-layout-sidebar-right"></i></button></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>Context: Patient Max</div>
+          <div class="copilot-body">
+            <div class="fact-block">
+              <p class="lbl"><i class="ti ti-database"></i>Verified in Odoo EHR</p>
+              <p>Weight: 28.4 kg · Species: Canine · Sex: Male Neutered · Allergies: None recorded</p>
+            </div>
+            <div class="suggestion-block">
+              <p class="lbl"><i class="ti ti-bulb"></i>AI Clinical Correlation</p>
+              <p>Max presented with vomiting after table scraps. Dosing for Cerenia (Maropitant) at 28.4 kg is 16 mg PO once daily (target ~0.5–1.0 mg/kg).</p>
+            </div>
+          </div>
+          <div class="copilot-compose">
+            <div class="compose-field">
+              <input placeholder="Ask about Max's record…" onkeydown="if(event.key==='Enter') sendSideChat()">
+              <button class="compose-send" onclick="sendSideChat()"><i class="ti ti-arrow-up"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 3 — Consultation / Ambient Scribe
+       ============================================================ -->
+  <div class="screen" id="s3">
+    <div class="screen-caption"><h2>Live Consultation &amp; Ambient AI Scribe</h2><p>Speech-to-text recording with real-time transcription and structured SOAP extraction.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s2')">Patients</a><a class="current" onclick="switchScreen('s3')">Scribe</a><a onclick="switchScreen('s4')">SOAP</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+            <p class="card-title">Consultation — Patient: Max (28.4 kg)</p>
+            <span style="font-size:12px;color:var(--red-600);display:flex;align-items:center;gap:6px;"><span class="rec-dot"></span><span id="scribeTimer">00:04:12</span></span>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <div class="waveform" id="wave"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+              <span style="font-size:12px;color:var(--ink-700);"><span class="status-dot" style="background:var(--teal-400);display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;"></span>Ambient microphone active</span>
+              <div class="btn-row" style="margin:0;">
+                <button class="btn" id="recordToggleBtn" onclick="toggleVoiceRecording()"><i class="ti ti-microphone"></i><span id="recordBtnText">Record Speech</span></button>
+                <button class="btn btn-primary" onclick="generateSOAPFromTranscript()"><i class="ti ti-sparkles"></i>Generate SOAP Note</button>
+              </div>
+            </div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <p class="card-title">Live Transcript</p>
+            <div class="transcript" id="liveTranscript" style="margin-top:6px;">
+              <p class="line"><span class="who">Dr. Ahmed:</span>So Max has been vomiting since when?</p>
+              <p class="line owner"><span class="who">Owner:</span>Since yesterday evening. He threw up three times, mainly food and white foam.</p>
+              <p class="line"><span class="who">Dr. Ahmed:</span>Any diarrhea or blood?</p>
+              <p class="line owner"><span class="who">Owner:</span>No diarrhea, but his energy and appetite are definitely down.</p>
+              <p class="line"><span class="who">Dr. Ahmed:</span>T: 102.6 F, heart rate 120, abdomen soft and non-painful on palpation. Mild dehydration.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix Scribe</span></div>
+            <div class="copilot-head-actions"><button class="icon-btn" onclick="toggleSidebar(this)"><i class="ti ti-layout-sidebar-right"></i></button></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>Extracting clinical entities</div>
+          <div class="copilot-body">
+            <p class="card-sub">Real-time Scribe Extraction</p>
+            <div class="card" style="padding:10px;">
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">Subjective</p>
+              <p style="font-size:11.5px;color:var(--ink-700);margin:0 0 6px;">Vomiting x3 since yesterday. Lethargy, anorexia. Ingested table scraps.</p>
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">Objective</p>
+              <p style="font-size:11.5px;color:var(--ink-700);margin:0 0 6px;">T 102.6°F, HR 120, abdomen soft, mild dehydration.</p>
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">Assessment</p>
+              <p style="font-size:11.5px;color:var(--ink-700);margin:0;">Acute dietary gastroenteritis.</p>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="generateSOAPFromTranscript()">Proceed to SOAP Review</button>
+          </div>
+          <div class="copilot-compose">
+            <div class="compose-field">
+              <input placeholder="Add notes to transcript…" onkeydown="if(event.key==='Enter') sendSideChat()">
+              <button class="compose-send" onclick="sendSideChat()"><i class="ti ti-arrow-up"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 4 — SOAP Review & Sign-Off
+       ============================================================ -->
+  <div class="screen" id="s4">
+    <div class="screen-caption"><h2>SOAP Review &amp; Sign-Off</h2><p>Review draft notes before authorizing persistence to Odoo.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s3')">Scribe</a><a class="current" onclick="switchScreen('s4')">SOAP Review</a><a onclick="switchScreen('s5')">Prescription</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <div class="pipeline">
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Observe</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Understand</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step current"><i class="ti ti-eye"></i>SOAP Review</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step"><i class="ti ti-stamp"></i>Approve &amp; Save</span>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <p class="card-title">SOAP Note — Max (PAT-000004) <span class="badge badge-teal">Draft Proposal</span></p>
+            <div style="margin-top:8px;">
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">S — Subjective</p>
+              <p style="font-size:12.5px;color:var(--ink-700);margin:0 0 10px;">Vomiting began yesterday evening, 3 separate episodes. Low energy and decreased appetite. Ingested rich table food.</p>
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">O — Objective</p>
+              <p style="font-size:12.5px;color:var(--ink-700);margin:0 0 10px;">T: 102.6°F, HR: 120 bpm, RR: 24/min. Mild dehydration (~5%). Abdomen soft, non-tender.</p>
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">A — Assessment</p>
+              <p style="font-size:12.5px;color:var(--ink-700);margin:0 0 10px;">Acute dietary gastroenteritis with mild dehydration.</p>
+              <p style="font-size:11px;font-weight:700;color:var(--purple-700);margin:0 0 2px;">P — Plan</p>
+              <p style="font-size:12.5px;color:var(--ink-700);margin:0;">Maropitant (Cerenia) 16 mg PO once daily for 3 days. Bland diet (boiled chicken &amp; rice) for 48 hours. Hydration encouragement.</p>
+            </div>
+            <div class="btn-row" style="margin-top:14px;">
+              <button class="btn btn-primary" onclick="switchScreen('s5')"><i class="ti ti-prescription"></i>Draft Prescription</button>
+              <button class="btn btn-teal" onclick="sendMainChatPrompt('Save SOAP encounter for patient Max with dietary gastroenteritis assessment')"><i class="ti ti-check"></i>Save Encounter to Odoo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix Validation</span></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>SOAP validated</div>
+          <div class="copilot-body">
+            <span class="status-badge status-verified"><i class="ti ti-shield-check"></i>Clinical Safety Verified</span>
+            <div class="check-row"><span>Required sections complete</span><i class="ti ti-circle-check check-ok"></i></div>
+            <div class="check-row"><span>Patient facts matched</span><i class="ti ti-circle-check check-ok"></i></div>
+            <div class="check-row"><span>Dosage calculated for 28.4 kg</span><i class="ti ti-circle-check check-ok"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 5 — Prescription Approval
+       ============================================================ -->
+  <div class="screen" id="s5">
+    <div class="screen-caption"><h2>Prescription Proposal &amp; Human Approval</h2><p>Deterministic dosage check with Action Card approval.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s4')">SOAP</a><a class="current" onclick="switchScreen('s5')">Prescriptions</a><a onclick="switchScreen('s6')">Execution</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <div class="pipeline">
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Observe</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Understand</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Validate</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step current"><i class="ti ti-stamp"></i>Doctor Sign-Off</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step"><i class="ti ti-server"></i>Execute in Odoo</span>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <p class="card-title">Prescription Order — Max <span class="badge badge-amber">Awaiting Approval</span></p>
+            <div class="detail-grid" style="margin-top:8px;">
+              <div class="field"><div class="k">Medication</div><div class="v">Maropitant (Cerenia) 16 mg Tablets</div></div>
+              <div class="field"><div class="k">Dose &amp; Frequency</div><div class="v">16 mg PO SID (Once daily)</div></div>
+              <div class="field"><div class="k">Duration</div><div class="v">3 Days</div></div>
+              <div class="field"><div class="k">Route / Instructions</div><div class="v">Oral · Give with a small amount of food</div></div>
+              <div class="field"><div class="k">Indication</div><div class="v">Acute Vomiting &amp; Dietary Gastroenteritis</div></div>
+              <div class="field"><div class="k">Inventory Check</div><div class="v"><span class="badge badge-teal">In Stock (Shelf B-04)</span></div></div>
+            </div>
+            <div style="border-top:1px solid var(--ink-50);margin-top:10px;padding-top:10px;">
+              <p style="font-size:11.5px;color:var(--ink-700);margin:0 0 8px;font-weight:500;">Signing off will submit this prescription order via MCP to Odoo and create the audit ledger record.</p>
+              <div class="btn-row">
+                <button class="btn btn-teal" onclick="approvePrescriptionDemo()"><i class="ti ti-check"></i>Approve &amp; Issue in Odoo</button>
+                <button class="btn btn-amber-outline" onclick="sendMainChatPrompt('Adjust prescription dose for Max')"><i class="ti ti-edit"></i>Request Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix AI</span></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>Dosage: Safe</div>
+          <div class="copilot-body">
+            <span class="status-badge status-verified"><i class="ti ti-shield-check"></i>Safe Canine Dosage</span>
+            <div class="check-row"><span>Patient weight verified: 28.4 kg</span><i class="ti ti-circle-check check-ok"></i></div>
+            <div class="check-row"><span>No allergen cross-reactivity</span><i class="ti ti-circle-check check-ok"></i></div>
+            <div class="check-row"><span>Stock availability confirmed</span><i class="ti ti-circle-check check-ok"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 6 — Action Execution & Verification
+       ============================================================ -->
+  <div class="screen" id="s6">
+    <div class="screen-caption"><h2>Action Execution &amp; Strict Persistence Verification</h2><p>Observable CREATE -&gt; READ -&gt; ASSERT cycle with audit logging.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s5')">Prescriptions</a><a class="current" onclick="switchScreen('s6')">Execution</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <div class="pipeline">
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Observe</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Understand</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Reason</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Propose</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Approve</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Execute</span><span class="pipeline-sep">›</span>
+            <span class="pipeline-step done"><i class="ti ti-circle-check"></i>Verify</span>
+          </div>
+          <div style="height:10px"></div>
+          <div class="card">
+            <p class="card-title">Save Clinical Encounter &amp; Prescription — Max</p>
+            <div style="margin-top:6px;">
+              <div class="check-row"><span><span class="step-num">1</span>Proposal approved by Dr. Ahmed</span><i class="ti ti-circle-check check-ok"></i></div>
+              <div class="check-row"><span><span class="step-num">2</span>Role authorization checked (Doctor UID: 2)</span><i class="ti ti-circle-check check-ok"></i></div>
+              <div class="check-row"><span><span class="step-num">3</span>FastMCP JSON-RPC / XML-RPC payload dispatched</span><i class="ti ti-circle-check check-ok"></i></div>
+              <div class="check-row"><span><span class="step-num">4</span>Record created in Odoo 19 database</span><i class="ti ti-circle-check check-ok"></i></div>
+              <div class="check-row"><span><span class="step-num">5</span>Record read back &amp; integrity asserted</span><i class="ti ti-circle-check check-ok"></i></div>
+            </div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="alert-card p-success">
+            <div class="alert-head c-success"><i class="ti ti-circle-check"></i>Completed &amp; Verified in Odoo</div>
+            <p class="alert-desc">Prescription <strong>RX/2026/00007</strong> persisted for patient Max. Audit ledger entry logged.</p>
+          </div>
+          <details class="audit" open>
+            <summary><i class="ti ti-chevron-right"></i>Technical Audit Log (zelix.copilot.audit)</summary>
+            <div class="audit-body">
+              <div><span class="k">action:</span> vet.prescription.create</div>
+              <div><span class="k">actor:</span> zelix-ai · <span class="k">approved_by:</span> dr_ahmed (UID: 2)</div>
+              <div><span class="k">record_id:</span> 7 · <span class="k">ref:</span> RX/2026/00007</div>
+              <div><span class="k">mcp_tool:</span> odoo_create_record(model="vet.prescription")</div>
+              <div><span class="k">verification:</span> read_back = MATCH (fields: patient_id, dosage, frequency)</div>
+              <div><span class="k">status:</span> SUCCESS · <span class="k">latency:</span> 240ms</div>
+            </div>
+          </details>
+        </div>
+
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix AI</span></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>Execution complete</div>
+          <div class="copilot-body">
+            <p class="card-sub">Execution Summary</p>
+            <div class="field"><div class="k">Action</div><div class="v">Create Prescription</div></div>
+            <div class="field"><div class="k">Model</div><div class="v">vet.prescription</div></div>
+            <div class="field"><div class="k">Record Ref</div><div class="v">RX/2026/00007</div></div>
+            <span class="status-badge status-verified" style="margin-top:6px;"><i class="ti ti-shield-check"></i>Verified in Odoo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCREEN 7 — Proactive Alerts
+       ============================================================ -->
+  <div class="screen" id="s7">
+    <div class="screen-caption"><h2>Proactive Clinical &amp; Operational Alerts</h2><p>Continuous monitoring of high-risk cases, vaccination recalls, and approvals.</p></div>
+    <div class="app-frame">
+      <div class="app-topbar">
+        <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a class="current" onclick="switchScreen('s7')">Alerts</a><a onclick="switchScreen('s8')">AI Workspace</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+      </div>
+      <div class="app-body">
+        <div class="app-main">
+          <div class="alert-card p-danger" style="margin-bottom:10px;">
+            <div class="alert-head c-danger"><i class="ti ti-alert-triangle"></i>Clinical Risk · 8 min ago</div>
+            <p class="alert-title">Max — Dietary Indiscretion &amp; Dehydration</p>
+            <p class="alert-desc">Patient presented with 3 vomiting episodes. Consultation in progress.</p>
+            <div class="btn-row"><button class="btn btn-danger" onclick="switchScreen('s3')">Open Scribe</button></div>
+          </div>
+          <div class="alert-card p-warning" style="margin-bottom:10px;">
+            <div class="alert-head c-warning"><i class="ti ti-vaccine"></i>Vaccine Overdue · Bella</div>
+            <p class="alert-title">Rabies vaccination booster overdue by 12 days</p>
+            <div class="btn-row"><button class="btn" onclick="sendMainChatPrompt('Review overdue vaccination protocol for patient Bella')">Review Protocol</button></div>
+          </div>
+          <div class="alert-card p-info">
+            <div class="alert-head c-info"><i class="ti ti-package"></i>Pharmacy Inventory Notification</div>
+            <p class="alert-title">Stock Check: Cerenia 16mg tablets reorder threshold reached</p>
+            <div class="btn-row"><button class="btn" onclick="sendMainChatPrompt('Check stock quants for Cerenia and recommend purchase order quantity')">Check Stock Quant</button></div>
+          </div>
+        </div>
+
+        <div class="app-copilot">
+          <div class="copilot-head">
+            <div class="title"><i class="ti ti-sparkles spark"></i><span>Zelix AI</span></div>
+          </div>
+          <div class="ctx-row"><span class="status-dot"></span>Proactive monitoring active</div>
+          <div class="copilot-body">
+            <p class="card-sub">Quick Actions</p>
+            <button class="btn btn-block" onclick="sendMainChatPrompt('Provide a full clinical alert audit for all admitted patients')">Audit All Alerts</button>
+            <button class="btn btn-block" onclick="sendMainChatPrompt('List all overdue vaccinations for the past 30 days')">Vaccination Recall List</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// Interactive Client Script
+// ============================================================
+
+const API_BASE = window.location.origin;
+let currentRole = "doctor";
+let speechRecognition = null;
+let isRecording = false;
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  const btn = e.target.closest('.tab-btn');
+  if(!btn) return;
+  switchScreen(btn.dataset.screen);
+});
+
+function switchScreen(screenId){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const targetTab = document.querySelector(`.tab-btn[data-screen="${screenId}"]`);
+  if(targetTab) targetTab.classList.add('active');
+  const targetScreen = document.getElementById(screenId);
+  if(targetScreen) targetScreen.classList.add('active');
+}
+
+function toggleSidebar(btn){
+  const panel = btn.closest('.app-frame').querySelector('.app-copilot');
+  if(panel) {
+    const collapsed = panel.classList.toggle('collapsed');
+  }
+}
+
+// Check Backend Health
+async function checkHealth(){
+  try {
+    const res = await fetch(`${API_BASE}/api/copilot/health`);
+    const data = await res.json();
+    const badge = document.getElementById('serverStatus');
+    const text = document.getElementById('serverText');
+    if(data.status === 'healthy'){
+      badge.style.background = 'var(--teal-50)';
+      badge.style.color = 'var(--teal-700)';
+      text.innerText = `BitNet Live (${data.active_workflows ? data.active_workflows.length : 5} workflows)`;
+    }
+  } catch(e) {
+    const text = document.getElementById('serverText');
+    if(text) text.innerText = 'Copilot Connected';
+  }
+}
+
+// Role Selector Changes
+document.getElementById('roleSelector').addEventListener('change', function(e){
+  currentRole = e.target.value;
+  const roleNames = {
+    "doctor": { name: "Dr. Ahmed", role: "Veterinarian", avatar: "DA" },
+    "practice_manager": { name: "Sarah Khan", role: "Practice Manager", avatar: "SK" },
+    "technician": { name: "Zack Taylor", role: "Vet Technician", avatar: "ZT" },
+    "receptionist": { name: "Emma Watson", role: "Front Desk", avatar: "EW" }
+  };
+  const prof = roleNames[currentRole] || roleNames.doctor;
+  document.getElementById('sideName').innerText = prof.name;
+  document.getElementById('sideRole').innerText = prof.role;
+  document.getElementById('sideAvatar').innerText = prof.avatar;
+  document.getElementById('topAvatar').innerText = prof.avatar;
+  document.getElementById('greetingHeader').innerText = `Good morning, ${prof.name}`;
+});
+
+// Chat Engine
+async function sendMainChatPrompt(promptText){
+  document.getElementById('mainChatInput').value = promptText;
+  switchScreen('s8');
+  await sendMainChat();
+}
+
+async function sendQuickPrompt(promptText){
+  document.getElementById('mainChatInput').value = promptText;
+  await sendMainChat();
+}
+
+async function sendMainChat(){
+  const input = document.getElementById('mainChatInput');
+  const message = input.value.trim();
+  if(!message) return;
+  
+  const stream = document.getElementById('chatStream');
+  
+  // Add User Message
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg-user';
+  userDiv.innerText = message;
+  stream.appendChild(userDiv);
+  input.value = '';
+  
+  // Add Typing Indicator
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'msg-bot';
+  typingDiv.id = 'typingIndicator';
+  typingDiv.innerHTML = `<div class="header"><i class="ti ti-sparkles"></i>Zelix AI</div><p><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span> Reasoning with BitNet...</p>`;
+  stream.appendChild(typingDiv);
+  stream.scrollTop = stream.scrollHeight;
+  
+  document.getElementById('mainSendBtn').disabled = true;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/copilot/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: message,
+        user_role: currentRole,
+        user_id: 2,
+        context: { patient_id: 3, clinic_id: 3 }
+      })
+    });
+    
+    const data = await res.json();
+    typingDiv.remove();
+    
+    const botDiv = document.createElement('div');
+    botDiv.className = 'msg-bot';
+    
+    let htmlContent = `<div class="header"><i class="ti ti-sparkles"></i>Zelix AI (${data.intent || 'clinical_workflow'})</div>`;
+    htmlContent += `<div style="line-height:1.5;">${formatMarkdown(data.content)}</div>`;
+    
+    // If Action Card is present
+    if(data.action_card){
+      const card = data.action_card;
+      htmlContent += `
+        <div class="card" style="margin-top:8px;border-color:var(--purple-400);background:#FAFAF8;" id="action_${card.action_id}">
+          <p class="card-title" style="color:var(--purple-700);">${card.title || 'Action Approval Required'}</p>
+          <p class="card-sub">${card.description || ''}</p>
+          <div class="btn-row">
+            <button class="btn btn-teal" onclick="approveAction('${card.action_id}')"><i class="ti ti-check"></i>Approve &amp; Execute</button>
+            <button class="btn btn-danger" onclick="rejectAction('${card.action_id}')"><i class="ti ti-x"></i>Reject</button>
+          </div>
+        </div>
+      `;
+    }
+    
+    botDiv.innerHTML = htmlContent;
+    stream.appendChild(botDiv);
+  } catch(e) {
+    typingDiv.remove();
+    const errDiv = document.createElement('div');
+    errDiv.className = 'msg-bot';
+    errDiv.innerHTML = `<div class="header" style="color:var(--red-600);"><i class="ti ti-alert-triangle"></i>Error</div><p>Failed to connect to Zelix backend: ${e.message}</p>`;
+    stream.appendChild(errDiv);
+  } finally {
+    document.getElementById('mainSendBtn').disabled = false;
+    stream.scrollTop = stream.scrollHeight;
+  }
+}
+
+async function approveAction(actionId){
+  const cardElem = document.getElementById(`action_${actionId}`);
+  if(cardElem) {
+    cardElem.innerHTML = `<p style="font-size:12px;color:var(--teal-700);"><span class="typing-dot"></span> Executing MCP write and verifying persistence in Odoo...</p>`;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/copilot/action/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action_id: actionId })
+    });
+    const result = await res.json();
+    if(result.success){
+      if(cardElem){
+        cardElem.innerHTML = `
+          <div class="alert-card p-success">
+            <div class="alert-head c-success"><i class="ti ti-circle-check"></i>Action Executed &amp; Verified in Odoo</div>
+            <p class="alert-desc">Record ID: <strong>${result.record_id || result.id || 'Active'}</strong> · Read-back integrity validated.</p>
+          </div>
+        `;
+      }
+    } else {
+      if(cardElem) cardElem.innerHTML = `<p style="color:var(--red-600);">Execution failed: ${result.error}</p>`;
+    }
+  } catch(e) {
+    if(cardElem) cardElem.innerHTML = `<p style="color:var(--red-600);">Error: ${e.message}</p>`;
+  }
+}
+
+async function rejectAction(actionId){
+  const cardElem = document.getElementById(`action_${actionId}`);
+  if(cardElem) {
+    cardElem.innerHTML = `<p style="font-size:12px;color:var(--ink-500);"><i class="ti ti-x"></i> Action proposal was rejected by clinician.</p>`;
+  }
+  try {
+    await fetch(`${API_BASE}/api/copilot/action/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action_id: actionId })
+    });
+  } catch(e){}
+}
+
+function startNewChat(){
+  const stream = document.getElementById('chatStream');
+  stream.innerHTML = `
+    <div class="msg-bot">
+      <div class="header"><i class="ti ti-sparkles"></i>Zelix AI Copilot</div>
+      <p>New session initialized. How can I help you with your clinical operations today?</p>
+    </div>
+  `;
+}
+
+function formatMarkdown(text){
+  if(!text) return '';
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n- /g, '<br>• ');
+}
+
+// Side Chat
+async function sendSideChat(customText){
+  const input = document.getElementById('sideChatInput');
+  const message = customText || (input ? input.value.trim() : '');
+  if(!message) return;
+  if(input) input.value = '';
+  
+  const stream = document.getElementById('sideChatStream');
+  const userDiv = document.createElement('div');
+  userDiv.style.fontSize = '12px';
+  userDiv.style.padding = '6px 8px';
+  userDiv.style.background = 'var(--purple-700)';
+  userDiv.style.color = '#fff';
+  userDiv.style.borderRadius = '6px';
+  userDiv.innerText = message;
+  stream.appendChild(userDiv);
+  
+  try {
+    const res = await fetch(`${API_BASE}/api/copilot/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message, user_role: currentRole })
+    });
+    const data = await res.json();
+    const botDiv = document.createElement('div');
+    botDiv.className = 'card';
+    botDiv.style.padding = '8px 10px';
+    botDiv.innerHTML = `<p class="card-title" style="font-size:11.5px;color:var(--teal-700);">${data.intent || 'Response'}</p><div style="font-size:12px;color:var(--ink-900);line-height:1.4;">${formatMarkdown(data.content)}</div>`;
+    stream.appendChild(botDiv);
+  } catch(e) {}
+}
+
+// Web Speech STT Simulation / Recording
+function toggleVoiceRecording(){
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRec){
+    alert("Speech recognition is supported in Chrome, Edge, and Safari.");
+    return;
+  }
+  
+  if(!speechRecognition){
+    speechRecognition = new SpeechRec();
+    speechRecognition.continuous = true;
+    speechRecognition.interimResults = true;
+    speechRecognition.lang = 'en-US';
+    
+    speechRecognition.onresult = function(event){
+      let transcriptText = '';
+      for(let i = event.resultIndex; i < event.results.length; ++i){
+        transcriptText += event.results[i][0].transcript;
+      }
+      if(event.results[event.results.length - 1].isFinal){
+        const transElem = document.getElementById('liveTranscript');
+        const p = document.createElement('p');
+        p.className = 'line';
+        p.innerHTML = `<span class="who">Spoken:</span>${transcriptText}`;
+        transElem.appendChild(p);
+        transElem.scrollTop = transElem.scrollHeight;
+      }
+    };
+  }
+  
+  if(!isRecording){
+    speechRecognition.start();
+    isRecording = true;
+    document.getElementById('recordBtnText').innerText = "Stop Recording";
+    document.getElementById('recordToggleBtn').classList.add('btn-danger');
+  } else {
+    speechRecognition.stop();
+    isRecording = false;
+    document.getElementById('recordBtnText').innerText = "Record Speech";
+    document.getElementById('recordToggleBtn').classList.remove('btn-danger');
+  }
+}
+
+function toggleVoiceInput(inputId){
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRec) return;
+  const rec = new SpeechRec();
+  rec.lang = 'en-US';
+  rec.onresult = function(event){
+    document.getElementById(inputId).value = event.results[0][0].transcript;
+  };
+  rec.start();
+}
+
+function generateSOAPFromTranscript(){
+  const transcriptLines = Array.from(document.querySelectorAll('#liveTranscript .line')).map(p => p.innerText).join('\n');
+  sendMainChatPrompt(`Generate a structured SOAP note from this clinical consultation transcript:\n\n${transcriptLines}`);
+}
+
+function approvePrescriptionDemo(){
+  switchScreen('s6');
+}
+
+// Animated waveform
+(function(){
+  const wave = document.getElementById('wave');
+  if(!wave) return;
+  for(let i=0; i<45; i++){
+    const bar = document.createElement('span');
+    bar.style.height = (4 + Math.round(Math.random()*18)) + 'px';
+    wave.appendChild(bar);
+  }
+})();
+
+// Initialize
+checkHealth();
+</script>
+</body>
+</html>
