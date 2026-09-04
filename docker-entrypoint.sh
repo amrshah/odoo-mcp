@@ -44,30 +44,20 @@ until pg_isready -h "${HOST:-db}" -p "${PORT:-5432}" -U "${USER:-odoo}" -d "${PO
 done
 echo "[+] PostgreSQL connection established!"
 
+ADDONS_PATH="/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons,/mnt/extra-addons/VetCairn"
+
 DB_CLI_ARGS=(
     "--db_host=${HOST:-db}"
     "--db_port=${PORT:-5432}"
     "--db_user=${USER:-odoo}"
     "--db_password=${PASSWORD:-odoo_db_password_123}"
+    "--addons-path=${ADDONS_PATH}"
 )
 
-# 2. First-time auto install vs update
-if [ ! -f "$INIT_LOCK" ]; then
-    echo "[1/3] First-time startup detected. Auto-installing Healthcare modules..."
-    odoo -c "$CONFIG_FILE" "${DB_CLI_ARGS[@]}" -d "$DATABASE" -i vet_installer,stratos_hms,zelix_ai,mcp_server --stop-after-init
-    
-    echo "[2/3] Enabling MCP master switch and registering 81 clinical models via ORM..."
-    if [ -f "/scripts/setup_odoo_mcp_orm.py" ]; then
-        odoo shell -c "$CONFIG_FILE" "${DB_CLI_ARGS[@]}" -d "$DATABASE" --no-http < /scripts/setup_odoo_mcp_orm.py || true
-    fi
-    
-    touch "$INIT_LOCK"
-    echo "[3/3] Initial setup completed successfully!"
-else
-    echo "[+] System already initialized. Ensuring MCP models are registered..."
-    if [ -f "/scripts/setup_odoo_mcp_orm.py" ]; then
-        odoo shell -c "$CONFIG_FILE" "${DB_CLI_ARGS[@]}" -d "$DATABASE" --no-http < /scripts/setup_odoo_mcp_orm.py || true
-    fi
+# 2. Automated Module Verification & MCP Setup
+echo "[*] Checking and installing Healthcare modules (VetCairn, Stratos HMS, Zelix AI, MCP)..."
+if [ -f "/scripts/setup_odoo_mcp_orm.py" ]; then
+    odoo shell -c "$CONFIG_FILE" "${DB_CLI_ARGS[@]}" -d "$DATABASE" --no-http < /scripts/setup_odoo_mcp_orm.py || true
 fi
 
 echo "=========================================================="
