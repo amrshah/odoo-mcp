@@ -31,10 +31,14 @@ services:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
       - ./addons:/mnt/extra-addons
+      - ./scripts:/scripts
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh:ro
+    entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
     environment:
       - HOST=db
       - USER=${POSTGRES_USER:-odoo}
       - PASSWORD=${POSTGRES_PASSWORD:-odoo_db_password_123}
+      - ODOO_DB=${ODOO_DB:-odoo_hospital}
     restart: unless-stopped
     networks:
       - odoo-net
