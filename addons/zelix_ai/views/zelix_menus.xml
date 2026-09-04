@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Zelix AI Submenu under VetCairn -->
+    <!-- Action for Configuration Settings -->
+    <record id="action_zelix_ai_config" model="ir.actions.act_window">
+        <field name="name">Zelix AI Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'zelix_ai'}</field>
+    </record>
+
+    <!-- Zelix AI Root Menu under VetCairn -->
     <menuitem id="menu_zelix_ai_root"
               name="AI Copilot"
               parent="vet_base.menu_vetcairn_root"
               sequence="90"/>
 
+    <menuitem id="menu_zelix_ai_rule"
+              name="Learned Rules"
+              parent="menu_zelix_ai_root"
+              action="action_zelix_ai_rule"
+              sequence="10"/>
+
+    <menuitem id="menu_zelix_case_memory"
+              name="Institutional Memory"
+              parent="menu_zelix_ai_root"
+              action="action_zelix_case_memory"
+              sequence="20"/>
+
     <menuitem id="menu_zelix_copilot_audit"
-              name="Audit Trail &amp; Logs"
+              name="Audit Trail &amp; Ledger"
               parent="menu_zelix_ai_root"
               action="action_zelix_copilot_audit"
-              sequence="10"/>
+              sequence="30"/>
+
+    <menuitem id="menu_zelix_settings"
+              name="AI Settings &amp; Models"
+              parent="menu_zelix_ai_root"
+              action="action_zelix_ai_config"
+              sequence="40"/>
 </odoo>

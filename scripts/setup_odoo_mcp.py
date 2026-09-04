@@ -43,9 +43,15 @@ def setup_in_app_mcp():
         [[["model", "like", "hms."]]],
         {"fields": ["id", "model", "name"]},
     )
+    zelix_models = client.execute_kw(
+        "ir.model",
+        "search_read",
+        [[["model", "like", "zelix."]]],
+        {"fields": ["id", "model", "name"]},
+    )
     
-    all_models_to_enable = list(dict.fromkeys(core_models + [m["model"] for m in vet_models] + [m["model"] for m in hms_models]))
-    print(f"[*] Registering {len(all_models_to_enable)} models (VetCairn + HMS + Core) for AI Copilot MCP access...")
+    all_models_to_enable = list(dict.fromkeys(core_models + [m["model"] for m in vet_models] + [m["model"] for m in hms_models] + [m["model"] for m in zelix_models]))
+    print(f"[*] Registering {len(all_models_to_enable)} models (VetCairn + HMS + Zelix + Core) for AI Copilot MCP access...")
 
     enabled_count = 0
     for model_name in all_models_to_enable:

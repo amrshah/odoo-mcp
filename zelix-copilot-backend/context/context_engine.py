@@ -137,8 +137,8 @@ class ContextEngine:
             logger.error(f"Error building patient context for ID {patient_id}: {e}")
             return None
 
-    def format_context_prompt(self, summary: PatientClinicalSummary) -> str:
-        """Formats compact prompt string for BitNet / SLM context injection."""
+    def format_context_prompt(self, summary: PatientClinicalSummary, query_text: str = "") -> str:
+        """Formats compact prompt string for BitNet / SLM context injection including Learned Rules and Memory."""
         lines = [
             f"=== PATIENT PROFILE: {summary.name} ({summary.identifier}) ===",
             f"Species: {summary.species} | Breed: {summary.breed} | Sex: {summary.sex} | Age: {summary.age_or_birthdate}",
@@ -157,5 +157,25 @@ class ContextEngine:
             for rx in summary.active_prescriptions:
                 med = rx.get('medication_id', [0, rx.get('name')])[1]
                 lines.append(f"- Rx: {med} ({rx.get('dose')} {rx.get('frequency')} for {rx.get('duration')}) - Status: {rx.get('state')}")
+
+        # Query Learned Rules from Odoo if model available
+        try:
+            rules = self.client.search_read("zelix.ai.rule", [["active", "=", True]], ["trigger_keywords", "name", "dosage", "frequency", "duration", "reason"], limit=5)
+            if rules:
+                lines.append("\n--- LEARNED CLINICIAN RULES (Institutional Guidelines) ---")
+                for r in rules:
+                    lines.append(f"• Rule '{r.get('trigger_keywords')}': Recommend {r.get('name')} {r.get('dosage')} {r.get('frequency')} ({r.get('reason') or 'Institutional rule'})")
+        except Exception:
+            pass
+
+        # Query Case Memory from Odoo if model available
+        try:
+            cases = self.client.search_read("zelix.case.memory", [], ["chief_complaint", "assessment", "prescription_summary"], limit=3)
+            if cases:
+                lines.append("\n--- INSTITUTIONAL CASE MEMORY (Past Confirmed Precedents) ---")
+                for c in cases:
+                    lines.append(f"• Precedent: {c.get('chief_complaint')} -> Dx: {c.get('assessment')}")
+        except Exception:
+            pass
 
         return "\n".join(lines)

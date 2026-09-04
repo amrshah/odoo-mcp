@@ -22,8 +22,8 @@
 - **`mcp_server` (v19.0.2.1.0):** Model Context Protocol endpoint and permission layer.
 - **`vet_installer` (v19.0.1.0.0):** Complete VetCairn veterinary practice management suite (22 modules active).
 - **`stratos_hms` (v19.0.1.0.0):** Complete Human Hospital Management & EMR suite with AI Scribe, Hospital Case Memory, Learned Rules, and Command Centre (39 models active).
-- **`zelix_ai` (v19.0.1.0.0):** Native Odoo 19 OWL 2 Copilot UI, Systray launcher, Slide-out Drawer, Action Cards, Audit Ledger.
-- **81 Total Healthcare Models Exposed:** 38 `vet.*` models + 39 `hms.*` models + 4 core models registered in `mcp.enabled.model` with full CRUD access.
+- **`zelix_ai` (v19.0.1.0.0):** Native Odoo 19 OWL 2 Copilot UI, In-Odoo Provider Settings (`res.config.settings`), Learned Prescribing Rules (`zelix.ai.rule`), Institutional Case Memory (`zelix.case.memory`), Systray launcher, Slide-out Drawer, Action Cards, Audit Ledger.
+- **84 Total Healthcare Models Exposed:** 38 `vet.*` models + 39 `hms.*` models + 2 `zelix.*` memory models + 5 core models registered in `mcp.enabled.model` with full CRUD access.
 
 ---
 

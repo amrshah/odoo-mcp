@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================
+         Learned Prescribing Rules (zelix.ai.rule)
+         ============================================================ -->
+    <record id="view_zelix_ai_rule_tree" model="ir.ui.view">
+        <field name="name">zelix.ai.rule.tree</field>
+        <field name="model">zelix.ai.rule</field>
+        <field name="arch" type="xml">
+            <list string="Learned Prescribing Rules">
+                <field name="trigger_keywords"/>
+                <field name="medication_id"/>
+                <field name="dosage"/>
+                <field name="frequency"/>
+                <field name="duration"/>
+                <field name="scope"/>
+                <field name="user_id"/>
+                <field name="clinic_id"/>
+                <field name="times_offered"/>
+                <field name="times_accepted"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zelix_ai_rule_form" model="ir.ui.view">
+        <field name="name">zelix.ai.rule.form</field>
+        <field name="model">zelix.ai.rule</field>
+        <field name="arch" type="xml">
+            <form string="Learned Prescribing Rule">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Rule Name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Rule Triggers &amp; Scope">
+                            <field name="trigger_keywords" placeholder="e.g. vomiting, gastritis, gastroenteritis"/>
+                            <field name="min_matches"/>
+                            <field name="scope"/>
+                            <field name="species_id"/>
+                            <field name="user_id"/>
+                            <field name="clinic_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Recommended Medication &amp; Protocol">
+                            <field name="medication_id"/>
+                            <field name="dosage" placeholder="e.g. 16 mg"/>
+                            <field name="frequency"/>
+                            <field name="duration"/>
+                            <field name="reason" placeholder="Clinical rationale"/>
+                        </group>
+                    </group>
+                    <group string="Instructions">
+                        <field name="instructions" placeholder="Administration directions given to pet owner..."/>
+                    </group>
+                    <group string="Adoption Statistics">
+                        <field name="times_offered" readonly="1"/>
+                        <field name="times_accepted" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_zelix_ai_rule" model="ir.actions.act_window">
+        <field name="name">Learned Prescribing Rules</field>
+        <field name="res_model">zelix.ai.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Teach Zelix AI your clinical heuristics!
+            </p>
+            <p>
+                When a doctor creates a rule, Zelix will proactively offer the preferred medication and dosage whenever matching clinical keywords are detected.
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Institutional Case Memory (zelix.case.memory)
+         ============================================================ -->
+    <record id="view_zelix_case_memory_tree" model="ir.ui.view">
+        <field name="name">zelix.case.memory.tree</field>
+        <field name="model">zelix.case.memory</field>
+        <field name="arch" type="xml">
+            <list string="Veterinary Case Memory" create="false" edit="false">
+                <field name="create_date" string="Encounter Date"/>
+                <field name="species_id"/>
+                <field name="breed_id"/>
+                <field name="age_band"/>
+                <field name="weight_kg"/>
+                <field name="chief_complaint"/>
+                <field name="veterinarian_id"/>
+                <field name="clinic_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_zelix_case_memory_form" model="ir.ui.view">
+        <field name="name">zelix.case.memory.form</field>
+        <field name="model">zelix.case.memory</field>
+        <field name="arch" type="xml">
+            <form string="De-Identified Case Memory" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group string="Patient Demographics">
+                            <field name="species_id"/>
+                            <field name="breed_id"/>
+                            <field name="age_band"/>
+                            <field name="weight_kg"/>
+                        </group>
+                        <group string="Encounter Details">
+                            <field name="veterinarian_id"/>
+                            <field name="clinic_id"/>
+                            <field name="create_date" string="Recorded At"/>
+                        </group>
+                    </group>
+                    <group string="Presentation &amp; Assessment">
+                        <field name="chief_complaint"/>
+                        <field name="assessment"/>
+                        <field name="keywords"/>
+                    </group>
+                    <group string="Prescription Summary (JSON)">
+                        <field name="prescription_summary"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_zelix_case_memory" model="ir.actions.act_window">
+        <field name="name">Institutional Case Memory</field>
+        <field name="res_model">zelix.case.memory</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

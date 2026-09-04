@@ -8,14 +8,67 @@
         <field name="arch" type="xml">
             <xpath expr="//form" position="inside">
                 <app data-string="Zelix AI Copilot" string="Zelix AI Copilot" name="zelix_ai">
-                    <block title="Zelix AI Copilot &amp; BitNet Configuration" name="zelix_ai_config">
-                        <setting string="Zelix Copilot Backend URL" help="URL endpoint for the Zelix Copilot FastAPI service">
+                    <!-- AI Provider Block -->
+                    <block title="AI Model &amp; Reasoning Provider" name="zelix_ai_provider_block">
+                        <setting string="AI Provider" help="Pluggable. Offline mode uses veterinary case memory and learned rules with zero external network dependencies.">
+                            <field name="zelix_ai_provider"/>
+                            
+                            <!-- BitNet Settings -->
+                            <div class="mt-2" invisible="zelix_ai_provider != 'bitnet'">
+                                <label for="zelix_bitnet_url" string="BitNet Endpoint URL"/>
+                                <field name="zelix_bitnet_url" placeholder="https://ai.alamiaconnect.com"/>
+                                <label for="zelix_bitnet_api_key" string="API Key / Token" class="mt-1"/>
+                                <field name="zelix_bitnet_api_key" password="True" class="mt-1"/>
+                                <label for="zelix_bitnet_model" string="Model Identifier" class="mt-1"/>
+                                <field name="zelix_bitnet_model" class="mt-1"/>
+                            </div>
+
+                            <!-- Ollama Settings -->
+                            <div class="mt-2" invisible="zelix_ai_provider != 'ollama'">
+                                <label for="zelix_ollama_host" string="Ollama Host URL"/>
+                                <field name="zelix_ollama_host" placeholder="http://localhost:11434"/>
+                                <label for="zelix_ollama_model" string="Model Tag" class="mt-1"/>
+                                <field name="zelix_ollama_model" placeholder="gemma3:1b-it-qat" class="mt-1"/>
+                            </div>
+
+                            <!-- Anthropic Settings -->
+                            <div class="mt-2" invisible="zelix_ai_provider != 'anthropic'">
+                                <label for="zelix_anthropic_api_key" string="Anthropic API Key"/>
+                                <field name="zelix_anthropic_api_key" password="True" placeholder="sk-ant-..."/>
+                                <label for="zelix_anthropic_model" string="Claude Model" class="mt-1"/>
+                                <field name="zelix_anthropic_model" class="mt-1"/>
+                            </div>
+
+                            <!-- OpenAI Settings -->
+                            <div class="mt-2" invisible="zelix_ai_provider != 'openai'">
+                                <label for="zelix_openai_api_key" string="OpenAI API Key"/>
+                                <field name="zelix_openai_api_key" password="True" placeholder="sk-..."/>
+                                <label for="zelix_openai_model" string="Model Identifier" class="mt-1"/>
+                                <field name="zelix_openai_model" class="mt-1"/>
+                            </div>
+
+                            <div class="mt-2">
+                                <label for="zelix_ai_timeout" string="Timeout (seconds)"/>
+                                <field name="zelix_ai_timeout"/>
+                            </div>
+                            
+                            <!-- Test Connection Action Button -->
+                            <div class="mt-3">
+                                <button name="action_zelix_test_ai" type="object" string="Test AI Connection" class="btn-primary" icon="fa-plug"/>
+                            </div>
+                        </setting>
+
+                        <setting string="Ambient Scribe Speech Language" help="Web Speech recognition language for microphone recording during consultations">
+                            <field name="zelix_speech_lang"/>
+                        </setting>
+                    </block>
+
+                    <!-- Service Integration & Context Block -->
+                    <block title="Copilot Service Integration" name="zelix_ai_service_block">
+                        <setting string="Copilot Backend Gateway" help="URL endpoint for the Zelix Copilot FastAPI microservice">
                             <field name="zelix_backend_url" placeholder="http://zelix_copilot:8010"/>
                         </setting>
-                        <setting string="BitNet SLM Model" help="Active 1-bit LLM path identifier">
-                            <field name="zelix_bitnet_model" placeholder="/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf"/>
-                        </setting>
-                        <setting string="Auto Record Context" help="Automatically pass active patient and view context to the Copilot">
+                        <setting string="Auto Record Context" help="Automatically inject active patient, species, and view context into Copilot prompts">
                             <field name="zelix_auto_context"/>
                         </setting>
                     </block>

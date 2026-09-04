@@ -45,9 +45,10 @@ if 'mcp.enabled.model' in env:
     ]
     vet_models = env['ir.model'].sudo().search([('model', '=like', 'vet.%')]).mapped('model')
     hms_models = env['ir.model'].sudo().search([('model', '=like', 'hms.%')]).mapped('model')
+    zelix_models = env['ir.model'].sudo().search([('model', '=like', 'zelix.%')]).mapped('model')
 
-    all_models = list(dict.fromkeys(core_models + list(vet_models) + list(hms_models)))
-    print(f"[*] Registering {len(all_models)} models (VetCairn + HMS + Core) for AI Copilot MCP access...")
+    all_models = list(dict.fromkeys(core_models + list(vet_models) + list(hms_models) + list(zelix_models)))
+    print(f"[*] Registering {len(all_models)} models (VetCairn + HMS + Zelix + Core) for AI Copilot MCP access...")
 
     McpModel = env['mcp.enabled.model'].sudo()
     IrModel = env['ir.model'].sudo()

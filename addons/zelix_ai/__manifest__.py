@@ -3,17 +3,18 @@
     "name": "Zelix AI Copilot",
     "version": "19.0.1.0.0",
     "category": "Veterinary/AI",
-    "summary": "AI Clinical Copilot for VetCairn powered by Microsoft BitNet 1-Bit SLM",
+    "summary": "AI Clinical Copilot for VetCairn & Multi-Model Tiered SLM with Learned Rules & Institutional Case Memory",
     "description": """
 Zelix AI Clinical Copilot for Odoo 19 & VetCairn:
 =================================================
 * Role-aware Clinical Copilot sidebar in OWL 2
-* Active record auto-detection (Patients, Appointments, Encounters)
+* Pluggable AI Provider Switcher (Offline, BitNet, Ollama, Claude, OpenAI)
+* Clinician Learned Prescribing Rules ("Teach once, it practises your way")
+* De-Identified Institutional Veterinary Case Memory & TF-IDF Similarity Search
 * Evidence-grounded Pre-Consultation Briefing (W02)
 * Ambient Consultation Scribe & Structured SOAP Note Generator (W04)
-* Prescription Assistant with clinical safety checks (W09)
+* Prescription Assistant with deterministic clinical safety checks (W09)
 * Action Card approval dialogs and verified persistence write-back
-* Seamless integration with Microsoft BitNet 1-Bit SLM runtime
     """,
     "author": "Zelix AI / VetCairn Team",
     "website": "https://ai.alamiaconnect.com",
@@ -28,6 +29,7 @@ Zelix AI Clinical Copilot for Odoo 19 & VetCairn:
     ],
     "data": [
         "security/ir.model.access.csv",
+        "views/zelix_memory_views.xml",
         "views/res_config_settings_views.xml",
         "views/zelix_audit_views.xml",
         "views/zelix_menus.xml",
