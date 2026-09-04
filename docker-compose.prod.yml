@@ -19,7 +19,10 @@ services:
       - odoo-net
 
   web:
-    image: odoo:19.0
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: odoo-mcp-web:latest
     container_name: odoo_web
     depends_on:
       db:
@@ -29,11 +32,7 @@ services:
       - "${ODOO_LONGPOLLING_PORT:-8072}:8072"
     volumes:
       - odoo-web-data:/var/lib/odoo
-      - ./config:/etc/odoo
       - ./addons:/mnt/extra-addons
-      - ./scripts:/scripts
-      - ./docker-entrypoint.sh:/docker-entrypoint.sh:ro
-    entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
     environment:
       - HOST=db
       - USER=${POSTGRES_USER:-odoo}
@@ -47,13 +46,12 @@ services:
     build:
       context: ./mcp-server
       dockerfile: Dockerfile
+    image: odoo-mcp-server:latest
     container_name: odoo_mcp
     depends_on:
       - web
     ports:
       - "${MCP_SERVER_PORT:-8008}:8008"
-    volumes:
-      - ./mcp-server:/app
     environment:
       - ODOO_URL=http://web:8069
       - ODOO_DB=${ODOO_DB:-odoo_hospital}
@@ -70,13 +68,12 @@ services:
     build:
       context: ./zelix-copilot-backend
       dockerfile: Dockerfile
+    image: odoo-mcp-copilot:latest
     container_name: zelix_copilot
     depends_on:
       - web
     ports:
       - "${ZELIX_COPILOT_PORT:-8010}:8010"
-    volumes:
-      - ./zelix-copilot-backend:/app
     environment:
       - ODOO_URL=http://web:8069
       - ODOO_DB=${ODOO_DB:-odoo_hospital}
