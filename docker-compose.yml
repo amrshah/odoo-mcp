@@ -17,7 +17,10 @@ services:
       retries: 5
 
   web:
-    image: odoo:19.0
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: odoo-mcp-web:latest
     container_name: odoo_web
     depends_on:
       db:
@@ -29,10 +32,15 @@ services:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
       - ./addons:/mnt/extra-addons
+      - ./scripts:/scripts
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh
     environment:
       - HOST=db
       - USER=${POSTGRES_USER:-odoo}
       - PASSWORD=${POSTGRES_PASSWORD:-odoo_db_password_123}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - ODOO_DB=${ODOO_DB:-odoo_hospital}
+    entrypoint: ["/docker-entrypoint.sh"]
     restart: unless-stopped
 
   mcp:

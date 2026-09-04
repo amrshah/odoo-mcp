@@ -2,10 +2,12 @@ FROM odoo:19.0
 
 USER root
 
-# Install postgresql-client and curl
+# Install postgresql-client, curl, and python dependencies for MCP & AI
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     curl \
+    python3-pip \
+    && pip3 install --no-cache-dir --break-system-packages "packaging" "authlib>=1.6.12,<1.7.0" "defusedxml" "requests" \
     && rm -rf /var/lib/apt/lists/*
 
 # Create /etc/odoo and copy odoo.conf permanently into the container filesystem
