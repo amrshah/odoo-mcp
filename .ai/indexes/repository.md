@@ -39,7 +39,24 @@ This document maps high-level concepts and system domains to physical source cod
 | `hms.case.memory` | Hospital Case Memory | `consult_id`, `doctor_id`, `department_id`, `diagnosis`, `icd10_code`, `prescription_json` |
 | `hms.ai.rule` | Learned Prescribing Rules | `doctor_id`, `department_id`, `trigger_keywords`, `drug_id`, `dose`, `route`, `frequency` |
 | `hms.order` | Lab & Diagnostic Orders | `visit_id`, `consult_id`, `test_id`, `urgency`, `state`, `result_value`, `flag` |
+| `hms.critical.call` | Critical Lab Escalation Logs | `order_id`, `doctor_id`, `caller_id`, `result_value`, `read_back_confirmed`, `state` |
 | `hms.dispense` | Pharmacy Dispense Orders | `visit_id`, `consult_id`, `patient_id`, `state`, `line_ids` |
+| `hms.drug` | Formulary & Dose Guards | `name`, `generic_name`, `drug_class`, `allergen_class`, `default_dose`, `max_daily_dose_text` |
+| `hms.admission` | IPD Inpatient Admissions | `patient_id`, `ward_id`, `bed_id`, `admit_date`, `discharge_date`, `state` |
+| `hms.ward` / `hms.bed` | Wards & Bed Board | `name`, `department_id`, `gender_restriction`, `daily_rate`, `state` (`available`, `occupied`, `cleaning`) |
+| `hms.mar` | Medication Administration Record | `admission_id`, `order_id`, `drug_id`, `dose`, `scheduled_time`, `given_time`, `scanned_barcode` |
+| `hms.handoff` | SBAR Nursing Shift Handoffs | `admission_id`, `from_nurse_id`, `to_nurse_id`, `situation`, `background`, `assessment`, `recommendation` |
+| `hms.surgery` | Operating Theatre Surgeries | `patient_id`, `theatre_id`, `surgeon_id`, `anesthetist_id`, `who_sign_in`, `who_time_out`, `who_sign_out` |
+| `hms.blood.unit` / `request` | Blood Bank Inventory & Crossmatch | `donor_id`, `blood_group`, `rh_factor`, `product_type`, `verifier1_id`, `verifier2_id`, `state` |
+| `hms.charge` | Clinical Charge Ledger | `visit_id`, `patient_id`, `product_id`, `amount`, `source_model`, `source_id`, `state` |
+| `hms.dashboard` | Command Centre KPIs | `patients_today`, `in_building`, `ews_gt_5`, `bed_occupancy_pct`, `critical_calls_pending` |
 | `mcp.enabled.model` | MCP Model Access Control | `model_id`, `allow_read`, `allow_create`, `allow_write`, `allow_unlink`, `allow_method_calls` |
 | `res.partner` | Clients / Owners / Doctors | `name`, `email`, `phone`, `is_company`, `street`, `city` |
 | `res.users` | System Users / Providers | `name`, `login`, `groups_id` |
+
+---
+
+## 3. Architecture & Domain Specifications
+* [System Architecture & Multi-Model Tiered SLM Topology](file:///e:/myapps/odoo-mcp/.ai/permanent/architecture/01-system-architecture.md)
+* [Stratos HMS Deep Analysis & Clinical Safety Specification](file:///e:/myapps/odoo-mcp/.ai/permanent/architecture/02-stratos-hms-deep-analysis.md)
+
