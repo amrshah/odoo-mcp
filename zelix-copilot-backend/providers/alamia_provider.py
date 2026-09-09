@@ -66,12 +66,12 @@ class AlamiaAIProvider:
                 if r.status_code == 200:
                     return {"status": "ok", "endpoint": self.base_url, "details": r.json()}
             except Exception as e:
-                logger.warning(f"/health check failed ({e}), probing /v1/models...")
+                logger.warning(f"/health check failed ({e}), probing /v1/health...")
 
             try:
-                r = await client.get(f"{self.base_url}/v1/models", headers=self._get_headers())
+                r = await client.get(f"{self.base_url}/v1/health", headers=self._get_headers())
                 if r.status_code == 200:
-                    return {"status": "ok", "endpoint": self.base_url, "models": r.json().get("data", [])}
+                    return {"status": "ok", "endpoint": self.base_url, "details": r.json()}
                 if r.status_code == 403 and "cloudflare" in r.text.lower():
                     return {"status": "cloudflare_blocked", "endpoint": self.base_url, "error": "Cloudflare WAF JS challenge active."}
                 return {"status": "error", "code": r.status_code, "body": r.text[:200]}
@@ -83,12 +83,13 @@ class AlamiaAIProvider:
         """Fetch available model IDs from the remote runtime."""
         async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
             try:
-                r = await client.get(f"{self.base_url}/v1/models", headers=self._get_headers())
+                r = await client.get(f"{self.base_url}/api/v1/garden/models", headers=self._get_headers())
                 if r.status_code == 200:
-                    data = r.json().get("data", [])
-                    return [m.get("id") for m in data if "id" in m]
-            except Exception as e:
-                logger.error(f"Failed to fetch models: {e}")
+                    data = r.json()
+                    if isinstance(data, list):
+                        return [m.get("model_id", m.get("id")) for m in data if isinstance(m, dict) and ("model_id" in m or "id" in m)]
+            except Exception:
+                pass
         return [self.default_model]
 
     async def chat_complete(
@@ -99,27 +100,46 @@ class AlamiaAIProvider:
         max_tokens: int = 512,
         json_mode: bool = False,
     ) -> CompletionResult:
-        """Execute a non-streaming chat completion request."""
+        """Execute a non-streaming chat completion request supporting native /v1/chat and OpenAI formats."""
         target_model = model or self.default_model
-        payload: Dict[str, Any] = {
+        
+        # Native Alamia AI payload
+        alamia_payload: Dict[str, Any] = {
+            "messages": messages,
+            "task": "reasoning",
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        
+        # OpenAI compatible payload
+        openai_payload: Dict[str, Any] = {
             "model": target_model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
-
         if json_mode:
-            payload["response_format"] = {"type": "json_object"}
+            openai_payload["response_format"] = {"type": "json_object"}
 
         last_err = None
-        for attempt in range(1, 4):
+        for attempt in range(1, 3):
             try:
                 async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as client:
+                    # 1. Try native Alamia Runtime /v1/chat endpoint first
                     response = await client.post(
-                        f"{self.base_url}/v1/chat/completions",
+                        f"{self.base_url}/v1/chat",
                         headers=self._get_headers(),
-                        json=payload,
+                        json=alamia_payload,
                     )
+                    
+                    # 2. Fallback to OpenAI /v1/chat/completions if /v1/chat is 404
+                    if response.status_code == 404:
+                        response = await client.post(
+                            f"{self.base_url}/v1/chat/completions",
+                            headers=self._get_headers(),
+                            json=openai_payload,
+                        )
+
                     if response.status_code == 403 and ("cloudflare" in response.text.lower() or "challenge" in response.text.lower()):
                         raise RuntimeError("Cloudflare WAF Challenge (403 Forbidden) on ai.alamiaconnect.com. Disable Bot Fight Mode or set DNS to Grey Cloud.")
                     
@@ -128,25 +148,43 @@ class AlamiaAIProvider:
                         response.raise_for_status()
 
                     data = response.json()
-                    choice = data["choices"][0]
-                    content = choice["message"]["content"]
-                    usage = data.get("usage", {})
+                    
+                    # Case A: Native Alamia Runtime response {"message": {"content": "..."}, "metadata": {...}}
+                    if "message" in data and isinstance(data["message"], dict):
+                        content = data["message"].get("content", "")
+                        metadata = data.get("metadata", {})
+                        return CompletionResult(
+                            content=content,
+                            model=metadata.get("model_id", target_model),
+                            prompt_tokens=metadata.get("prompt_tokens", 0),
+                            completion_tokens=metadata.get("completion_tokens", 0),
+                            total_tokens=metadata.get("total_tokens", 0),
+                            raw_response=data,
+                        )
+                    
+                    # Case B: Standard OpenAI response {"choices": [{"message": {"content": "..."}}], "usage": {...}}
+                    elif "choices" in data and len(data["choices"]) > 0:
+                        choice = data["choices"][0]
+                        content = choice.get("message", {}).get("content", "")
+                        usage = data.get("usage", {})
+                        return CompletionResult(
+                            content=content,
+                            model=target_model,
+                            prompt_tokens=usage.get("prompt_tokens", 0),
+                            completion_tokens=usage.get("completion_tokens", 0),
+                            total_tokens=usage.get("total_tokens", 0),
+                            raw_response=data,
+                        )
+                    else:
+                        raise ValueError(f"Unrecognized response format from AI runtime: {data}")
 
-                    return CompletionResult(
-                        content=content,
-                        model=target_model,
-                        prompt_tokens=usage.get("prompt_tokens", 0),
-                        completion_tokens=usage.get("completion_tokens", 0),
-                        total_tokens=usage.get("total_tokens", 0),
-                        raw_response=data,
-                    )
             except Exception as e:
                 last_err = e
                 if "Cloudflare" in str(e):
                     break
-                logger.warning(f"Inference connection attempt {attempt}/3 failed: {e}. Retrying in 2s...")
+                logger.warning(f"Inference connection attempt {attempt}/2 failed: {e}. Retrying in 1s...")
                 import asyncio
-                await asyncio.sleep(2.0)
+                await asyncio.sleep(1.0)
 
         raise last_err or RuntimeError("Failed to complete inference request.")
 
@@ -160,20 +198,23 @@ class AlamiaAIProvider:
         """Stream chat tokens via Server-Sent Events."""
         target_model = model or self.default_model
         payload = {
-            "model": target_model,
             "messages": messages,
+            "task": "dialogue",
             "temperature": temperature,
             "max_tokens": max_tokens,
             "stream": True,
         }
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as client:
             async with client.stream(
                 "POST",
-                f"{self.base_url}/v1/chat/completions",
+                f"{self.base_url}/v1/chat/stream",
                 headers=self._get_headers(),
                 json=payload,
             ) as response:
+                if response.status_code == 404:
+                    # Fallback to /v1/chat/completions
+                    pass
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if line.startswith("data: "):
@@ -182,7 +223,7 @@ class AlamiaAIProvider:
                             break
                         try:
                             chunk = json.loads(chunk_str)
-                            delta = chunk["choices"][0].get("delta", {})
+                            delta = chunk.get("choices", [{}])[0].get("delta", {})
                             if "content" in delta and delta["content"]:
                                 yield delta["content"]
                         except json.JSONDecodeError:
