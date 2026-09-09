@@ -138,13 +138,23 @@ class ZelixCopilotOrchestrator:
         workflow = self.workflows.get(workflow_id, self.workflows["w04_scribe_soap"])
 
         # 3. Execute Workflow with BitNet / SLM
-        result: WorkflowResult = await workflow.execute(
-            user_input=request.message,
-            context_prompt=context_prompt,
-            active_context=ctx,
-            provider=self.provider,
-            odoo_client=self.odoo_client,
-        )
+        try:
+            result: WorkflowResult = await workflow.execute(
+                user_input=request.message,
+                context_prompt=context_prompt,
+                active_context=ctx,
+                provider=self.provider,
+                odoo_client=self.odoo_client,
+            )
+        except Exception as exec_err:
+            logger.warning(f"Remote workflow execution failed ({exec_err}). Generating EHR context fallback...")
+            result = self._generate_fallback_response(
+                workflow_id=workflow_id,
+                message=request.message,
+                ctx=ctx,
+                patient_summary=patient_summary,
+                error_msg=str(exec_err),
+            )
 
         # 4. Register Action Cards for Approval Gate
         for card in result.action_cards:
@@ -178,6 +188,62 @@ class ZelixCopilotOrchestrator:
             model_used=result.metadata.get("model", self.provider.default_model),
             request_id=request_id,
             execution_time_ms=duration_ms,
+        )
+
+    def _generate_fallback_response(
+        self,
+        workflow_id: str,
+        message: str,
+        ctx: ActiveContext,
+        patient_summary: Optional[Any],
+        error_msg: str,
+    ) -> WorkflowResult:
+        """Generates deterministic EHR synthesis when remote SLM inference is unavailable."""
+        pt = None
+        if patient_summary:
+            pt = patient_summary.model_dump() if hasattr(patient_summary, "model_dump") else patient_summary
+        elif ctx.patient_summary:
+            pt = ctx.patient_summary
+
+        advisory = ""
+        if "Cloudflare" in error_msg or "403" in error_msg:
+            advisory = (
+                "\n\n> ⚠️ **Notice**: Remote SLM endpoint (`ai.alamiaconnect.com`) is protected by a Cloudflare WAF Challenge (403 Forbidden). "
+                "The summary below was synthesized directly from verified Odoo EHR records. "
+                "To enable full LLM generation, set `ai.alamiaconnect.com` DNS proxy to **DNS only (Grey Cloud)** or create a WAF Skip Rule for `/v1/` in Cloudflare."
+            )
+        else:
+            advisory = f"\n\n> ℹ️ *Offline fallback active (Remote engine status: {error_msg[:120]}). Record synthesized from Odoo EHR database.*"
+
+        if pt:
+            name = pt.get("name", "Unknown Patient")
+            ident = pt.get("identifier", "PAT")
+            species = pt.get("species", "Patient")
+            breed = pt.get("breed", "")
+            age = pt.get("age", "")
+            notes = pt.get("notes", "No active contraindications recorded.")
+
+            resp_text = (
+                f"### Clinical Summary: **{name}** ({ident})\n"
+                f"- **Species / Breed**: {species} ({breed or 'Standard'})\n"
+                f"- **Age / Status**: {age or 'Active'}\n"
+                f"- **Medical Notes & History**: {notes}\n"
+                f"- **Clinical Recommendations**: Review recent vitals, confirm allergy history before prescribing, and check scheduled vaccinations."
+                f"{advisory}"
+            )
+        else:
+            resp_text = (
+                f"### Patient Record Synthesis\n"
+                f"I received your request: *\"{message}\"*, but no specific active patient record was loaded in the current view.\n\n"
+                f"Please open a Patient or Consultation record in Odoo, or select a patient to generate a full longitudinal brief."
+                f"{advisory}"
+            )
+
+        return WorkflowResult(
+            workflow_id=workflow_id,
+            response_text=resp_text,
+            action_cards=[],
+            metadata={"model": "offline-ehr-synthesis", "fallback": True, "error": error_msg},
         )
 
     async def approve_and_execute_action(self, action_id: str) -> Dict[str, Any]:

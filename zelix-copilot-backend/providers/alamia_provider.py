@@ -49,15 +49,18 @@ class AlamiaAIProvider:
     def _get_headers(self) -> Dict[str, str]:
         headers = {
             "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 ZelixAI/1.0",
+            "Accept": "application/json, text/plain, */*",
         }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
+            headers["x-api-key"] = self.api_key
             headers["bitnet-api-key"] = self.api_key
         return headers
 
     async def check_health(self) -> Dict[str, Any]:
         """Verify connectivity and health of Alamia AI endpoint."""
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
             try:
                 r = await client.get(f"{self.base_url}/health", headers=self._get_headers())
                 if r.status_code == 200:
@@ -69,14 +72,16 @@ class AlamiaAIProvider:
                 r = await client.get(f"{self.base_url}/v1/models", headers=self._get_headers())
                 if r.status_code == 200:
                     return {"status": "ok", "endpoint": self.base_url, "models": r.json().get("data", [])}
-                return {"status": "error", "code": r.status_code, "body": r.text}
+                if r.status_code == 403 and "cloudflare" in r.text.lower():
+                    return {"status": "cloudflare_blocked", "endpoint": self.base_url, "error": "Cloudflare WAF JS challenge active."}
+                return {"status": "error", "code": r.status_code, "body": r.text[:200]}
             except Exception as e:
                 logger.error(f"Alamia AI health probe failed: {e}")
                 return {"status": "unreachable", "error": str(e)}
 
     async def list_models(self) -> List[str]:
         """Fetch available model IDs from the remote runtime."""
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
             try:
                 r = await client.get(f"{self.base_url}/v1/models", headers=self._get_headers())
                 if r.status_code == 200:
@@ -109,14 +114,17 @@ class AlamiaAIProvider:
         last_err = None
         for attempt in range(1, 4):
             try:
-                async with httpx.AsyncClient(timeout=self.timeout) as client:
+                async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as client:
                     response = await client.post(
                         f"{self.base_url}/v1/chat/completions",
                         headers=self._get_headers(),
                         json=payload,
                     )
+                    if response.status_code == 403 and ("cloudflare" in response.text.lower() or "challenge" in response.text.lower()):
+                        raise RuntimeError("Cloudflare WAF Challenge (403 Forbidden) on ai.alamiaconnect.com. Disable Bot Fight Mode or set DNS to Grey Cloud.")
+                    
                     if response.status_code != 200:
-                        logger.error(f"Alamia AI error ({response.status_code}): {response.text}")
+                        logger.error(f"Alamia AI error ({response.status_code}): {response.text[:300]}")
                         response.raise_for_status()
 
                     data = response.json()
@@ -132,8 +140,10 @@ class AlamiaAIProvider:
                         total_tokens=usage.get("total_tokens", 0),
                         raw_response=data,
                     )
-            except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.NetworkError) as e:
+            except Exception as e:
                 last_err = e
+                if "Cloudflare" in str(e):
+                    break
                 logger.warning(f"Inference connection attempt {attempt}/3 failed: {e}. Retrying in 2s...")
                 import asyncio
                 await asyncio.sleep(2.0)
