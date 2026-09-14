@@ -5,6 +5,7 @@ Strict Intent Orchestrator mapping natural language user queries to registered S
 
 import json
 import logging
+import re
 from typing import Any, Dict, List, Optional, Set
 from pydantic import BaseModel, Field
 
@@ -87,7 +88,7 @@ class IntentOrchestrator:
             f"REGISTERED SKILL CATALOGUE:\n{catalogue}\n\n"
             "INSTRUCTIONS:\n"
             "1. If the user is looking for, finding, searching, checking existence of, or asking about a specific person/animal/patient record by name or ID (e.g. 'looking for Anabia', 'find Max', 'show me Anabia'), select 'entity_search' with entity_type='patient' and entity_query='<extracted name/id>'.\n"
-            "2. If the user explicitly asks for longitudinal medical history, encounters, vaccines, or summary (e.g. 'summarize Max', 'what is Max\\'s history?'), select 'patient_360' with entity_type='patient' and entity_query='<extracted name/id>'.\n"
+            "2. If the user asks for clinical brief, comprehensive brief, medical history, longitudinal summary, past encounters, vaccines, records, overview, or patient details (e.g. 'generate comprehensive clinical brief for patient Max', 'summarize Max', 'what is Max\\'s history?', 'clinical brief of Bella', 'patient overview for Max'), select 'patient_360' with entity_type='patient' and entity_query='<extracted name/id>'.\n"
             "3. If the user dictates symptoms, findings, or consultation notes (e.g. 'vomiting x3, draft SOAP note'), select 'voice_to_soap'.\n"
             "4. If the user asks to prescribe medication or check dosages (e.g. 'prescribe Cerenia 16mg for Max'), select 'prescription_assistant'.\n"
             "5. If the user explicitly asks for daily clinic census, operations, appointments schedule, or inventory stock (e.g. 'give me today\\'s clinic summary', 'how many appointments today?'), select 'clinic_activity'.\n"
@@ -130,6 +131,30 @@ class IntentOrchestrator:
 
         return decision
 
+    def _extract_entity_name(self, query: str, stop_words: Set[str]) -> Optional[str]:
+        """Robustly extracts entity name / identifier from query string."""
+        # 1. Look for explicit preposition phrases
+        patterns = [
+            r'(?:for\s+patient|patient\s+record\s+for|records\s+for|clinical\s+brief\s+for|brief\s+for|brief\s+of|named|patient|about|for|of)\s+([A-Za-z0-9_-]+)',
+        ]
+        for pat in patterns:
+            m = re.search(pat, query, re.IGNORECASE)
+            if m:
+                val = re.sub(r"['’]s\b", "", m.group(1).strip())
+                if val.lower() not in stop_words and len(val) >= 2:
+                    return val
+
+        # 2. Candidate words excluding stop words
+        clean_words = []
+        for w in query.split():
+            w_clean = re.sub(r"['’]s\b", "", w)
+            cw = re.sub(r'[^A-Za-z0-9_-]', '', w_clean)
+            if len(cw) > 1:
+                clean_words.append(cw)
+
+        cand = [w for w in clean_words if w.lower() not in stop_words]
+        return cand[0] if cand else None
+
     def _deterministic_fallback(
         self,
         query: str,
@@ -142,39 +167,54 @@ class IntentOrchestrator:
         if any(p in q for p in [
             "clinic summary", "daily summary", "clinic census", "practice census",
             "today's clinic", "clinic activity", "daily census", "hospital summary",
-            "hospital census", "clinic operations", "today's appointments and clinic"
+            "hospital census", "clinic operations", "today's appointments and clinic",
+            "how many appointments today", "appointments today", "today's queue"
         ]):
             return IntentDecision(intent="clinic_activity", entity_type=None, entity_query=None, confidence=0.95)
 
         # 2. Scribe / SOAP Dictation
-        if any(p in q for p in ["draft soap", "create soap", "soap note", "consultation note", "dictation"]):
+        if any(p in q for p in ["draft soap", "create soap", "soap note", "consultation note", "dictation", "transcribe", "scribe"]):
             return IntentDecision(intent="voice_to_soap", entity_type="patient", entity_query=None, confidence=0.9)
 
         # 3. Prescription Assistant
-        if any(p in q for p in ["prescribe", "prescription", "rx", "dosage check", "dose check"]):
+        if any(p in q for p in ["prescribe", "prescription", "rx", "dosage check", "dose check", "medication safety"]):
             return IntentDecision(intent="prescription_assistant", entity_type="medication", entity_query=None, confidence=0.9)
 
-        # 4. Patient 360 (Explicit history / summary requests)
-        if any(p in q for p in ["history", "summarize", "summary for", "summary of", "patient brief", "medical records", "encounters for"]):
-            words = [w.strip(".,;:?!'\"") for w in query.split() if len(w.strip(".,;:?!'\"")) > 2]
-            stop_words = {"summarize", "summary", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "what", "is"}
-            cand = [w.removesuffix("'s").removesuffix("’s") for w in words if w.lower() not in stop_words]
+        # 4. Patient 360 (Comprehensive clinical brief, longitudinal history, records, summary, overview)
+        patient_360_phrases = [
+            "brief", "clinical brief", "patient brief", "comprehensive brief",
+            "history", "summarize", "summarise", "summary for", "summary of", "patient summary",
+            "medical records", "encounters for", "overview", "patient overview", "profile",
+            "tell me about", "what do we know about", "details for", "details on", "details of",
+            "info on", "info for", "information on", "chart for", "patient chart"
+        ]
+        if any(p in q for p in patient_360_phrases):
+            stop_words = {
+                "generate", "comprehensive", "clinical", "brief", "patient", "overview",
+                "history", "details", "about", "for", "named", "show", "give", "tell",
+                "record", "records", "notes", "what", "is", "we", "know", "me", "the",
+                "a", "an", "on", "of", "summarize", "summarise", "summary", "looking",
+                "find", "search", "lookup", "look", "up", "who", "do", "all", "to", "chart", "profile"
+            }
+            cand = self._extract_entity_name(query, stop_words)
             return IntentDecision(
                 intent="patient_360",
                 entity_type="patient",
-                entity_query=cand[0] if cand else None,
-                confidence=0.85,
+                entity_query=cand,
+                confidence=0.9,
             )
 
         # 5. Entity Search / Lookup (Looking for, find, search, show me, who is)
-        if any(p in q for p in ["looking for", "find", "search", "show me", "who is", "lookup", "look up", "check patient", "patient record"]):
-            words = [w.strip(".,;:?!'\"") for w in query.split() if len(w.strip(".,;:?!'\"")) > 2]
-            stop_words = {"looking", "for", "find", "search", "show", "me", "who", "is", "lookup", "look", "up", "check", "patient", "the", "a", "an", "record"}
-            cand = [w.removesuffix("'s").removesuffix("’s") for w in words if w.lower() not in stop_words]
+        if any(p in q for p in ["looking for", "find", "search", "show me", "who is", "lookup", "look up", "check patient", "patient record", "is there a patient"]):
+            stop_words = {
+                "looking", "for", "find", "search", "show", "me", "who", "is", "lookup",
+                "look", "up", "check", "patient", "the", "a", "an", "record", "there"
+            }
+            cand = self._extract_entity_name(query, stop_words)
             return IntentDecision(
                 intent="entity_search",
                 entity_type="patient",
-                entity_query=cand[0] if cand else None,
+                entity_query=cand,
                 confidence=0.85,
             )
 

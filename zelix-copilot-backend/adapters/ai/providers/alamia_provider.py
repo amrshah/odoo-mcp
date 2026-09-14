@@ -31,12 +31,18 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
         default_endpoint = "http://host.docker.internal:11434/v1" if (os.path.exists("/.dockerenv") or os.environ.get("HOSTNAME")) else "http://localhost:11434/v1"
         self.base_url = (
             base_url
+            or os.getenv("ALAMIA_AI_URL")
             or os.getenv("ALAMIA_AI_ENDPOINT")
             or os.getenv("OLLAMA_ENDPOINT")
             or default_endpoint
         ).rstrip("/")
-        self.api_key = api_key or os.getenv("ALAMIA_AI_API_KEY", "")
-        self.default_model = default_model or os.getenv("ALAMIA_AI_MODEL", "qwen3.5:4b")
+        self.api_key = api_key or os.getenv("BITNET_API_KEY") or os.getenv("ALAMIA_AI_API_KEY", "")
+        self.default_model = (
+            default_model
+            or os.getenv("BITNET_DEFAULT_MODEL")
+            or os.getenv("ALAMIA_AI_MODEL")
+            or "qwen3.5:4b"
+        )
 
     def chat(
         self,
@@ -55,7 +61,12 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
         if max_tokens:
             payload["max_tokens"] = max_tokens
 
-        url = f"{self.base_url}/chat/completions"
+        if "/chat/completions" in self.base_url:
+            url = self.base_url
+        elif self.base_url.endswith("/v1"):
+            url = f"{self.base_url}/chat/completions"
+        else:
+            url = f"{self.base_url}/v1/chat/completions"
         data_bytes = json.dumps(payload).encode("utf-8")
         headers = {
             "Content-Type": "application/json",

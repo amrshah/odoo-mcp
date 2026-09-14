@@ -54,6 +54,20 @@ def test_routing_summarize_max(orchestrator):
     assert decision.entity_query == "Max"
 
 
+def test_routing_generate_clinical_brief_for_patient_max(orchestrator):
+    decision: IntentDecision = orchestrator.route("Generate comprehensive clinical brief for patient Max")
+    assert decision.intent == "patient_360"
+    assert decision.entity_type == "patient"
+    assert decision.entity_query == "Max"
+
+
+def test_routing_what_do_we_know_about_bella(orchestrator):
+    decision: IntentDecision = orchestrator.route("what do we know about Bella")
+    assert decision.intent == "patient_360"
+    assert decision.entity_type == "patient"
+    assert decision.entity_query == "Bella"
+
+
 def test_routing_what_is_max_history(orchestrator):
     decision: IntentDecision = orchestrator.route("what is Max's history?")
     assert decision.intent == "patient_360"
