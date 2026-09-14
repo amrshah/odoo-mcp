@@ -108,8 +108,11 @@ class ZelixOdooAdapter(ApplicationAdapter):
         domain = []
         if query:
             for k, v in query.items():
-                if isinstance(v, (list, tuple)) and len(v) == 3:
-                    domain.append(list(v))
+                if isinstance(v, (list, tuple)):
+                    if len(v) == 3:
+                        domain.append(list(v))
+                    elif len(v) == 2:
+                        domain.append([k, v[0], v[1]])
                 else:
                     domain.append([k, "=", v])
         try:

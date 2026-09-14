@@ -27,6 +27,7 @@ from core.roles.registry import RoleRegistry
 from core.policies.engine import PolicyEngine
 from core.policies.confirmation import ConfirmationPolicy
 from core.audit.logger import InMemoryAuditLogger
+from core.audit.entry import AuditEntry
 from core.ai.router import AIModelRouter
 from core.runtime.engine import CopilotEngine
 
@@ -347,7 +348,79 @@ async def reject_action(req: ActionRequest):
         proposal, _ = pending_actions.pop(req.action_id)
         proposal.status = ActionStatus.REJECTED
         return {"success": True, "action_id": req.action_id, "status": "REJECTED"}
-    return {"success": True, "action_id": req.action_id, "status": "NOT_FOUND"}
+class PrescriptionApprovalPayload(BaseModel):
+    prescription_id: int
+    user_id: Optional[str] = "admin"
+    user_role: Optional[str] = "veterinarian"
+
+
+@app.get("/api/copilot/dashboard/summary")
+async def get_dashboard_summary():
+    census_tool = tools.get("get_practice_census")
+    emp_context = EmployeeContext(user_id="admin", role="veterinarian", permissions=["*"])
+    data = census_tool.execute(emp_context) if census_tool else {}
+    return {
+        "status": "success",
+        "summary": data,
+    }
+
+
+@app.get("/api/copilot/prescriptions/pending")
+async def get_pending_prescriptions():
+    pending_rx = odoo_adapter.search("prescription", query={"state": ["in", ["draft", "pending"]]}, limit=50)
+    formatted = []
+    for r in pending_rx:
+        patient_name = r["patient_id"][1] if isinstance(r.get("patient_id"), (list, tuple)) else str(r.get("patient_id") or "Max")
+        medication_name = r["medication_id"][1] if isinstance(r.get("medication_id"), (list, tuple)) else str(r.get("medication_id") or "Medication")
+        formatted.append({
+            "id": r["id"],
+            "name": r.get("name") or f"RX-{r['id']}",
+            "patient_name": patient_name,
+            "medication_name": medication_name,
+            "dose": r.get("dose") or "1 tablet",
+            "route": r.get("route") or "oral",
+            "frequency": r.get("frequency") or "SID",
+            "duration": r.get("duration") or "3 days",
+            "quantity": r.get("quantity") or 1,
+            "quantity_unit": r.get("quantity_unit") or "tablets",
+            "instructions": r.get("instructions") or "Take with food",
+            "clinical_indication": r.get("clinical_indication") or "Routine",
+            "state": r.get("state") or "draft",
+        })
+    return {
+        "status": "success",
+        "count": len(formatted),
+        "prescriptions": formatted,
+    }
+
+
+@app.post("/api/copilot/prescriptions/approve")
+async def approve_prescription_direct(payload: PrescriptionApprovalPayload):
+    rx_id = payload.prescription_id
+    success = odoo_adapter.update("prescription", str(rx_id), {"state": "approved"})
+    
+    # Audit log
+    engine.audit.log(
+        AuditEntry(
+            audit_id=f"audit_rx_approve_{rx_id}_{uuid.uuid4().hex[:6]}",
+            event_type="PRESCRIPTION_APPROVAL",
+            user_id=payload.user_id or "admin",
+            role=payload.user_role or "veterinarian",
+            skill_id="prescription_assistant",
+            status="SUCCESS" if success else "FAILURE",
+            details={"prescription_id": rx_id, "state": "approved"},
+        )
+    )
+    
+    # Check remaining pending count
+    remaining = odoo_adapter.search("prescription", query={"state": ["in", ["draft", "pending"]]}, limit=50)
+    
+    return {
+        "success": bool(success),
+        "prescription_id": rx_id,
+        "state": "approved",
+        "remaining_count": len(remaining),
+    }
 
 
 if __name__ == "__main__":

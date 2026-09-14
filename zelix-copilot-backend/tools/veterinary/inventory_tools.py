@@ -55,10 +55,10 @@ class GetPracticeCensusTool(BaseTool):
         if "census_context" in context.metadata:
             return context.metadata["census_context"]
 
-        # Direct search via adapter
         vet_patients = self.adapter.search("patient", limit=100)
         vet_appts = self.adapter.search("appointment", limit=50)
         vet_encs = self.adapter.search("encounter", limit=50)
+        vet_rx = self.adapter.search("prescription", query={"state": ["in", ["draft", "pending"]]}, limit=50)
         hms_patients = self.adapter.search("hms_patient", limit=100)
         hms_visits = self.adapter.search("hms_visit", limit=50)
         stock_items = self.adapter.search("product", limit=50)
@@ -70,5 +70,6 @@ class GetPracticeCensusTool(BaseTool):
             "appointments_today": len(vet_appts),
             "hms_visits_today": len(hms_visits),
             "encounters_count": len(vet_encs),
+            "pending_prescriptions_count": len(vet_rx),
             "stock_items_count": len(stock_items),
         }
