@@ -121,6 +121,83 @@ class ZelixOdooAdapter(ApplicationAdapter):
             logger.error(f"Error searching {model}: {e}")
             return []
 
+    def find_patient(self, search_term: str) -> Optional[Dict[str, Any]]:
+        """Look up patient across domain models (vet.patient and hms.patient) by name or identifier."""
+        q = search_term.strip()
+        if not q:
+            return None
+        uid = self._ensure_authenticated()
+
+        words = [w.strip(".,;:?!'\"") for w in q.split() if len(w.strip(".,;:?!'\"")) > 2]
+        stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status"}
+        candidate_names = [w for w in words if w.lower() not in stop_words] or [q]
+
+        for candidate in candidate_names:
+            # 1. Search VetCairn patients
+            try:
+                vet_records = self.models.execute_kw(
+                    self.db, uid, self.api_key,
+                    "vet.patient", "search_read",
+                    [[["name", "ilike", candidate]]],
+                    {"limit": 1}
+                )
+                if not vet_records:
+                    vet_records = self.models.execute_kw(
+                        self.db, uid, self.api_key,
+                        "vet.patient", "search_read",
+                        [[["identifier", "ilike", candidate]]],
+                        {"limit": 1}
+                    )
+                if vet_records:
+                    rec = vet_records[0]
+                    species_name = rec.get("species_id", [False, "Canine"])[1] if isinstance(rec.get("species_id"), (list, tuple)) else "Canine"
+                    breed_name = rec.get("breed_id", [False, ""])[1] if isinstance(rec.get("breed_id"), (list, tuple)) else ""
+                    clinic_id = rec.get("clinic_id", [3, ""])[0] if isinstance(rec.get("clinic_id"), (list, tuple)) else 3
+                    return {
+                        "id": rec.get("id"),
+                        "name": rec.get("name"),
+                        "identifier": rec.get("identifier"),
+                        "model": "vet.patient",
+                        "species": species_name,
+                        "breed": breed_name,
+                        "notes": rec.get("notes") or "",
+                        "clinic_id": clinic_id,
+                        "raw": rec,
+                    }
+            except Exception as e:
+                logger.debug(f"Error searching vet.patient: {e}")
+
+            # 2. Search Stratos HMS patients
+            try:
+                hms_records = self.models.execute_kw(
+                    self.db, uid, self.api_key,
+                    "hms.patient", "search_read",
+                    [[["name", "ilike", candidate]]],
+                    {"limit": 1}
+                )
+                if not hms_records:
+                    hms_records = self.models.execute_kw(
+                        self.db, uid, self.api_key,
+                        "hms.patient", "search_read",
+                        [[["mrn", "ilike", candidate]]],
+                        {"limit": 1}
+                    )
+                if hms_records:
+                    rec = hms_records[0]
+                    return {
+                        "id": rec.get("id"),
+                        "name": rec.get("name"),
+                        "identifier": rec.get("mrn") or f"HMS-{rec.get('id')}",
+                        "model": "hms.patient",
+                        "species": "Human",
+                        "notes": rec.get("notes") or rec.get("chronic_conditions") or "",
+                        "raw": rec,
+                    }
+            except Exception as e:
+                logger.debug(f"Error searching hms.patient: {e}")
+
+        return None
+
     def get(self, entity_type: str, entity_id: str) -> Optional[Dict[str, Any]]:
         model = self._get_model(entity_type)
         uid = self._ensure_authenticated()

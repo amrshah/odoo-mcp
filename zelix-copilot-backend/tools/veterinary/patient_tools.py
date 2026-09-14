@@ -27,6 +27,7 @@ class GetPatientRecordTool(BaseTool):
         )
 
     def execute(self, context: EmployeeContext, **kwargs: Any) -> Optional[Dict[str, Any]]:
+        # 1. Direct record ID from arguments or active UI context
         patient_id = kwargs.get("patient_id")
         if not patient_id and context.active_entity:
             patient_id = context.active_entity.get("id")
@@ -36,30 +37,20 @@ class GetPatientRecordTool(BaseTool):
             patient_id = context.metadata.get("active_record_id")
 
         if patient_id:
-            rec = self.adapter.get("patient", str(patient_id))
-            if rec:
-                return rec
-            rec = self.adapter.get("hms_patient", str(patient_id))
+            rec = self.adapter.get("patient", str(patient_id)) or self.adapter.get("hms_patient", str(patient_id))
             if rec:
                 return rec
 
-        # Check natural language query for patient name
-        user_input = kwargs.get("query") or context.metadata.get("user_input") or ""
-        if user_input:
-            import re
-            m = re.search(r"(?:for|patient|patient\s+record|history\s+for|about|summary\s+of)\s+([A-Za-z0-9_-]+)", str(user_input), re.IGNORECASE)
-            patient_name = m.group(1) if m else None
-            if patient_name and patient_name.lower() not in ["history", "summary", "record", "the", "a", "an", "today", "yesterday", "clinical"]:
-                found = self.adapter.search("patient", {"name": ("name", "ilike", patient_name)}, limit=1)
-                if not found:
-                    found = self.adapter.search("patient", {"identifier": ("identifier", "ilike", patient_name)}, limit=1)
-                if found:
-                    return found[0]
-
-        # Check if any patient is available
-        pts = self.adapter.search("patient", limit=1)
-        if pts:
-            return pts[0]
+        # 2. Search by query / natural language prompt
+        search_term = kwargs.get("user_input") or kwargs.get("query") or kwargs.get("name") or context.metadata.get("user_input")
+        if search_term:
+            found = getattr(self.adapter, "find_patient", lambda q: None)(str(search_term))
+            if found:
+                return found
+            words = [w.strip(".,;:?!'\"") for w in str(search_term).split() if len(w.strip(".,;:?!'\"")) > 2]
+            stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status", "please"}
+            cand = [w for w in words if w.lower() not in stop_words]
+            return {"_not_found": True, "searched_name": cand[0] if cand else str(search_term)}
 
         return context.active_entity or context.metadata.get("patient_context")
 

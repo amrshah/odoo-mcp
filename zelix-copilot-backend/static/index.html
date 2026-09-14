@@ -934,19 +934,21 @@ async function sendMainChat(){
     let htmlContent = `<div class="header"><i class="ti ti-sparkles"></i>Zelix AI (${data.intent || 'clinical_workflow'})</div>`;
     htmlContent += `<div style="line-height:1.5;">${formatMarkdown(data.content)}</div>`;
     
-    // If Action Card is present
-    if(data.action_card){
-      const card = data.action_card;
-      htmlContent += `
-        <div class="card" style="margin-top:8px;border-color:var(--purple-400);background:#FAFAF8;" id="action_${card.action_id}">
-          <p class="card-title" style="color:var(--purple-700);">${card.title || 'Action Approval Required'}</p>
-          <p class="card-sub">${card.description || ''}</p>
-          <div class="btn-row">
-            <button class="btn btn-teal" onclick="approveAction('${card.action_id}')"><i class="ti ti-check"></i>Approve &amp; Execute</button>
-            <button class="btn btn-danger" onclick="rejectAction('${card.action_id}')"><i class="ti ti-x"></i>Reject</button>
+    // If Action Cards are present
+    const actionCards = data.action_cards || (data.action_card ? [data.action_card] : (data.proposed_actions || []));
+    if(actionCards && actionCards.length){
+      actionCards.forEach(card => {
+        htmlContent += `
+          <div class="card" style="margin-top:8px;border-color:var(--purple-400);background:#FAFAF8;" id="action_${card.action_id}">
+            <p class="card-title" style="color:var(--purple-700);">${card.title || card.action_type || 'Action Approval Required'}</p>
+            <p class="card-sub">${card.description || card.reason || 'Human-in-the-Loop approval requested'}</p>
+            <div class="btn-row">
+              <button class="btn btn-teal" onclick="approveAction('${card.action_id}')"><i class="ti ti-check"></i>Approve &amp; Execute</button>
+              <button class="btn btn-danger" onclick="rejectAction('${card.action_id}')"><i class="ti ti-x"></i>Reject</button>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      });
     }
     
     botDiv.innerHTML = htmlContent;
@@ -972,15 +974,17 @@ async function approveAction(actionId){
     const res = await fetch(`${API_BASE}/api/copilot/action/approve`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action_id: actionId })
+      body: JSON.stringify({ action_id: actionId, user_id: 'admin', user_role: currentRole })
     });
     const result = await res.json();
     if(result.success){
       if(cardElem){
+        const recordId = result.result && result.result.id ? result.result.id : (result.record_id || 'Created');
+        const modelName = result.result && result.result.model ? result.result.model : 'Odoo Record';
         cardElem.innerHTML = `
           <div class="alert-card p-success">
             <div class="alert-head c-success"><i class="ti ti-circle-check"></i>Action Executed &amp; Verified in Odoo</div>
-            <p class="alert-desc">Record ID: <strong>${result.record_id || result.id || 'Active'}</strong> · Read-back integrity validated.</p>
+            <p class="alert-desc">Model: <strong>${modelName}</strong> · Record ID: <strong>${recordId}</strong> · Persistence validated.</p>
           </div>
         `;
       }

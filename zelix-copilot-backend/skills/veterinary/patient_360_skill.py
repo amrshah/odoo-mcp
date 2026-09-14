@@ -34,12 +34,20 @@ class Patient360Skill(BaseSkill):
         patient_tool = tools.get("get_patient_record")
         patient = patient_tool.execute(context, **kwargs) if patient_tool else (context.active_entity or context.metadata.get("patient_context"))
 
-        if not patient:
-            no_patient_text = (
-                "### Patient Record Synthesis\n"
-                "No specific patient record was loaded in the current view.\n\n"
-                "Please select or open a Patient record in Odoo to generate a comprehensive longitudinal summary."
-            )
+        if not patient or patient.get("_not_found"):
+            searched = patient.get("search_term") or patient.get("searched_name") if (patient and isinstance(patient, dict)) else None
+            if searched:
+                no_patient_text = (
+                    f"### Patient Record Synthesis\n"
+                    f"No patient matching **'{searched}'** was found in the active registry (VetCairn & Stratos HMS).\n\n"
+                    f"Please verify the name or identifier in Odoo."
+                )
+            else:
+                no_patient_text = (
+                    "### Patient Record Synthesis\n"
+                    "No specific patient record was loaded in the current view.\n\n"
+                    "Please select or open a Patient record in Odoo to generate a comprehensive longitudinal summary."
+                )
             return SkillResult(
                 success=True,
                 skill_id=self.definition.id,
@@ -47,10 +55,9 @@ class Patient360Skill(BaseSkill):
             )
 
         name = patient.get("name", "Unknown Patient")
-        ident = patient.get("identifier", "PAT")
+        ident = patient.get("identifier") or patient.get("mrn") or "PAT"
         species = patient.get("species", "Patient")
         breed = patient.get("breed", "")
-        age = patient.get("age", "")
         notes = patient.get("notes", "No active contraindications recorded.")
 
         # Vaccinations
@@ -64,12 +71,11 @@ class Patient360Skill(BaseSkill):
         enc_summary = f"{len(enc_list)} past encounters on file." if enc_list else "First clinical encounter."
 
         system_prompt = (
-            f"You are Zelix AI Copilot. Synthesize a concise, clinical summary for veterinary patient {name}.\n"
-            f"Species: {species} | Breed: {breed} | Age: {age}\n"
-            f"Medical Notes: {notes}\n"
-            f"Vaccinations: {vax_summary}\n"
-            f"Encounters: {enc_summary}\n"
-            f"Provide a structured synthesis with Demographics, Active Issues, Prevention Status, and Recommendations."
+            f"You are Zelix AI Copilot. Synthesize a concise, clinical longitudinal summary for the patient.\n"
+            f"Patient Record Data: {patient}\n"
+            f"Vaccination History: {vax_list}\n"
+            f"Clinical Encounters: {enc_list}\n"
+            f"Synthesize structured Demographics, Active Issues, Prevention Status, and Clinical Recommendations."
         )
 
         messages = [
@@ -97,7 +103,7 @@ class Patient360Skill(BaseSkill):
         # Deterministic fallback response
         fallback_text = (
             f"### Patient 360 Summary: **{name}** ({ident})\n"
-            f"- **Demographics**: {species} · {breed or 'Standard'} · {age or 'Adult'}\n"
+            f"- **Demographics**: {species} {('· ' + breed) if breed else ''}\n"
             f"- **Clinical Notes**: {notes}\n"
             f"- **Vaccination & Prevention**: {vax_summary}\n"
             f"- **Encounter History**: {enc_summary}\n"
