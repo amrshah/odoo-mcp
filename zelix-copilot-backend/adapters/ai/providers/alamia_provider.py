@@ -28,11 +28,12 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
     ) -> None:
         models = ["gemma3:1b-it-qat", "qwen3.5:4b", "qwen2.5:7b-instruct", "deepseek-r1:14b"]
         super().__init__(name=name, models=models)
+        default_endpoint = "http://host.docker.internal:11434/v1" if (os.path.exists("/.dockerenv") or os.environ.get("HOSTNAME")) else "http://localhost:11434/v1"
         self.base_url = (
             base_url
             or os.getenv("ALAMIA_AI_ENDPOINT")
             or os.getenv("OLLAMA_ENDPOINT")
-            or "http://localhost:11434/v1"
+            or default_endpoint
         ).rstrip("/")
         self.api_key = api_key or os.getenv("ALAMIA_AI_API_KEY", "")
         self.default_model = default_model or os.getenv("ALAMIA_AI_MODEL", "qwen3.5:4b")
@@ -69,6 +70,9 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
                 result = json.loads(resp.read().decode("utf-8"))
                 choice = result["choices"][0]["message"]
                 content = choice.get("content", "")
+                if content and "<think>" in content and "</think>" in content:
+                    import re
+                    content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
                 usage = result.get("usage", {})
                 return ChatResponse(
                     content=content,

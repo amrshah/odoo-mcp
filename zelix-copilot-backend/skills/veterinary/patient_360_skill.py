@@ -86,17 +86,18 @@ class Patient360Skill(BaseSkill):
         if ai_provider:
             try:
                 res = ai_provider.chat(messages=messages, max_tokens=400)
-                return SkillResult(
-                    success=True,
-                    skill_id=self.definition.id,
-                    output={
-                        "response_text": res.content,
-                        "patient": patient,
-                        "vaccinations": vax_list,
-                        "encounters": enc_list,
-                    },
-                    metadata={"model": res.model, "tokens": res.usage.get("total_tokens", 0)},
-                )
+                if res.content and res.content.strip():
+                    return SkillResult(
+                        success=True,
+                        skill_id=self.definition.id,
+                        output={
+                            "response_text": res.content.strip(),
+                            "patient": patient,
+                            "vaccinations": vax_list,
+                            "encounters": enc_list,
+                        },
+                        metadata={"model": res.model, "tokens": res.usage.get("total_tokens", 0)},
+                    )
             except Exception:
                 pass
 

@@ -42,13 +42,13 @@ class GetPatientRecordTool(BaseTool):
                 return rec
 
         # 2. Search by query / natural language prompt
-        search_term = kwargs.get("user_input") or kwargs.get("query") or kwargs.get("name") or context.metadata.get("user_input")
+        search_term = kwargs.get("entity_query") or kwargs.get("name") or kwargs.get("query") or kwargs.get("user_input") or context.metadata.get("user_input")
         if search_term:
             found = getattr(self.adapter, "find_patient", lambda q: None)(str(search_term))
             if found:
                 return found
-            words = [w.strip(".,;:?!'\"") for w in str(search_term).split() if len(w.strip(".,;:?!'\"")) > 2]
-            stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status", "please"}
+            words = [w.strip(".,;:?!'\"").removesuffix("'s").removesuffix("’s") for w in str(search_term).split() if len(w.strip(".,;:?!'\"")) > 2]
+            stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status", "please", "what", "is", "the", "find", "looking", "check"}
             cand = [w for w in words if w.lower() not in stop_words]
             return {"_not_found": True, "searched_name": cand[0] if cand else str(search_term)}
 

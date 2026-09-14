@@ -103,8 +103,12 @@ class CopilotEngine:
         # 3. Select AI Provider if available
         ai_provider = None
         if self.ai_router:
-            provider, _ = self.ai_router.select()
-            ai_provider = provider
+            try:
+                provider, _ = self.ai_router.select()
+                ai_provider = provider
+            except Exception as e:
+                logger.warning(f"AI Provider selection skipped: {e}")
+                ai_provider = None
 
         # 4. Execute the skill workflow
         try:

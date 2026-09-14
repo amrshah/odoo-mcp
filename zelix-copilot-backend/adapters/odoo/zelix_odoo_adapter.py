@@ -128,8 +128,8 @@ class ZelixOdooAdapter(ApplicationAdapter):
             return None
         uid = self._ensure_authenticated()
 
-        words = [w.strip(".,;:?!'\"") for w in q.split() if len(w.strip(".,;:?!'\"")) > 2]
-        stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status"}
+        words = [w.strip(".,;:?!'\"").removesuffix("'s").removesuffix("’s") for w in q.split() if len(w.strip(".,;:?!'\"")) > 2]
+        stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status", "what", "is", "the", "find", "looking", "check"}
         candidate_names = [w for w in words if w.lower() not in stop_words] or [q]
 
         for candidate in candidate_names:

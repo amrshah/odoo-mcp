@@ -47,10 +47,12 @@ from tools.veterinary.inventory_tools import (
 )
 
 # Domain Skills
+from skills.veterinary.entity_lookup_skill import EntityLookupSkill
 from skills.veterinary.patient_360_skill import Patient360Skill
 from skills.veterinary.soap_skill import VoiceToSoapSkill
 from skills.veterinary.prescription_skill import PrescriptionSafetySkill
 from skills.veterinary.clinic_activity_skill import ClinicActivitySkill
+from core.ai.orchestrator import IntentOrchestrator, IntentDecision
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("zelix.gateway")
@@ -72,6 +74,7 @@ tools.register(GetPracticeCensusTool(odoo_adapter))
 
 # 3. Skill Registry
 skills = SkillRegistry()
+skills.register(EntityLookupSkill())
 skills.register(Patient360Skill())
 skills.register(VoiceToSoapSkill())
 skills.register(PrescriptionSafetySkill())
@@ -82,31 +85,31 @@ roles = RoleRegistry()
 roles.register(RoleManifest(
     id="veterinarian",
     name="Licensed Veterinarian",
-    skills=["patient_360", "voice_to_soap", "prescription_assistant", "clinic_activity"],
+    skills=["entity_search", "patient_360", "voice_to_soap", "prescription_assistant", "clinic_activity"],
     permissions=["patients.read", "medical_records.read", "medical_records.write", "prescriptions.write"],
 ))
 roles.register(RoleManifest(
     id="doctor",
     name="Medical Doctor",
-    skills=["patient_360", "voice_to_soap", "prescription_assistant", "clinic_activity"],
+    skills=["entity_search", "patient_360", "voice_to_soap", "prescription_assistant", "clinic_activity"],
     permissions=["patients.read", "medical_records.read", "medical_records.write", "prescriptions.write"],
 ))
 roles.register(RoleManifest(
     id="practice_manager",
     name="Practice Administrator",
-    skills=["clinic_activity", "patient_360"],
+    skills=["entity_search", "clinic_activity", "patient_360"],
     permissions=["*"],
 ))
 roles.register(RoleManifest(
     id="technician",
     name="Veterinary Technician",
-    skills=["patient_360", "clinic_activity"],
+    skills=["entity_search", "patient_360", "clinic_activity"],
     permissions=["patients.read", "medical_records.read"],
 ))
 roles.register(RoleManifest(
     id="receptionist",
     name="Front Desk Receptionist",
-    skills=["clinic_activity", "patient_360"],
+    skills=["entity_search", "clinic_activity", "patient_360"],
     permissions=["patients.read", "appointments.read"],
 ))
 
@@ -120,7 +123,10 @@ policy_engine = PolicyEngine(confirmation_policy=confirmation_policy)
 default_ai = AlamiaAIModelProvider()
 ai_router = AIModelRouter(default_provider=default_ai)
 
-# 7. Copilot Engine
+# 7. Intent Orchestrator
+intent_orchestrator = IntentOrchestrator(skill_registry=skills, ai_provider=default_ai)
+
+# 8. Copilot Engine
 engine = CopilotEngine(
     skill_registry=skills,
     tool_registry=tools,
@@ -211,21 +217,6 @@ async def health():
     }
 
 
-def _classify_intent(query: str, has_patient_context: bool) -> str:
-    """Classify user natural language intent to clean core skill ID."""
-    q = query.lower()
-    if any(w in q for w in ["census", "operational", "activity", "appointments", "inventory", "stock", "clinic", "bed", "occupancy"]):
-        return "clinic_activity"
-    if any(w in q for w in ["soap", "dictation", "transcript", "consultation", "findings", "vital", "vomiting"]):
-        return "voice_to_soap"
-    if any(w in q for w in ["prescribe", "rx", "dosage", "dose", "medication", "cerenia", "amoxicillin"]):
-        return "prescription_assistant"
-    if any(w in q for w in ["patient", "history", "brief", "profile", "vaccin", "ehr", "longitudinal"]):
-        return "patient_360"
-    
-    return "patient_360" if has_patient_context else "clinic_activity"
-
-
 @app.post("/api/copilot/chat")
 @app.post("/api/chat")
 async def chat(payload: ChatPayload):
@@ -236,8 +227,7 @@ async def chat(payload: ChatPayload):
     ctx_data["user_input"] = user_query
     
     active_entity = ctx_data.get("patient_context") or ctx_data.get("active_record") or None
-    skill_id = _classify_intent(user_query, bool(active_entity))
-    
+
     role_manifest = roles.get(role)
     permissions = role_manifest.permissions if role_manifest else ["*"]
 
@@ -249,18 +239,56 @@ async def chat(payload: ChatPayload):
         metadata=ctx_data,
         conversation_id=payload.session_id,
     )
-    
+
+    # 1. Route Intent through IntentOrchestrator
+    decision: IntentDecision = intent_orchestrator.route(user_query, emp_context)
+    logger.info(f"Intent Decision: {decision.model_dump_json()}")
+
+    # 2. Handle general / ambiguous queries without executing unrelated domain skills
+    if decision.intent == "general_query":
+        general_response = (
+            "Hello! I am your Zelix AI Clinical Copilot.\n\n"
+            "I can assist you with:\n"
+            "- **Patient & Entity Lookup**: e.g. *\"Looking for Anabia\"*, *\"Find Max\"*, *\"Show me Anabia\"*\n"
+            "- **Patient 360 History**: e.g. *\"Summarize Max\"*, *\"What is Max's history?\"*\n"
+            "- **Clinical Scribe**: e.g. *\"Draft a SOAP note for vomiting x3\"*\n"
+            "- **Prescription Safety**: e.g. *\"Prescribe Cerenia 16mg for Max\"*\n"
+            "- **Clinic Operations**: e.g. *\"Give me today's clinic summary\"*\n\n"
+            "How can I help you today?"
+        )
+        return {
+            "response": general_response,
+            "message": general_response,
+            "content": general_response,
+            "workflow_id": "general_query",
+            "skill_id": "general_query",
+            "action_cards": [],
+            "proposed_actions": [],
+            "intent_decision": decision.model_dump(),
+            "patient_summary": None,
+            "model_used": "orchestrator",
+            "request_id": f"req_{uuid.uuid4().hex[:8]}",
+            "execution_time_ms": int((time.time() - start_time) * 1000),
+        }
+
+    # 3. Execute Selected Business Skill
     exec_result = engine.execute_skill(
-        skill_id=skill_id,
+        skill_id=decision.intent,
         context=emp_context,
         user_input=user_query,
+        entity_type=decision.entity_type,
+        entity_query=decision.entity_query,
     )
     
     # Extract response message
     if isinstance(exec_result.output, dict):
         response_text = exec_result.output.get("response_text") or str(exec_result.output)
+    elif exec_result.output:
+        response_text = str(exec_result.output)
+    elif exec_result.error:
+        response_text = f"Skill execution error: {exec_result.error}"
     else:
-        response_text = str(exec_result.output or "")
+        response_text = ""
     
     action_cards = []
     for raw_prop in exec_result.proposed_actions:
@@ -277,17 +305,17 @@ async def chat(payload: ChatPayload):
         })
     
     duration_ms = int((time.time() - start_time) * 1000)
-    
     return {
         "response": response_text,
         "message": response_text,
         "content": response_text,
-        "workflow_id": skill_id,
-        "skill_id": skill_id,
+        "workflow_id": decision.intent,
+        "skill_id": decision.intent,
         "action_cards": action_cards,
-        "proposed_actions": exec_result.proposed_actions,
-        "patient_summary": exec_result.output if skill_id == "patient_360" else None,
-        "model_used": exec_result.metadata.get("model", "qwen3.5:4b"),
+        "proposed_actions": [p.model_dump() for p, _ in [pending_actions.get(c["action_id"]) for c in action_cards] if p],
+        "intent_decision": decision.model_dump(),
+        "patient_summary": exec_result.output.get("patient") if isinstance(exec_result.output, dict) else None,
+        "model_used": default_ai.default_model,
         "request_id": f"req_{uuid.uuid4().hex[:8]}",
         "execution_time_ms": duration_ms,
     }
