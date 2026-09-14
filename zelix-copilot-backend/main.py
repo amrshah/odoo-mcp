@@ -232,7 +232,8 @@ async def chat(payload: ChatPayload):
     start_time = time.time()
     user_query = payload.query or payload.message or "Help"
     role = payload.role or payload.user_role or "veterinarian"
-    ctx_data = payload.context or {}
+    ctx_data = dict(payload.context or {})
+    ctx_data["user_input"] = user_query
     
     active_entity = ctx_data.get("patient_context") or ctx_data.get("active_record") or None
     skill_id = _classify_intent(user_query, bool(active_entity))

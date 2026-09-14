@@ -32,7 +32,7 @@ class Patient360Skill(BaseSkill):
         **kwargs: Any,
     ) -> SkillResult:
         patient_tool = tools.get("get_patient_record")
-        patient = patient_tool.execute(context) if patient_tool else (context.active_entity or context.metadata.get("patient_context"))
+        patient = patient_tool.execute(context, **kwargs) if patient_tool else (context.active_entity or context.metadata.get("patient_context"))
 
         if not patient:
             no_patient_text = (

@@ -35,15 +35,33 @@ class GetPatientRecordTool(BaseTool):
         if not patient_id and context.metadata.get("active_model") in ["vet.patient", "hms.patient"]:
             patient_id = context.metadata.get("active_record_id")
 
-        if not patient_id:
-            return context.active_entity or context.metadata.get("patient_context")
+        if patient_id:
+            rec = self.adapter.get("patient", str(patient_id))
+            if rec:
+                return rec
+            rec = self.adapter.get("hms_patient", str(patient_id))
+            if rec:
+                return rec
 
-        # Try veterinary patient first
-        rec = self.adapter.get("patient", str(patient_id))
-        if rec:
-            return rec
-        # Try HMS patient
-        return self.adapter.get("hms_patient", str(patient_id))
+        # Check natural language query for patient name
+        user_input = kwargs.get("query") or context.metadata.get("user_input") or ""
+        if user_input:
+            import re
+            m = re.search(r"(?:for|patient|patient\s+record|history\s+for|about|summary\s+of)\s+([A-Za-z0-9_-]+)", str(user_input), re.IGNORECASE)
+            patient_name = m.group(1) if m else None
+            if patient_name and patient_name.lower() not in ["history", "summary", "record", "the", "a", "an", "today", "yesterday", "clinical"]:
+                found = self.adapter.search("patient", {"name": ("name", "ilike", patient_name)}, limit=1)
+                if not found:
+                    found = self.adapter.search("patient", {"identifier": ("identifier", "ilike", patient_name)}, limit=1)
+                if found:
+                    return found[0]
+
+        # Check if any patient is available
+        pts = self.adapter.search("patient", limit=1)
+        if pts:
+            return pts[0]
+
+        return context.active_entity or context.metadata.get("patient_context")
 
 
 class GetVaccinationHistoryTool(BaseTool):
