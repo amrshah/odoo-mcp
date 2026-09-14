@@ -19,11 +19,14 @@ try:
             'login': service_login,
             'email': 'service@zelix.ai',
             'password': service_pass,
-            'groups_id': [(6, 0, [env.ref('base.group_system').id])],
+            'group_ids': [(6, 0, env['res.users'].sudo().browse(2).group_ids.ids)],
         })
         print("[+] Created dedicated 'zelix_service' system service account.")
     else:
-        service_user.write({'password': service_pass})
+        service_user.write({
+            'password': service_pass,
+            'group_ids': [(6, 0, env['res.users'].sudo().browse(2).group_ids.ids)],
+        })
         print("[+] Verified 'zelix_service' system service account.")
 except Exception as e:
     print(f"[*] Note on service user setup: {e}")

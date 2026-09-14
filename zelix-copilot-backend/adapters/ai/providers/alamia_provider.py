@@ -120,7 +120,7 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
     async def check_health(self) -> Dict[str, Any]:
         """Check status of remote/local LLM endpoint."""
         return {
-            "provider": self.name,
+            "provider": self.provider_name,
             "endpoint": self.base_url,
             "default_model": self.default_model,
             "status": "ready",

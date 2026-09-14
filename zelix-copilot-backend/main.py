@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 # Core imports
 from core.sessions.context import EmployeeContext
 from core.actions.proposal import ActionProposal, ActionStatus
+from core.actions.statemachine import ActionStateMachine
 from core.skills.registry import SkillRegistry
 from core.tools.registry import ToolRegistry
 from core.roles.manifest import RoleManifest
@@ -213,14 +214,14 @@ async def health():
 def _classify_intent(query: str, has_patient_context: bool) -> str:
     """Classify user natural language intent to clean core skill ID."""
     q = query.lower()
+    if any(w in q for w in ["census", "operational", "activity", "appointments", "inventory", "stock", "clinic", "bed", "occupancy"]):
+        return "clinic_activity"
     if any(w in q for w in ["soap", "dictation", "transcript", "consultation", "findings", "vital", "vomiting"]):
         return "voice_to_soap"
     if any(w in q for w in ["prescribe", "rx", "dosage", "dose", "medication", "cerenia", "amoxicillin"]):
         return "prescription_assistant"
-    if any(w in q for w in ["summary", "history", "patient", "brief", "profile", "vaccin"]):
+    if any(w in q for w in ["patient", "history", "brief", "profile", "vaccin", "ehr", "longitudinal"]):
         return "patient_360"
-    if any(w in q for w in ["census", "operational", "activity", "appointments", "inventory", "stock", "clinic", "bed"]):
-        return "clinic_activity"
     
     return "patient_360" if has_patient_context else "clinic_activity"
 
@@ -236,9 +237,13 @@ async def chat(payload: ChatPayload):
     active_entity = ctx_data.get("patient_context") or ctx_data.get("active_record") or None
     skill_id = _classify_intent(user_query, bool(active_entity))
     
+    role_manifest = roles.get(role)
+    permissions = role_manifest.permissions if role_manifest else ["*"]
+
     emp_context = EmployeeContext(
         user_id=str(payload.user_id or "admin"),
         role=role,
+        permissions=permissions,
         active_entity=active_entity,
         metadata=ctx_data,
         conversation_id=payload.session_id,
@@ -294,6 +299,7 @@ async def approve_action(req: ActionRequest):
         raise HTTPException(status_code=404, detail=f"Action proposal '{req.action_id}' not found or already executed.")
     
     proposal, emp_context = pending_actions.pop(req.action_id)
+    ActionStateMachine.transition(proposal, ActionStatus.CONFIRMED)
     executed = engine.execute_action(proposal, emp_context)
     
     return {

@@ -52,8 +52,8 @@ class GetPracticeCensusTool(BaseTool):
 
     def execute(self, context: EmployeeContext, **kwargs: Any) -> Dict[str, Any]:
         # If already grounded in context via session enrichment
-        if context.census_context:
-            return context.census_context
+        if "census_context" in context.metadata:
+            return context.metadata["census_context"]
 
         # Direct search via adapter
         vet_patients = self.adapter.search("patient", limit=100)
