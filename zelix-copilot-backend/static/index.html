@@ -257,10 +257,11 @@ details.audit[open] summary i{transform:rotate(90deg);}
         <span class="pulse"></span><span id="serverText">Checking BitNet AI...</span>
       </div>
       <select id="roleSelector" style="font-family:var(--font);font-size:11.5px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;">
-        <option value="doctor" selected>Dr. Ahmed (Doctor)</option>
-        <option value="practice_manager">Sarah (Practice Manager)</option>
-        <option value="technician">Zack (Technician)</option>
-        <option value="receptionist">Emma (Receptionist)</option>
+        <option value="veterinarian" selected>Licensed Veterinarian</option>
+        <option value="doctor">Medical Doctor</option>
+        <option value="practice_manager">Practice Administrator</option>
+        <option value="technician">Veterinary Technician / Nurse</option>
+        <option value="receptionist">Front Desk Receptionist</option>
       </select>
     </div>
   </div>
@@ -285,7 +286,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
         <div class="brand"><span class="mark"><i class="ti ti-sparkles"></i></span>Zelix AI Copilot</div>
         <div class="right" style="gap:16px;">
           <div class="search" style="font-size:11.5px;display:flex;align-items:center;gap:4px;"><i class="ti ti-search"></i>Search Odoo</div>
-          <div class="avatar" id="topAvatar">DA</div>
+          <div class="avatar avatar-dyn" id="topAvatar">AD</div>
         </div>
       </div>
       <div class="app-body">
@@ -295,12 +296,12 @@ details.audit[open] summary i{transform:rotate(90deg);}
           <div class="side-item" onclick="switchScreen('s1')"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
           <div class="side-item" onclick="switchScreen('s2')"><i class="ti ti-paw"></i>Patients</div>
           <div class="side-item" onclick="switchScreen('s3')"><i class="ti ti-microphone"></i>Live Scribe</div>
-          <div class="side-item" onclick="switchScreen('s5')"><i class="ti ti-prescription"></i>Prescriptions</div>
+          <div class="side-item" onclick="openPrescriptionReview()"><i class="ti ti-prescription"></i>Prescriptions</div>
           <div class="side-item" onclick="switchScreen('s7')"><i class="ti ti-bell"></i>Alerts</div>
           <div class="sidenav-foot">
-            <div class="avatar" id="sideAvatar" style="background:var(--purple-600);">DA</div>
+            <div class="avatar avatar-dyn" id="sideAvatar" style="background:var(--purple-600);">AD</div>
             <div>
-              <div class="name" id="sideName">Dr. Ahmed</div>
+              <div class="name" id="sideName">Administrator</div>
               <div class="role" id="sideRole">Veterinarian</div>
             </div>
           </div>
@@ -309,7 +310,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
         <div class="app-main" style="display:flex;flex-direction:column;min-height:540px;">
           <div class="card" style="background:var(--teal-50);border-color:var(--teal-100);display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div>
-              <p class="card-title" id="greetingHeader">Good morning, Dr. Ahmed</p>
+              <p class="card-title" id="greetingHeader">Good day, Administrator</p>
               <p class="card-sub">Zelix AI is connected to Odoo 19 (VetCairn &amp; Stratos HMS models active).</p>
             </div>
             <span class="badge badge-teal"><i class="ti ti-check"></i>Context-aware · Odoo Live</span>
@@ -384,7 +385,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
 
         <div class="app-main">
           <div class="card" style="background:var(--teal-50);border-color:var(--teal-100);display:flex;align-items:center;justify-content:space-between;">
-            <div><p class="card-title">Good morning, Dr. Ahmed</p><p class="card-sub">Here's what's happening at VetCairn Downtown Animal Hospital today.</p></div>
+            <div><p class="card-title" id="dashGreeting">Good day, Administrator</p><p class="card-sub" id="dashFacilitySub">Here's what's happening at your clinic today.</p></div>
             <button class="btn" onclick="fetchDashboardSummary(); sendSideChat('Provide a clinic census and morning overview');"><i class="ti ti-refresh"></i>Refresh Summary</button>
           </div>
 
@@ -448,7 +449,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
       <div class="app-topbar">
         <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
         <nav><a onclick="switchScreen('s1')">Dashboard</a><a class="current" onclick="switchScreen('s2')">Patients</a><a onclick="switchScreen('s3')">Clinical</a></nav>
-        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar avatar-dyn">AD</div></div>
       </div>
       <div class="app-body">
         <div class="app-main">
@@ -521,7 +522,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
       <div class="app-topbar">
         <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
         <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s2')">Patients</a><a class="current" onclick="switchScreen('s3')">Scribe</a><a onclick="switchScreen('s4')">SOAP</a></nav>
-        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar avatar-dyn">AD</div></div>
       </div>
       <div class="app-body">
         <div class="app-main">
@@ -544,11 +545,11 @@ details.audit[open] summary i{transform:rotate(90deg);}
           <div class="card">
             <p class="card-title">Live Transcript</p>
             <div class="transcript" id="liveTranscript" style="margin-top:6px;">
-              <p class="line"><span class="who">Dr. Ahmed:</span>So Max has been vomiting since when?</p>
+              <p class="line"><span class="who" id="scribeDoctorWho">Clinician:</span>So Max has been vomiting since when?</p>
               <p class="line owner"><span class="who">Owner:</span>Since yesterday evening. He threw up three times, mainly food and white foam.</p>
-              <p class="line"><span class="who">Dr. Ahmed:</span>Any diarrhea or blood?</p>
+              <p class="line"><span class="who">Clinician:</span>Any diarrhea or blood?</p>
               <p class="line owner"><span class="who">Owner:</span>No diarrhea, but his energy and appetite are definitely down.</p>
-              <p class="line"><span class="who">Dr. Ahmed:</span>T: 102.6 F, heart rate 120, abdomen soft and non-painful on palpation. Mild dehydration.</p>
+              <p class="line"><span class="who">Clinician:</span>T: 102.6 F, heart rate 120, abdomen soft and non-painful on palpation. Mild dehydration.</p>
             </div>
           </div>
         </div>
@@ -590,8 +591,8 @@ details.audit[open] summary i{transform:rotate(90deg);}
     <div class="app-frame">
       <div class="app-topbar">
         <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
-        <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s3')">Scribe</a><a class="current" onclick="switchScreen('s4')">SOAP Review</a><a onclick="switchScreen('s5')">Prescription</a></nav>
-        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+        <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s3')">Scribe</a><a class="current" onclick="switchScreen('s4')">SOAP Review</a><a onclick="openPrescriptionReview()">Prescriptions</a></nav>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar avatar-dyn">AD</div></div>
       </div>
       <div class="app-body">
         <div class="app-main">
@@ -615,7 +616,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
               <p style="font-size:12.5px;color:var(--ink-700);margin:0;">Maropitant (Cerenia) 16 mg PO once daily for 3 days. Bland diet (boiled chicken &amp; rice) for 48 hours. Hydration encouragement.</p>
             </div>
             <div class="btn-row" style="margin-top:14px;">
-              <button class="btn btn-primary" onclick="switchScreen('s5')"><i class="ti ti-prescription"></i>Draft Prescription</button>
+              <button class="btn btn-primary" onclick="openPrescriptionReview()"><i class="ti ti-prescription"></i>Draft Prescription</button>
               <button class="btn btn-teal" onclick="sendMainChatPrompt('Save SOAP encounter for patient Max with dietary gastroenteritis assessment')"><i class="ti ti-check"></i>Save Encounter to Odoo</button>
             </div>
           </div>
@@ -646,7 +647,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
       <div class="app-topbar">
         <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
         <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="switchScreen('s4')">SOAP</a><a class="current" onclick="openPrescriptionReview()">Prescriptions</a><a onclick="switchScreen('s6')">Execution</a></nav>
-        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar avatar-dyn">AD</div></div>
       </div>
       <div class="app-body">
         <div class="app-main">
@@ -689,7 +690,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
       <div class="app-topbar">
         <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
         <nav><a onclick="switchScreen('s1')">Dashboard</a><a onclick="openPrescriptionReview()">Prescriptions</a><a class="current" onclick="switchScreen('s6')">Execution</a></nav>
-        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar avatar-dyn">AD</div></div>
       </div>
       <div class="app-body">
         <div class="app-main">
@@ -706,8 +707,8 @@ details.audit[open] summary i{transform:rotate(90deg);}
           <div class="card">
             <p class="card-title">Save Clinical Encounter &amp; Prescription — Verified in Odoo</p>
             <div style="margin-top:6px;">
-              <div class="check-row"><span><span class="step-num">1</span>Proposal approved by Doctor (Dr. Ahmed)</span><i class="ti ti-circle-check check-ok"></i></div>
-              <div class="check-row"><span><span class="step-num">2</span>Role authorization checked (Doctor UID: 2)</span><i class="ti ti-circle-check check-ok"></i></div>
+              <div class="check-row"><span><span class="step-num">1</span>Proposal approved by <span id="approvedByWho">Administrator</span></span><i class="ti ti-circle-check check-ok"></i></div>
+              <div class="check-row"><span><span class="step-num">2</span>Role authorization checked (UID: <span id="approvedByUid">2</span>)</span><i class="ti ti-circle-check check-ok"></i></div>
               <div class="check-row"><span><span class="step-num">3</span>XML-RPC &amp; MCP write payload dispatched to Odoo 19</span><i class="ti ti-circle-check check-ok"></i></div>
               <div class="check-row"><span><span class="step-num">4</span>State updated to 'approved' in PostgreSQL database</span><i class="ti ti-circle-check check-ok"></i></div>
               <div class="check-row"><span><span class="step-num">5</span>Record read back &amp; integrity asserted</span><i class="ti ti-circle-check check-ok"></i></div>
@@ -722,7 +723,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
             <summary><i class="ti ti-chevron-right"></i>Technical Audit Log (zelix.copilot.audit)</summary>
             <div class="audit-body" id="execAuditBody">
               <div><span class="k">action:</span> vet.prescription.write (state: approved)</div>
-              <div><span class="k">actor:</span> zelix-ai · <span class="k">approved_by:</span> dr_ahmed (UID: 2)</div>
+              <div><span class="k">actor:</span> zelix-ai · <span class="k">approved_by:</span> <span id="auditApprovedBy">admin (UID: 2)</span></div>
               <div><span class="k">record_id:</span> <span id="auditRecordId">7</span> · <span class="k">ref:</span> <span id="auditRecordRef">RX/2026/00007</span></div>
               <div><span class="k">verification:</span> state = MATCH (approved)</div>
               <div><span class="k">status:</span> SUCCESS · <span class="k">latency:</span> 120ms</div>
@@ -760,7 +761,7 @@ details.audit[open] summary i{transform:rotate(90deg);}
       <div class="app-topbar">
         <div class="brand"><span class="mark"><i class="ti ti-paw"></i></span>VetCairn</div>
         <nav><a onclick="switchScreen('s1')">Dashboard</a><a class="current" onclick="switchScreen('s7')">Alerts</a><a onclick="switchScreen('s8')">AI Workspace</a></nav>
-        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar">DA</div></div>
+        <div class="right"><div class="zelix-pill"><i class="ti ti-sparkles"></i>Zelix AI</div><div class="avatar avatar-dyn">AD</div></div>
       </div>
       <div class="app-body">
         <div class="app-main">
@@ -849,21 +850,53 @@ async function checkHealth(){
   }
 }
 
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+async function loadUserIdentity(selectedRole){
+  const roleParam = selectedRole || currentRole;
+  try {
+    const res = await fetch(`${API_BASE}/api/copilot/context/identity?user_id=admin&role=${encodeURIComponent(roleParam)}`);
+    const data = await res.json();
+    if(data.status === 'success' && data.user){
+      const u = data.user;
+      const f = data.facility || {};
+      const greeting = getTimeGreeting();
+      
+      const greetingText = `${greeting}, ${u.name}`;
+      if(document.getElementById('greetingHeader')) document.getElementById('greetingHeader').innerText = greetingText;
+      if(document.getElementById('dashGreeting')) document.getElementById('dashGreeting').innerText = greetingText;
+      if(document.getElementById('dashFacilitySub')) {
+        document.getElementById('dashFacilitySub').innerText = `Here's what's happening at ${f.clinic_name || 'the practice'} today.`;
+      }
+      
+      if(document.getElementById('sideName')) document.getElementById('sideName').innerText = u.name;
+      if(document.getElementById('sideRole')) document.getElementById('sideRole').innerText = u.role || 'Veterinarian';
+      if(document.getElementById('sideAvatar')) document.getElementById('sideAvatar').innerText = u.initials;
+      if(document.getElementById('topAvatar')) document.getElementById('topAvatar').innerText = u.initials;
+      
+      // Update all .avatar-dyn badges
+      document.querySelectorAll('.avatar-dyn').forEach(el => el.innerText = u.initials);
+      
+      // Update verification & scribe clinician indicators
+      if(document.getElementById('approvedByWho')) document.getElementById('approvedByWho').innerText = u.name;
+      if(document.getElementById('approvedByUid')) document.getElementById('approvedByUid').innerText = u.id;
+      if(document.getElementById('auditApprovedBy')) document.getElementById('auditApprovedBy').innerText = `${u.login} (UID: ${u.id})`;
+      if(document.getElementById('scribeDoctorWho')) document.getElementById('scribeDoctorWho').innerText = `${u.name}:`;
+    }
+  } catch(e) {
+    console.warn('Identity load fallback notice:', e);
+  }
+}
+
 // Role Selector Changes
 document.getElementById('roleSelector').addEventListener('change', function(e){
   currentRole = e.target.value;
-  const roleNames = {
-    "doctor": { name: "Dr. Ahmed", role: "Veterinarian", avatar: "DA" },
-    "practice_manager": { name: "Sarah Khan", role: "Practice Manager", avatar: "SK" },
-    "technician": { name: "Zack Taylor", role: "Vet Technician", avatar: "ZT" },
-    "receptionist": { name: "Emma Watson", role: "Front Desk", avatar: "EW" }
-  };
-  const prof = roleNames[currentRole] || roleNames.doctor;
-  document.getElementById('sideName').innerText = prof.name;
-  document.getElementById('sideRole').innerText = prof.role;
-  document.getElementById('sideAvatar').innerText = prof.avatar;
-  document.getElementById('topAvatar').innerText = prof.avatar;
-  document.getElementById('greetingHeader').innerText = `Good morning, ${prof.name}`;
+  loadUserIdentity(currentRole);
 });
 
 // Chat Engine
@@ -1276,6 +1309,7 @@ async function approvePrescription(rxId, rxName, patientName){
 
 // Initialize
 checkHealth();
+loadUserIdentity();
 fetchDashboardSummary();
 </script>
 </body>

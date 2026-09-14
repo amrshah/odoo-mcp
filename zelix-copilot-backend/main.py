@@ -354,6 +354,48 @@ class PrescriptionApprovalPayload(BaseModel):
     user_role: Optional[str] = "veterinarian"
 
 
+@app.get("/api/copilot/context/identity")
+async def get_identity_context(user_id: Optional[str] = "admin", role: Optional[str] = None):
+    ident = odoo_adapter.identity(user_id or "admin") or {}
+    
+    # Query clinic / facility from Odoo
+    clinics = odoo_adapter.search("clinic", limit=1)
+    clinic_name = clinics[0].get("name") if clinics else "VetCairn Animal Hospital"
+    
+    # Query company
+    companies = odoo_adapter.search("company", limit=1)
+    company_name = companies[0].get("name") if companies else "Medical Practice"
+    
+    name = ident.get("name") or "Administrator"
+    effective_role_id = role or ident.get("role") or "veterinarian"
+    
+    role_manifest = roles.get(effective_role_id)
+    role_name = role_manifest.name if role_manifest else effective_role_id.replace("_", " ").title()
+    
+    # Initials
+    parts = name.split()
+    initials = "".join([p[0].upper() for p in parts if p])[:2] if parts else "US"
+    
+    return {
+        "status": "success",
+        "user": {
+            "id": ident.get("id") or 2,
+            "name": name,
+            "login": ident.get("login") or "admin",
+            "role_id": effective_role_id,
+            "role": role_name,
+            "initials": initials,
+        },
+        "facility": {
+            "clinic_name": clinic_name,
+            "company_name": company_name,
+        },
+        "roles": [
+            {"id": r.id, "name": r.name, "skills": r.skills} for r in roles.list()
+        ],
+    }
+
+
 @app.get("/api/copilot/dashboard/summary")
 async def get_dashboard_summary():
     census_tool = tools.get("get_practice_census")

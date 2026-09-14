@@ -28,6 +28,8 @@ class ZelixOdooAdapter(ApplicationAdapter):
         "product": "product.product",
         "inventory": "product.product",
         "user": "res.users",
+        "clinic": "vet.clinic",
+        "company": "res.company",
     }
 
     def __init__(
