@@ -1,0 +1,29 @@
+{
+  "name": "alamia-copilotkit-reference-ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CopilotKit Reference UI for Alamia AI Copilot Starter using AG-UI protocol",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@copilotkit/react-core": "^1.4.0",
+    "@copilotkit/react-ui": "^1.4.0",
+    "lucide-react": "^0.470.0",
+    "next": "^14.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5"
+  }
+}

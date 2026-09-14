@@ -28,13 +28,15 @@ class GetPatientRecordTool(BaseTool):
 
     def execute(self, context: EmployeeContext, **kwargs: Any) -> Optional[Dict[str, Any]]:
         patient_id = kwargs.get("patient_id")
-        if not patient_id and context.patient_context:
-            patient_id = context.patient_context.get("id")
-        if not patient_id and context.active_model in ["vet.patient", "hms.patient"]:
-            patient_id = context.active_record_id
+        if not patient_id and context.active_entity:
+            patient_id = context.active_entity.get("id")
+        if not patient_id and "patient_context" in context.metadata:
+            patient_id = context.metadata["patient_context"].get("id")
+        if not patient_id and context.metadata.get("active_model") in ["vet.patient", "hms.patient"]:
+            patient_id = context.metadata.get("active_record_id")
 
         if not patient_id:
-            return context.patient_context
+            return context.active_entity or context.metadata.get("patient_context")
 
         # Try veterinary patient first
         rec = self.adapter.get("patient", str(patient_id))
@@ -62,8 +64,10 @@ class GetVaccinationHistoryTool(BaseTool):
 
     def execute(self, context: EmployeeContext, **kwargs: Any) -> List[Dict[str, Any]]:
         patient_id = kwargs.get("patient_id")
-        if not patient_id and context.patient_context:
-            patient_id = context.patient_context.get("id")
+        if not patient_id and context.active_entity:
+            patient_id = context.active_entity.get("id")
+        if not patient_id and "patient_context" in context.metadata:
+            patient_id = context.metadata["patient_context"].get("id")
         if not patient_id:
             return []
         return self.adapter.relationships("patient", str(patient_id), "vaccinations")
@@ -87,8 +91,10 @@ class GetClinicalEncountersTool(BaseTool):
 
     def execute(self, context: EmployeeContext, **kwargs: Any) -> List[Dict[str, Any]]:
         patient_id = kwargs.get("patient_id")
-        if not patient_id and context.patient_context:
-            patient_id = context.patient_context.get("id")
+        if not patient_id and context.active_entity:
+            patient_id = context.active_entity.get("id")
+        if not patient_id and "patient_context" in context.metadata:
+            patient_id = context.metadata["patient_context"].get("id")
         if not patient_id:
             return []
         return self.adapter.relationships("patient", str(patient_id), "encounters")

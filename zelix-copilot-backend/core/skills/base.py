@@ -1,42 +1,43 @@
-"""
-core/skills/base.py
-Abstract base class and result schema for all vertical skills.
+"""Base Skill interface.
+
+Skills coordinate context, deterministic tools, reasoning, and action proposals.
+Skills must NOT directly depend on application framework APIs.
 """
 
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
-from core.skills.definition import SkillDefinition
 from core.sessions.context import EmployeeContext
+from core.skills.definition import SkillDefinition
 
 
 class SkillResult(BaseModel):
-    """Encapsulates output, synthesized response, and generated action proposals from a skill execution."""
-    success: bool = True
+    """Structured result returned by a skill execution."""
+
+    success: bool
     skill_id: str
-    response_text: str = ""
-    output: Dict[str, Any] = Field(default_factory=dict)
+    output: Any = None
     proposed_actions: List[Dict[str, Any]] = Field(default_factory=list)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
     error: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 class BaseSkill(ABC):
-    """Abstract base class for vertical, domain-specific AI workflows."""
+    """Abstract base class for all business skills."""
 
     @property
     @abstractmethod
     def definition(self) -> SkillDefinition:
-        """Returns metadata definition for this skill."""
+        """Return the skill definition metadata."""
         pass
 
     @abstractmethod
-    async def execute(
+    def execute(
         self,
         context: EmployeeContext,
         tools: Dict[str, Any],
         ai_provider: Optional[Any] = None,
-        **kwargs: Any,
+        **kwargs: Any
     ) -> SkillResult:
-        """Executes orchestrated skill workflow combining tools and AI reasoning."""
+        """Execute the business skill workflow."""
         pass

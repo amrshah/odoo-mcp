@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 from core.skills.base import BaseSkill, SkillResult
 from core.skills.definition import SkillDefinition
 from core.sessions.context import EmployeeContext
-from core.ai.provider import AIModelProvider
+from core.ai.models import ChatMessage, ChatRole
 
 
 class Patient360Skill(BaseSkill):
@@ -24,25 +24,26 @@ class Patient360Skill(BaseSkill):
             allowed_roles=["veterinarian", "doctor", "technician", "practice_manager"],
         )
 
-    async def execute(
+    def execute(
         self,
         context: EmployeeContext,
         tools: Dict[str, Any],
-        ai_provider: Optional[AIModelProvider] = None,
+        ai_provider: Optional[Any] = None,
         **kwargs: Any,
     ) -> SkillResult:
         patient_tool = tools.get("get_patient_record")
-        patient = patient_tool.execute(context) if patient_tool else context.patient_context
+        patient = patient_tool.execute(context) if patient_tool else (context.active_entity or context.metadata.get("patient_context"))
 
         if not patient:
+            no_patient_text = (
+                "### Patient Record Synthesis\n"
+                "No specific patient record was loaded in the current view.\n\n"
+                "Please select or open a Patient record in Odoo to generate a comprehensive longitudinal summary."
+            )
             return SkillResult(
                 success=True,
                 skill_id=self.definition.id,
-                response_text=(
-                    "### Patient Record Synthesis\n"
-                    "No specific patient record was loaded in the current view.\n\n"
-                    "Please select or open a Patient record in Odoo to generate a comprehensive longitudinal summary."
-                ),
+                output={"response_text": no_patient_text},
             )
 
         name = patient.get("name", "Unknown Patient")
@@ -72,19 +73,23 @@ class Patient360Skill(BaseSkill):
         )
 
         messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Summarize patient {name} ({ident})"},
+            ChatMessage(role=ChatRole.SYSTEM, content=system_prompt),
+            ChatMessage(role=ChatRole.USER, content=f"Summarize patient {name} ({ident})"),
         ]
 
         if ai_provider:
             try:
-                res = await ai_provider.chat_complete(messages=messages, max_tokens=400)
+                res = ai_provider.chat(messages=messages, max_tokens=400)
                 return SkillResult(
                     success=True,
                     skill_id=self.definition.id,
-                    response_text=res.content,
-                    output={"patient": patient, "vaccinations": vax_list, "encounters": enc_list},
-                    metadata={"model": res.model, "tokens": res.total_tokens},
+                    output={
+                        "response_text": res.content,
+                        "patient": patient,
+                        "vaccinations": vax_list,
+                        "encounters": enc_list,
+                    },
+                    metadata={"model": res.model, "tokens": res.usage.get("total_tokens", 0)},
                 )
             except Exception:
                 pass
@@ -101,7 +106,6 @@ class Patient360Skill(BaseSkill):
         return SkillResult(
             success=True,
             skill_id=self.definition.id,
-            response_text=fallback_text,
-            output={"patient": patient},
+            output={"response_text": fallback_text, "patient": patient},
             metadata={"model": "deterministic-ehr-fallback"},
         )

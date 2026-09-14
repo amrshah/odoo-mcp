@@ -9,8 +9,8 @@ from typing import Any, Dict, Optional
 from core.skills.base import BaseSkill, SkillResult
 from core.skills.definition import SkillDefinition
 from core.sessions.context import EmployeeContext
-from core.actions.proposal import ActionProposal, RiskLevel
-from core.ai.provider import AIModelProvider
+from core.actions.proposal import ActionProposal
+from core.ai.models import ChatMessage, ChatRole
 
 
 class VoiceToSoapSkill(BaseSkill):
@@ -27,16 +27,16 @@ class VoiceToSoapSkill(BaseSkill):
             allowed_roles=["veterinarian", "doctor"],
         )
 
-    async def execute(
+    def execute(
         self,
         context: EmployeeContext,
         tools: Dict[str, Any],
-        ai_provider: Optional[AIModelProvider] = None,
+        ai_provider: Optional[Any] = None,
         **kwargs: Any,
     ) -> SkillResult:
         user_input = kwargs.get("user_input", "")
         patient_tool = tools.get("get_patient_record")
-        patient = patient_tool.execute(context) if patient_tool else context.patient_context
+        patient = patient_tool.execute(context) if patient_tool else (context.active_entity or context.metadata.get("patient_context"))
 
         patient_name = patient.get("name", "Patient") if patient else "Patient"
         patient_id = patient.get("id", 1) if patient else 1
@@ -48,14 +48,14 @@ class VoiceToSoapSkill(BaseSkill):
         )
 
         messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Consultation transcript / findings:\n{user_input or 'Routine wellness exam with mild dehydration and dietary indiscretion.'}"},
+            ChatMessage(role=ChatRole.SYSTEM, content=system_prompt),
+            ChatMessage(role=ChatRole.USER, content=f"Consultation transcript / findings:\n{user_input or 'Routine wellness exam with mild dehydration and dietary indiscretion.'}"),
         ]
 
         soap_text = ""
         if ai_provider:
             try:
-                res = await ai_provider.chat_complete(messages=messages, max_tokens=500)
+                res = ai_provider.chat(messages=messages, max_tokens=500)
                 soap_text = res.content
             except Exception:
                 pass
@@ -91,7 +91,7 @@ class VoiceToSoapSkill(BaseSkill):
                 "assessment": "Acute Dietary Gastroenteritis",
                 "summary": f"SOAP note for {patient_name}",
             },
-            risk_level=RiskLevel.HIGH,
+            risk_level="HIGH",
             required_permission="medical_records.write",
             requires_confirmation=True,
             created_by=context.user_id,
@@ -100,8 +100,7 @@ class VoiceToSoapSkill(BaseSkill):
         return SkillResult(
             success=True,
             skill_id=self.definition.id,
-            response_text=soap_text,
-            output={"patient_id": patient_id, "soap_draft": soap_text},
+            output={"patient_id": patient_id, "soap_draft": soap_text, "response_text": soap_text},
             proposed_actions=[proposal.model_dump()],
             metadata={"risk_level": "HIGH", "action_id": proposal.action_id},
         )

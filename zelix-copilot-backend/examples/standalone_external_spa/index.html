@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Standalone External SPA — Connecting to Alamia Copilot via AG-UI</title>
+  <!-- Vue 3 and Tailwind CSS via CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+  <div id="app" class="flex flex-col h-screen">
+    
+    <!-- Top Header -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between shrink-0 shadow-md">
+      <div class="flex items-center space-x-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow">
+          <i class="fa-brands fa-vuejs text-base"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-sm text-white flex items-center">
+            External Standalone SPA (Port 8080)
+            <span class="ml-2 px-2 py-0.5 text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-700 rounded-full">Vue 3 Client</span>
+          </h1>
+          <p class="text-[11px] text-slate-400">Connected to Alamia Copilot Runtime via open REST / AG-UI protocol</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 text-xs">
+        <div class="flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+          <span class="text-slate-400">Target Backend:</span>
+          <input v-model="backendUrl" class="bg-transparent text-indigo-400 font-mono text-xs focus:outline-none w-44" />
+        </div>
+        <div class="flex items-center space-x-1.5 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+          <span class="text-slate-400">Role:</span>
+          <select v-model="activeRole" class="bg-transparent text-amber-400 font-semibold focus:outline-none cursor-pointer">
+            <option value="finance_assistant">Finance Assistant</option>
+            <option value="executive_assistant">Executive Assistant</option>
+            <option value="read_only_viewer">Read-Only Viewer</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid (Chat + Protocol Inspector) -->
+    <div class="grid grid-cols-12 flex-1 overflow-hidden">
+      
+      <!-- Left: Conversational Client (7 Cols) -->
+      <section class="col-span-7 bg-slate-950 flex flex-col overflow-hidden border-r border-slate-800">
+        <!-- Quick Action Chips -->
+        <div class="px-5 py-2.5 bg-slate-900/70 border-b border-slate-800 flex items-center space-x-2 overflow-x-auto shrink-0">
+          <span class="text-[10px] font-bold uppercase text-slate-500 shrink-0">Quick Queries:</span>
+          <button @click="sendQuery('Show me customer 101')" class="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 shrink-0 transition">
+            Show Customer 101
+          </button>
+          <button @click="sendQuery('What invoices are overdue?')" class="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 shrink-0 transition">
+            Overdue Invoices
+          </button>
+          <button @click="sendQuery('Give me my daily operational briefing')" class="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 shrink-0 transition">
+            Daily Briefing
+          </button>
+          <button @click="sendQuery('Follow up on overdue payments')" class="px-2.5 py-1 text-[11px] bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 font-medium rounded border border-amber-800 shrink-0 transition">
+            Follow up Overdue (HITL)
+          </button>
+        </div>
+
+        <!-- Chat Message Log -->
+        <div class="flex-1 overflow-y-auto p-5 space-y-4" ref="chatContainer">
+          <div v-for="(msg, idx) in messages" :key="idx" :class="msg.role === 'user' ? 'flex justify-end' : 'flex items-start space-x-3'">
+            <div v-if="msg.role === 'assistant'" class="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 text-xs text-white shadow">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            
+            <div :class="msg.role === 'user' ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 max-w-[80%] text-xs shadow' : 'bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-3.5 max-w-[85%] text-xs text-slate-200 shadow-sm space-y-2'">
+              <div>{{ msg.text }}</div>
+
+              <!-- Generative UI: Customer 360 Card -->
+              <div v-if="msg.customerCard" class="mt-2 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <div class="flex justify-between items-center pb-1.5 border-b border-slate-800 text-xs">
+                  <span class="font-bold text-white">{{ msg.customerCard.name }}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 uppercase font-bold">{{ msg.customerCard.tier || 'standard' }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[11px] pt-2">
+                  <div>Email: <span class="text-slate-400">{{ msg.customerCard.email }}</span></div>
+                  <div>Balance: <span class="text-emerald-400 font-bold font-mono">${{ msg.customerCard.balance }}</span></div>
+                </div>
+              </div>
+
+              <!-- Generative UI: Overdue Invoices List -->
+              <div v-if="msg.overdueInvoices" class="mt-2 p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+                <div class="text-[10px] font-bold uppercase text-slate-400 mb-1 flex justify-between">
+                  <span>Overdue Invoices</span>
+                  <span class="text-red-400">${{ msg.totalOverdue }} total</span>
+                </div>
+                <div v-for="inv in msg.overdueInvoices" :key="inv.id" class="flex justify-between text-[11px] font-mono py-0.5 border-b border-slate-800/60 last:border-0">
+                  <span class="text-slate-300">{{ inv.id }} ({{ inv.customer_id }})</span>
+                  <span class="text-red-400 font-bold">${{ inv.amount.toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <!-- Interactive HITL Confirmation Modal -->
+              <div v-if="msg.pendingAction" class="mt-2.5 p-3.5 bg-amber-950/40 border-2 border-amber-500/60 rounded-xl space-y-2 shadow-md">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold uppercase text-amber-300 flex items-center">
+                    <i class="fa-solid fa-hand text-amber-400 mr-1.5"></i> Human Confirmation Required
+                  </span>
+                  <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-900 text-amber-200 border border-amber-700 uppercase font-mono">
+                    {{ msg.pendingAction.risk_level }} RISK
+                  </span>
+                </div>
+                <div class="text-slate-100 font-semibold text-xs">Action: <code class="text-amber-200 font-mono">{{ msg.pendingAction.action_type }}</code></div>
+                <div class="text-slate-300 text-[11px]">{{ msg.pendingAction.reason }}</div>
+                
+                <div v-if="!msg.pendingAction.resolved" class="flex justify-end space-x-2 pt-2 border-t border-amber-900/60">
+                  <button @click="resolveAction(msg.pendingAction.action_id, 'reject', msg)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-semibold text-xs transition">
+                    Reject
+                  </button>
+                  <button @click="resolveAction(msg.pendingAction.action_id, 'confirm', msg)" class="px-3.5 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded text-xs transition shadow flex items-center space-x-1">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                    <span>Confirm & Execute</span>
+                  </button>
+                </div>
+                <div v-else :class="msg.pendingAction.resolved === 'confirm' ? 'text-emerald-400 font-bold text-xs pt-1' : 'text-slate-400 font-medium text-xs pt-1'">
+                  <i :class="msg.pendingAction.resolved === 'confirm' ? 'fa-solid fa-circle-check mr-1' : 'fa-solid fa-ban mr-1'"></i>
+                  Action was {{ msg.pendingAction.resolved === 'confirm' ? 'Confirmed & Executed' : 'Rejected' }}!
+                </div>
+              </div>
+
+              <!-- Security Policy Rejection Banner -->
+              <div v-if="msg.securityError" class="mt-2 p-3 bg-red-950/60 border border-red-800/80 rounded-xl text-xs space-y-1">
+                <div class="text-red-400 font-bold flex items-center">
+                  <i class="fa-solid fa-shield-halved mr-1.5"></i> Security Policy Rejection
+                </div>
+                <div class="text-slate-300">{{ msg.securityError }}</div>
+              </div>
+            </div>
+
+            <div v-if="msg.role === 'user'" class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-xs text-slate-300 shadow">
+              <i class="fa-solid fa-user"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="p-3.5 bg-slate-900 border-t border-slate-800 shrink-0">
+          <form @submit.prevent="handleSubmit" class="flex items-center space-x-2">
+            <input 
+              v-model="inputQuery" 
+              type="text" 
+              placeholder="Type natural language query (e.g. 'Show customer 101', 'Follow up on overdue payments')..." 
+              class="flex-1 bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none shadow-inner"
+            />
+            <button 
+              type="submit" 
+              :disabled="loading"
+              class="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow transition flex items-center space-x-1.5"
+            >
+              <span>Send</span>
+              <i class="fa-solid fa-paper-plane text-[10px]"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right: Live AG-UI Protocol & SSE Inspector (5 Cols) -->
+      <section class="col-span-5 bg-slate-900/90 flex flex-col overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between shrink-0 bg-slate-900">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-satellite-dish text-indigo-400 text-xs"></i>
+            <h2 class="font-semibold text-xs text-slate-200 uppercase tracking-wider">AG-UI Protocol Inspector</h2>
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono">Open SSE / JSON-RPC</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-2 bg-slate-950" ref="eventContainer">
+          <div v-if="events.length === 0" class="text-slate-600 text-xs italic p-2">[Awaiting protocol events from backend...]</div>
+          <div v-for="(ev, idx) in events" :key="idx" class="p-2.5 bg-slate-900 rounded-lg border border-slate-800 shadow-sm">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-indigo-400 font-bold text-[10px]">{{ ev.type }}</span>
+              <span class="text-[9px] text-slate-500">{{ ev.time }}</span>
+            </div>
+            <pre class="text-[10px] text-slate-300 overflow-x-auto leading-tight">{{ JSON.stringify(ev.payload, null, 2) }}</pre>
+          </div>
+        </div>
+
+        <div class="p-3 border-t border-slate-800 bg-slate-900 flex justify-between items-center text-xs text-slate-400 shrink-0">
+          <span>Protocol Events Received:</span>
+          <span class="font-bold text-indigo-400 font-mono">{{ events.length }}</span>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, nextTick } = Vue;
+
+    createApp({
+      setup() {
+        const backendUrl = ref("http://localhost:8000");
+        const activeRole = ref("finance_assistant");
+        const inputQuery = ref("");
+        const loading = ref(false);
+        const chatContainer = ref(null);
+        const eventContainer = ref(null);
+
+        const messages = ref([
+          {
+            role: "assistant",
+            text: "Hello from the External Vue 3 SPA! I connect directly to the Alamia Copilot runtime over open REST and AG-UI protocols.",
+          }
+        ]);
+
+        const events = ref([]);
+
+        const logEvent = (type, payload) => {
+          events.value.unshift({
+            type,
+            payload,
+            time: new Date().toLocaleTimeString(),
+          });
+        };
+
+        const scrollToBottom = () => {
+          nextTick(() => {
+            if (chatContainer.value) {
+              chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+            }
+          });
+        };
+
+        const sendQuery = async (queryText) => {
+          inputQuery.value = queryText;
+          await handleSubmit();
+        };
+
+        const handleSubmit = async () => {
+          const q = inputQuery.value.trim();
+          if (!q) return;
+
+          messages.value.push({ role: "user", text: q });
+          inputQuery.value = "";
+          loading.value = true;
+          scrollToBottom();
+
+          logEvent("RUN_STARTED", { query: q, role: activeRole.value, protocol: "AG-UI / JSON-RPC" });
+
+          try {
+            const res = await fetch(`${backendUrl.value}/api/copilot/chat`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ query: q, role: activeRole.value }),
+            });
+            const data = await res.json();
+            loading.value = false;
+
+            logEvent("RUN_FINISHED", data);
+
+            // Construct assistant message
+            const assistantMsg = {
+              role: "assistant",
+              text: data.message || "",
+            };
+
+            // Generative Customer 360 card
+            if (data.skill_id === "customer_360" && data.output && data.output.customer) {
+              assistantMsg.customerCard = data.output.customer;
+            }
+
+            // Generative Overdue Invoices
+            if (data.skill_id === "invoice_query" && data.output && data.output.overdue_invoices) {
+              assistantMsg.overdueInvoices = data.output.overdue_invoices;
+              assistantMsg.totalOverdue = data.output.total_overdue.toFixed(2);
+            }
+
+            // HITL Confirmation
+            if (data.proposed_actions && data.proposed_actions.length > 0) {
+              assistantMsg.pendingAction = {
+                ...data.proposed_actions[0],
+                resolved: null,
+              };
+              logEvent("INTERRUPT", { prompt: assistantMsg.pendingAction.reason, action_id: assistantMsg.pendingAction.action_id });
+            }
+
+            // Security Error
+            if (!data.success && data.error) {
+              assistantMsg.securityError = data.error;
+            }
+
+            messages.value.push(assistantMsg);
+            scrollToBottom();
+          } catch (err) {
+            loading.value = false;
+            messages.value.push({
+              role: "assistant",
+              text: `Connection failed: ${err.message}. Make sure Alamia backend is running at ${backendUrl.value}`,
+            });
+            scrollToBottom();
+          }
+        };
+
+        const resolveAction = async (actionId, decision, msg) => {
+          logEvent("ACTION_RESOLUTION_REQUEST", { action_id: actionId, decision });
+          try {
+            const res = await fetch(`${backendUrl.value}/api/action/${decision}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action_id: actionId, role: activeRole.value }),
+            });
+            const data = await res.json();
+            msg.pendingAction.resolved = decision;
+            logEvent(decision === 'confirm' ? "ACTION_CONFIRMED" : "ACTION_REJECTED", data);
+          } catch (e) {
+            alert(`Failed: ${e.message}`);
+          }
+        };
+
+        return {
+          backendUrl,
+          activeRole,
+          inputQuery,
+          loading,
+          messages,
+          events,
+          chatContainer,
+          eventContainer,
+          sendQuery,
+          handleSubmit,
+          resolveAction,
+        };
+      }
+    }).mount("#app");
+  </script>
+</body>
+</html>

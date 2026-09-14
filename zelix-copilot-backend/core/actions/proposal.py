@@ -1,43 +1,44 @@
-"""
-core/actions/proposal.py
-Human-in-the-Loop Action Proposal & State Machine.
+"""Action Proposal module.
+
+Every meaningful mutation must first become a structured ActionProposal.
+Backend policies determine whether intent is permitted and whether confirmation is required.
 """
 
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field
 
 
-class RiskLevel(str, Enum):
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
-
-
 class ActionStatus(str, Enum):
-    PROPOSED = "proposed"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-    EXECUTED = "executed"
-    FAILED = "failed"
+    """Lifecycle states for an ActionProposal."""
+
+    PROPOSED = "PROPOSED"
+    AWAITING_CONFIRMATION = "AWAITING_CONFIRMATION"
+    CONFIRMED = "CONFIRMED"
+    EXECUTING = "EXECUTING"
+    COMPLETED = "COMPLETED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+    FAILED = "FAILED"
 
 
 class ActionProposal(BaseModel):
-    """Structured proposal for an external mutation requiring human confirmation or policy clearance."""
+    """Structured proposal representing an intent to mutate system state."""
+
     action_id: str
     action_type: str
     idempotency_key: str
-    title: Optional[str] = None
-    description: Optional[str] = None
-    target: Dict[str, Any] = Field(default_factory=dict)
-    target_model: Optional[str] = None
-    target_method: str = "create"
+    target: Dict[str, Any]
     reason: str
     proposed_changes: Dict[str, Any] = Field(default_factory=dict)
-    payload: Dict[str, Any] = Field(default_factory=dict)
-    risk_level: RiskLevel = RiskLevel.MEDIUM
-    required_permission: Optional[str] = None
-    requires_confirmation: bool = True
+    risk_level: str = "LOW"
+    required_permission: str = ""
+    requires_confirmation: bool = False
     status: ActionStatus = ActionStatus.PROPOSED
-    created_by: str = "copilot_engine"
-    execution_result: Optional[Dict[str, Any]] = None
+    created_by: str
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    executed_at: Optional[str] = None
+    result: Optional[Any] = None
+    error: Optional[str] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)

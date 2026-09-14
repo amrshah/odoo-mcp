@@ -24,11 +24,11 @@ class ClinicActivitySkill(BaseSkill):
             allowed_roles=["practice_manager", "veterinarian", "doctor", "technician", "receptionist", "admin"],
         )
 
-    async def execute(
+    def execute(
         self,
         context: EmployeeContext,
         tools: Dict[str, Any],
-        ai_provider: Optional[AIModelProvider] = None,
+        ai_provider: Optional[Any] = None,
         **kwargs: Any,
     ) -> SkillResult:
         census_tool = tools.get("get_practice_census")
@@ -66,8 +66,8 @@ class ClinicActivitySkill(BaseSkill):
         return SkillResult(
             success=True,
             skill_id=self.definition.id,
-            response_text=response_text,
             output={
+                "response_text": response_text,
                 "total_patients": total_pts,
                 "scheduled_today": total_sched,
                 "encounters": vet_encs,

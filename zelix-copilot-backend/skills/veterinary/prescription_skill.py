@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 from core.skills.base import BaseSkill, SkillResult
 from core.skills.definition import SkillDefinition
 from core.sessions.context import EmployeeContext
-from core.actions.proposal import ActionProposal, RiskLevel
+from core.actions.proposal import ActionProposal
 from core.ai.provider import AIModelProvider
 
 
@@ -26,16 +26,16 @@ class PrescriptionSafetySkill(BaseSkill):
             allowed_roles=["veterinarian", "doctor"],
         )
 
-    async def execute(
+    def execute(
         self,
         context: EmployeeContext,
         tools: Dict[str, Any],
-        ai_provider: Optional[AIModelProvider] = None,
+        ai_provider: Optional[Any] = None,
         **kwargs: Any,
     ) -> SkillResult:
         user_input = kwargs.get("user_input", "")
         patient_tool = tools.get("get_patient_record")
-        patient = patient_tool.execute(context) if patient_tool else context.patient_context
+        patient = patient_tool.execute(context) if patient_tool else (context.active_entity or context.metadata.get("patient_context"))
 
         patient_name = patient.get("name", "Max") if patient else "Max"
         patient_id = patient.get("id", 1) if patient else 1
@@ -98,7 +98,7 @@ class PrescriptionSafetySkill(BaseSkill):
                 "duration": duration,
                 "instructions": instructions,
             },
-            risk_level=RiskLevel.HIGH,
+            risk_level="HIGH",
             required_permission="prescriptions.write",
             requires_confirmation=True,
             created_by=context.user_id,
@@ -107,8 +107,12 @@ class PrescriptionSafetySkill(BaseSkill):
         return SkillResult(
             success=True,
             skill_id=self.definition.id,
-            response_text=response_text,
-            output={"medication": medication, "dosage": dosage, "patient_name": patient_name},
+            output={
+                "response_text": response_text,
+                "medication": medication,
+                "dosage": dosage,
+                "patient_name": patient_name,
+            },
             proposed_actions=[proposal.model_dump()],
             metadata={"risk_level": "HIGH", "action_id": proposal.action_id},
         )

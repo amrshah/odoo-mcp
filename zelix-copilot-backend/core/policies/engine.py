@@ -1,39 +1,54 @@
-"""
-core/policies/engine.py
-Deterministic Policy Engine evaluating RBAC, risk ratings, and confirmation requirements.
+"""Policy Engine.
+
+Coordinates backend validation of permissions, risks, and confirmations for proposed operations.
 """
 
-from typing import List, Optional
-from core.sessions.context import EmployeeContext
-from core.actions.proposal import ActionProposal, RiskLevel
+from typing import Optional
+from core.actions.proposal import ActionProposal, ActionStatus
 from core.policies.confirmation import ConfirmationPolicy
+from core.policies.permission import PermissionPolicy
+from core.policies.risk import RiskPolicy
+from core.sessions.context import EmployeeContext
 
 
 class PolicyEngine:
-    """Evaluates security, permission boundaries, and risk compliance."""
+    """Evaluates security, permissions, and confirmation requirements."""
 
-    def __init__(self, confirmation_policy: Optional[ConfirmationPolicy] = None) -> None:
+    def __init__(
+        self,
+        permission_policy: Optional[PermissionPolicy] = None,
+        risk_policy: Optional[RiskPolicy] = None,
+        confirmation_policy: Optional[ConfirmationPolicy] = None,
+    ) -> None:
+        self.permission_policy = permission_policy or PermissionPolicy()
+        self.risk_policy = risk_policy or RiskPolicy()
         self.confirmation_policy = confirmation_policy or ConfirmationPolicy()
 
-    def evaluate_action(self, context: EmployeeContext, proposal: ActionProposal) -> ActionProposal:
-        """Applies confirmation policies and verifies caller permissions."""
-        # 1. Enforce confirmation policy
-        if self.confirmation_policy.requires_confirmation(proposal.action_type) or proposal.risk_level == RiskLevel.HIGH:
-            proposal.requires_confirmation = True
+    def evaluate_proposal(self, context: EmployeeContext, proposal: ActionProposal) -> ActionProposal:
+        """Evaluate an ActionProposal against all backend security policies.
+        
+        Overwrites any LLM-supplied security bypasses with backend authority.
+        """
+        # 1. Permission check
+        perm_res = self.permission_policy.evaluate(context, proposal.required_permission)
+        if not perm_res.allowed:
+            proposal.status = ActionStatus.REJECTED
+            proposal.error = f"Unauthorized: {perm_res.reason}"
+            return proposal
 
-        # 2. Check permission if specified
-        if proposal.required_permission:
-            has_perm = (
-                proposal.required_permission in context.permissions
-                or "all" in context.permissions
-                or context.role in ["veterinarian", "doctor", "practice_manager", "admin"]
-            )
-            if not has_perm:
-                proposal.requires_confirmation = True
+        # 2. Authoritative Risk calculation
+        risk_res = self.risk_policy.evaluate(proposal.action_type, proposal.risk_level)
+        proposal.risk_level = risk_res.risk_level
+
+        # 3. Authoritative Confirmation check
+        conf_res = self.confirmation_policy.evaluate(proposal.action_type, proposal.risk_level)
+        proposal.requires_confirmation = conf_res.requires_confirmation
+
+        # 4. Set appropriate status if not already explicitly CONFIRMED or in execution lifecycle
+        if proposal.status in (ActionStatus.PROPOSED, ActionStatus.AWAITING_CONFIRMATION):
+            if proposal.requires_confirmation:
+                proposal.status = ActionStatus.AWAITING_CONFIRMATION
+            else:
+                proposal.status = ActionStatus.PROPOSED
 
         return proposal
-
-    def check_permission(self, context: EmployeeContext, required_permission: str) -> bool:
-        if not required_permission or "all" in context.permissions:
-            return True
-        return required_permission in context.permissions
