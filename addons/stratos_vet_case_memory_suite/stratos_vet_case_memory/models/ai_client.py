@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+import re
 
 import requests
 
@@ -20,12 +22,14 @@ class VetCmAiClient(models.AbstractModel):
 
     @api.model
     def _complete(self, system, user, json_mode=False, mock_payload=None):
-        if self._cfg("ai_enabled") != "True":
+        env_token = os.getenv("CLOUDFLARE_API_TOKEN")
+        is_enabled = (self._cfg("ai_enabled") == "True") or bool(env_token)
+        if not is_enabled:
             raise UserError(_("The AI layer is switched off (Settings → Vet Clinical "
                               "Suggestions). Everything else works without it."))
-        provider = self._cfg("ai_provider", "mock")
-        model = self._cfg("ai_model") or False
-        key = self._cfg("ai_api_key") or False
+        provider = self._cfg("ai_provider") or ("cloudflare" if env_token else "mock")
+        model = self._cfg("ai_model") or os.getenv("CLOUDFLARE_MODEL") or False
+        key = self._cfg("ai_api_key") or env_token or False
         if provider == "mock":
             if mock_payload is not None:
                 return mock_payload
@@ -36,8 +40,8 @@ class VetCmAiClient(models.AbstractModel):
             raise UserError(_("Add the API key in Settings → Vet Clinical Suggestions."))
         try:
             if provider == "cloudflare":
-                account_id = self._cfg("cf_account_id") or "be941241fb3499e9567c7ec28528c984"
-                gateway_id = self._cfg("cf_gateway_id") or False
+                account_id = self._cfg("cf_account_id") or os.getenv("CLOUDFLARE_ACCOUNT_ID") or "be941241fb3499e9567c7ec28528c984"
+                gateway_id = self._cfg("cf_gateway_id") or os.getenv("CLOUDFLARE_GATEWAY_ID") or False
                 if gateway_id:
                     url = f"https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/workers-ai/v1/chat/completions"
                 else:
@@ -57,7 +61,6 @@ class VetCmAiClient(models.AbstractModel):
                 resp.raise_for_status()
                 content = resp.json()["choices"][0]["message"]["content"]
                 if content and "<think>" in content and "</think>" in content:
-                    import re
                     content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
                 return content
             if provider == "anthropic":

@@ -67,6 +67,37 @@ try:
 except Exception as e:
     print(f"[!] MCP param error: {e}")
 
+# 2.5 Auto-configure Alamia AI Edge settings from environment if present
+try:
+    cf_token = os.getenv("CLOUDFLARE_API_TOKEN")
+    cf_account = os.getenv("CLOUDFLARE_ACCOUNT_ID", "be941241fb3499e9567c7ec28528c984")
+    cf_gateway = os.getenv("CLOUDFLARE_GATEWAY_ID", "")
+    cf_model = os.getenv("CLOUDFLARE_MODEL", "@cf/meta/llama-3.1-8b-instruct-fp8")
+
+    if cf_token:
+        ICP = env['ir.config_parameter'].sudo()
+        # Zelix AI module config
+        ICP.set_param('zelix_ai.ai_provider', 'cloudflare')
+        ICP.set_param('zelix_ai.cf_account_id', cf_account)
+        ICP.set_param('zelix_ai.cf_api_token', cf_token)
+        ICP.set_param('zelix_ai.cf_model', cf_model)
+        if cf_gateway:
+            ICP.set_param('zelix_ai.cf_gateway_id', cf_gateway)
+
+        # Vet Case Memory module config
+        ICP.set_param('vet_cm.ai_enabled', 'True')
+        ICP.set_param('vet_cm.ai_provider', 'cloudflare')
+        ICP.set_param('vet_cm.cf_account_id', cf_account)
+        ICP.set_param('vet_cm.ai_api_key', cf_token)
+        ICP.set_param('vet_cm.ai_model', cf_model)
+        if cf_gateway:
+            ICP.set_param('vet_cm.cf_gateway_id', cf_gateway)
+
+        print(f"[+] Auto-configured Alamia AI Edge (Model: {cf_model}) for Zelix AI and Vet Case Memory!")
+        env.cr.commit()
+except Exception as e:
+    print(f"[*] Note on AI config parameter auto-provisioning: {e}")
+
 # 3. Register VetCairn, HMS, and Core models if mcp_server is available
 try:
     if 'mcp.enabled.model' in env.registry or 'mcp.enabled.model' in env:

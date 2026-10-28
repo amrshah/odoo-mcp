@@ -70,6 +70,11 @@
    - Identified `qwen3.5:4b` thinking token mechanics and requirements for production JSON extraction.
    - Approved and recorded **[`ADR 001`](file:///e:/myapps/odoo-mcp/.ai/permanent/adr/001-multi-model-tiered-routing-and-safety.md)** for Tiered VPS Routing (`gemma3:1b` + `qwen3.5:4b` + `qwen2.5:7b` + `bge-m3`).
 
+6. **Phase 6: Serverless Edge AI Gateway & Zero-Touch Deployment Automation**:
+   - Deployed Alamia AI Gateway & Edge Workers integration with Cloudflare Workers AI free tier (10,000 daily neurons).
+   - Installed `stratos_vet_case_memory_suite` without manual VPS SSH/bash commands.
+   - Portainer Stack environment variables (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_GATEWAY_ID`, `CLOUDFLARE_MODEL`) auto-provision both Zelix AI and Vet Case Memory on container start via `setup_odoo_mcp_orm.py` and direct `os.getenv` fallback in `VetCmAiClient`.
+
 ---
 
 ### ⏳ PENDING & NEXT PRIORITIES (Phase 6)

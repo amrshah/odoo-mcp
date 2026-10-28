@@ -40,6 +40,11 @@ services:
       - PASSWORD=${POSTGRES_PASSWORD:-odoo_db_password_123}
       - POSTGRES_DB=${POSTGRES_DB:-postgres}
       - ODOO_DB=${ODOO_DB:-odoo_hospital}
+      - AI_PROVIDER=${AI_PROVIDER:-cloudflare}
+      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID:-be941241fb3499e9567c7ec28528c984}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-}
+      - CLOUDFLARE_GATEWAY_ID=${CLOUDFLARE_GATEWAY_ID:-}
+      - CLOUDFLARE_MODEL=${CLOUDFLARE_MODEL:-@cf/meta/llama-3.1-8b-instruct-fp8}
     entrypoint: ["/docker-entrypoint.sh"]
     restart: unless-stopped
 
