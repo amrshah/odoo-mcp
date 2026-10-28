@@ -45,7 +45,7 @@ until pg_isready -h "${HOST:-db}" -p "${PORT:-5432}" -U "${USER:-odoo}" -d "${PO
 done
 echo "[+] PostgreSQL connection established!"
 
-ADDONS_PATH="/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons,/mnt/extra-addons/VetCairn,/mnt/extra-addons/stratos_vet_case_memory_suite"
+ADDONS_PATH="/usr/lib/python3/dist-packages/odoo/addons,/var/lib/odoo/addons/19.0,/mnt/extra-addons,/mnt/extra-addons/VetCairn,/mnt/extra-addons/stratos_vet_case_memory_suite"
 
 DB_CLI_ARGS=(
     "--db_host=${HOST:-db}"
