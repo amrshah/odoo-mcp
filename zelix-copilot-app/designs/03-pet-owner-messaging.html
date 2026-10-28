@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "tertiary-fixed-dim": "#c0c1ff", "surface-container-lowest": "#ffffff", "surface-variant": "#d8e3fb", "outline": "#707976", "on-tertiary": "#ffffff", "on-surface": "#111c2d", "surface-container-highest": "#d8e3fb", "inverse-surface": "#263143", "primary-container": "#0e4d45", "on-primary": "#ffffff", "on-error": "#ffffff", "on-tertiary-fixed-variant": "#2f2ebe", "on-secondary-fixed-variant": "#005236", "on-tertiary-container": "#a8aaff", "surface-dim": "#cfdaf2", "outline-variant": "#bfc8c5", "secondary": "#006c49", "error-container": "#ffdad6", "on-tertiary-fixed": "#07006c", "on-error-container": "#93000a", "tertiary-container": "#2c2abc", "on-background": "#111c2d", "secondary-fixed": "#6ffbbe", "surface-container": "#e7eeff", "on-surface-variant": "#404946", "on-primary-container": "#84bdb2", "primary-fixed": "#b4eee2", "on-secondary-fixed": "#002113", "on-primary-fixed-variant": "#124f47", "inverse-on-surface": "#ecf1ff", "surface-tint": "#2f685f", "on-secondary-container": "#00714d", "tertiary": "#0f00a3", "background": "#f9f9ff", "on-secondary": "#ffffff", "inverse-primary": "#98d2c7", "surface-bright": "#f9f9ff", "surface-container-high": "#dee8ff", "on-primary-fixed": "#00201c", "secondary-fixed-dim": "#4edea3", "surface-container-low": "#f0f3ff", "surface": "#f9f9ff", "tertiary-fixed": "#e1e0ff", "primary-fixed-dim": "#98d2c7", "primary": "#00352f", "error": "#ba1a1a", "secondary-container": "#6cf8bb" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.25rem", "space-xl": "2rem", "space-2xl": "3rem", "space-md": "0.875rem", "margin-desktop": "2rem", "space-sm": "0.5rem", "margin": "1rem", "margin-tablet": "1.5rem", "gutter-desktop": "1.5rem", "gutter": "1.25rem", "space-xs": "0.25rem" }, fontFamily: { "headline-sm": ["Manrope"], "label-sm": ["Hanken Grotesk"], "headline-lg": ["Manrope"], "display": ["Manrope"], "title-md": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "headline-lg-mobile": ["Manrope"], "body-md": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"], "code-vital": ["JetBrains Mono"], "headline-md": ["Manrope"] }, fontSize: { "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.025em", "fontWeight": "600" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "display": ["2.5rem", { "lineHeight": "3rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "title-md": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-lg": ["1.0625rem", { "lineHeight": "1.625rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.625rem", { "lineHeight": "2.125rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-md": ["0.9375rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "label-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "code-vital": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "500" }], "headline-md": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="ZelixVet AI Copilot Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1UGQ1m60ezexD6xhtDk7MLRgXLphdv0_s3FnWmPJday-wVRldeJIDPvD3kx-cD0X2W1J2gz50B_4putk6ttz8kTvAajVDwkiPEGr7C-MNIiufYboG_rfwcOTeSdD1dVmquYV8zTgC_YulQ_7ycRV1B-K85WC9HnZYbmqES2G6ngstirotnJ6CfFIuZE0wXYKF5IdbeWv8TjgD3oPaF28q_YNGAmju6Gz0hssoDYAfAD"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">ZelixVet Copilot</span></div><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Messaging</span></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed/30 text-on-secondary-fixed-variant"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="font-label-sm text-label-sm font-semibold tracking-wide">PMS Sync</span></div><button aria-label="Dr. Sarah Lin Clinician Profile" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-surface-container transition-colors" title="Dr. Sarah Lin, DVM"><img alt="Dr. Sarah Lin" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDofOVrdDi-tN8rVNH8aBJxuqZnz_15Hod7CGed8EHyKEmcGrXX47jnkh7CXQR9xnhmLIMYEJk4cDBT5nChOfjGt53YqoJ4kACSP0Y3sBm9USMayHEmIYm2ncXnzb2NOa2TT1hRMW-ZnoU0qH2R-IeJyujFA6AS48zMa1v_T5aLPV7PkwfMxdsgeKjvBzrwoUBGvYXnyl_YIcKuoIO-p_LfjAr5I_2pDoc_FGaFePs"></button></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full px-space-md py-space-sm space-y-space-md">
+<!-- PATIENT CONTEXT STRIP -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-md shadow-sm">
+<div class="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-secondary-fixed/20 pointer-events-none blur-xl"></div>
+<div class="flex items-center justify-between gap-space-sm relative z-10">
+<a href="{{DATA:SCREEN:SCREEN_6}}" class="flex items-center gap-space-sm min-w-0 hover:opacity-90 transition-opacity"><div class="relative flex-shrink-0"><img class="w-13 h-13 w-12 h-12 rounded-full object-cover shadow-sm" data-alt="Warm portrait photograph of a happy healthy Golden Retriever dog named Barnaby smiling warmly with soft ambient daylight in a modern veterinary clinic setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMHpsdr0zAuZ9O4JQT7oFItyIFTnKU3v_E2zvmhLZd78NooO3p7nDG3BIfjETUEeRMvo9E1DnM_ADWQaA-Fs3nH2OHsAqyJV0ZKTWQv1yAsOaoBOB_obUgqebY7Ig18EfMCY1S0A_aHeuMbMhe0UP5jbG9fBYaznq6yG8qc-kWOkdgS1KMwl2bZHxad5RMxekIUznbyr8Rst1PezZr7YtVMkTWVEH6u5rVJ0o_hnw"><span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-secondary ring-2 ring-surface-container-lowest" title="Patient Checked In"></span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs flex-wrap"><span class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">Barnaby</span><span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-code-vital">32.4 kg</span></div><span class="font-body-sm text-body-sm text-on-surface-variant truncate">Golden Retriever • Canine (6y 2m)</span><div class="flex items-center gap-1.5 mt-0.5 text-on-surface-variant"><span class="material-symbols-outlined text-[14px] text-secondary">person</span><span class="font-label-sm text-label-sm truncate">Eleanor Vance</span><span class="w-1 h-1 rounded-full bg-outline-variant"></span><span class="font-label-sm text-label-sm text-secondary font-medium">SMS &amp; Portal Active</span></div></div></a>
+<div class="flex flex-col items-end gap-1 flex-shrink-0">
+<span class="font-label-sm text-label-sm px-2.5 py-1 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed-variant font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+          Verified Rx
+        </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Room 3B</span>
+</div>
+</div>
+</div>
+<!-- AI CONTEXT SOURCE BANNER -->
+<div class="rounded-xl bg-surface-container-low p-space-sm px-space-md shadow-sm flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-1">
+<span class="font-label-sm text-label-sm text-on-tertiary-fixed font-semibold">AI Copilot Clinical Synthesis</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-code-vital">10:42 AM</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">
+        Generated from today's <span class="font-semibold text-primary">Otitis Externa SOAP Note</span> &amp; <span class="font-semibold text-primary">Treatment Plan</span>
+</p>
+</div>
+</div>
+<!-- MESSAGE TYPE SELECTOR -->
+<div class="flex flex-col space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold uppercase tracking-wider">Message Type</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">5 Templates</span>
+</div>
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+<button class="message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-primary text-on-primary shadow-sm flex items-center gap-1.5 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">assignment_turned_in</span>
+        Post-Visit Instructions
+      </button>
+<button class="message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">medication</span>
+        Medication Guidance
+      </button>
+<button class="message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">contact_support</span>
+        Follow-Up Check
+      </button>
+<button class="message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">event</span>
+        Appointment Reminder
+      </button>
+<button class="message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">science</span>
+        Lab Results
+      </button>
+</div>
+</div>
+<!-- TONE SELECTOR -->
+<div class="flex flex-col space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold uppercase tracking-wider">AI Empathy &amp; Tone Tuning</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-code-vital">Grade 5.8 Lexile</span>
+</div>
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+<button class="tone-pill flex-shrink-0 px-3 py-1.5 rounded-xl font-label-md text-label-md font-semibold bg-secondary-fixed text-on-secondary-fixed shadow-sm flex items-center gap-1 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">sentiment_satisfied</span>
+        Friendly &amp; Clear
+      </button>
+<button class="tone-pill flex-shrink-0 px-3 py-1.5 rounded-xl font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+        Professional Clinical
+      </button>
+<button class="tone-pill flex-shrink-0 px-3 py-1.5 rounded-xl font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">favorite</span>
+        Reassuring / Empathetic
+      </button>
+<button class="tone-pill flex-shrink-0 px-3 py-1.5 rounded-xl font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+        Concise Bulleted
+      </button>
+</div>
+</div>
+<!-- DUAL VIEW COMPARISON CAROUSEL/TABS -->
+<div class="flex flex-col bg-surface-container-lowest rounded-xl shadow-md overflow-hidden">
+<!-- TABS BAR -->
+<div class="flex items-center bg-surface-container p-1 rounded-t-xl">
+<button class="flex-1 py-2 rounded-lg font-label-md text-label-md font-semibold bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center gap-1.5 transition-all" id="tab-client" onclick="switchView('client')" type="button">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+        Client View
+        <span class="px-1.5 py-0.2 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed-variant text-[10px] font-bold">SMS / App</span>
+</button>
+<button class="flex-1 py-2 rounded-lg font-label-md text-label-md font-semibold text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1.5 transition-all" id="tab-clinical" onclick="switchView('clinical')" type="button"><span class="material-symbols-outlined text-[18px]">fact_check</span><span class="">Clinical Reference</span><a href="{{DATA:SCREEN:SCREEN_10}}" onclick="event.stopPropagation()" class="px-1.5 py-0.2 rounded-full bg-surface-variant text-on-surface hover:bg-primary hover:text-on-primary text-[10px] font-bold transition-colors inline-flex items-center gap-0.5" title="Open SOAP Note"><span class="material-symbols-outlined text-[11px]">open_in_new</span>SOAP Trace</a></button>
+</div>
+<!-- VIEW 1: CLIENT VIEW (PLAIN ENGLISH, WARM, COMPREHENSIBLE) -->
+<div class="p-space-md flex flex-col space-y-space-md" id="content-client">
+<!-- MESSAGE PREVIEW BUBBLE -->
+<div class="rounded-xl bg-surface-container-low p-space-md space-y-space-sm relative">
+<div class="flex items-center justify-between border-b border-surface-container pb-2 mb-1">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Preview: Dr. Sarah Lin • ZelixVet Care</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-code-vital">~240 words</span>
+</div>
+<!-- Greeting -->
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+          Hi Eleanor, it was wonderful seeing you and Barnaby today! As we discussed during his visit, Barnaby has a mild bacterial ear infection in his left ear (called otitis externa). He was such a brave boy on the exam table!
+        </p>
+<!-- Medication Card Inside Msg -->
+<div class="p-space-sm rounded-lg bg-surface-container-lowest shadow-sm flex flex-col space-y-1">
+<div class="flex items-center gap-1.5 text-secondary">
+<span class="material-symbols-outlined text-[18px]">medication_liquid</span>
+<span class="font-title-md text-title-md font-bold text-primary">Posatex Otic Drops</span>
+</div>
+<div class="bg-secondary-fixed/20 rounded-md p-2 text-on-secondary-fixed-variant">
+<p class="font-body-md text-body-md font-semibold text-primary">
+              Apply 8 drops once daily into his left ear for 7 days.
+            </p>
+<p class="font-body-sm text-body-sm mt-0.5">
+              Gently massage the base of his ear for 20 seconds after applying to help the medicine coat the canal evenly.
+            </p>
+</div>
+</div>
+<!-- Ear Drying & Caution -->
+<div class="space-y-1">
+<div class="flex items-center gap-1.5 text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[18px] text-tertiary">water_drop</span>
+<span class="font-title-md text-title-md text-primary">Care &amp; Drying Cautions:</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+            Please keep Barnaby's left ear completely dry. Avoid swimming, baths, or vigorous head dousing until we have completely re-checked his eardrum.
+          </p>
+</div>
+<!-- Warning Signs Callout -->
+<div class="p-space-sm rounded-lg bg-error-container/40 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-error text-[20px] flex-shrink-0 mt-0.5">warning</span>
+<div class="flex flex-col text-on-error-container">
+<span class="font-label-md text-label-md font-bold">Signs to watch for:</span>
+<p class="font-body-sm text-body-sm leading-snug mt-0.5">
+              If Barnaby develops a persistent head tilt, seems dizzy, or shows sudden worsening pain or excessive redness, please call our clinic immediately at (555) 019-8382.
+            </p>
+</div>
+</div>
+<!-- Scheduled Recheck -->
+<div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_month</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Scheduled Re-Check Visit</span>
+<span class="font-title-md text-title-md text-primary font-bold">Tuesday, Oct 28 • 3:15 PM</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary text-on-secondary font-label-sm text-label-sm">Booked</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic pt-1">
+          We love caring for Barnaby! Reply to this text anytime if you have questions. — Dr. Sarah Lin &amp; the ZelixVet Team
+        </p>
+</div>
+<!-- Quick Customization Buttons -->
+<div class="flex items-center gap-2 pt-1">
+<button class="flex-1 py-1.5 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+          Attach Ear Care Guide PDF
+        </button>
+<button class="py-1.5 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm flex items-center justify-center gap-1 transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">translate</span>
+          ES
+        </button>
+</div>
+</div>
+<!-- VIEW 2: CLINICAL REFERENCE (SOAP CORRELATION MAPPING) -->
+<div class="hidden p-space-md flex flex-col space-y-space-md" id="content-clinical">
+<div class="flex items-center justify-between pb-1">
+<span class="font-title-md text-title-md text-primary font-bold">SOAP Traceability Audit</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed-variant font-code-vital text-[11px] font-semibold">100% Match</span>
+</div>
+<!-- Item 1: Diagnosis -->
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary text-on-primary font-semibold">Assessment (A)</span>
+<span class="font-code-vital text-label-sm text-on-surface-variant">Line 1-2</span>
+</div>
+<p class="font-body-sm text-body-sm text-primary font-medium">SOAP: "Left ear erythema, moderate ceruminous exudate, intact tympanum. Diagnosis: Acute Otitis Externa."</p>
+<div class="p-2 rounded bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="text-secondary font-semibold">Client output:</span> "Barnaby has a mild bacterial ear infection in his left ear (called otitis externa)."
+        </div>
+</div>
+<!-- Item 2: Medication & Dosing -->
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-secondary text-on-secondary font-semibold">Plan / Rx (P)</span>
+<span class="font-code-vital text-label-sm text-on-surface-variant">Line 3-5</span>
+</div>
+<p class="font-body-sm text-body-sm text-primary font-medium">SOAP: "Rx: Posatex Otic Suspension (Orbifloxacin/Mometasone/Posaconazole) 8 gtt AS q24h x 7d."</p>
+<div class="p-2 rounded bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="text-secondary font-semibold">Client output:</span> "Apply 8 drops once daily into his left ear for 7 days. Gently massage the base..."
+        </div>
+</div>
+<!-- Item 3: Contraindications & Precautions -->
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-tertiary-container text-on-tertiary font-semibold">Precautions (P)</span>
+<span class="font-code-vital text-label-sm text-on-surface-variant">Line 6-7</span>
+</div>
+<p class="font-body-sm text-body-sm text-primary font-medium">SOAP: "Owner advised strict moisture avoidance in left canal. Warned regarding potential ototoxicity / vestibular signs."</p>
+<div class="p-2 rounded bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="text-secondary font-semibold">Client output:</span> "Please keep Barnaby's left ear completely dry... If Barnaby develops a persistent head tilt..."
+        </div>
+</div>
+<!-- Item 4: Follow-up -->
+<div class="p-space-sm rounded-lg bg-surface-container-low space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-variant text-on-surface font-semibold">Recheck (P)</span>
+<span class="font-code-vital text-label-sm text-on-surface-variant">Calendar PMS</span>
+</div>
+<p class="font-body-sm text-body-sm text-primary font-medium">SOAP: "Recheck otoscopy in 10-14 days. Booked 2024-10-28 15:15."</p>
+<div class="p-2 rounded bg-surface-container-lowest text-on-surface-variant font-body-sm text-body-sm">
+<span class="text-secondary font-semibold">Client output:</span> "Scheduled Re-Check Visit: Tuesday, Oct 28 • 3:15 PM"
+        </div>
+</div>
+</div>
+</div>
+<!-- VOICE REFINEMENT BAR (CONVERSATIONAL AI PROMPT) -->
+<div class="rounded-xl bg-surface-container-lowest p-space-md shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-tertiary">mic</span>
+<span class="font-label-md text-label-md font-semibold text-primary">Conversational Voice Refinement</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tap mic to speak</span>
+</div>
+<div class="relative flex items-center">
+<input class="w-full pl-3.5 pr-12 py-3 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md placeholder-on-surface-variant/60 focus:outline-none focus:bg-surface-container transition-all" id="refinement-input" placeholder="e.g., Remind owner to avoid swimming until re-check..." type="text">
+<button class="absolute right-1.5 w-9 h-9 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center hover:bg-tertiary-container hover:text-on-tertiary transition-all" id="mic-btn" onclick="toggleMicDictation()" title="Record Voice Modification" type="button">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+</div>
+<!-- Quick Pill Prompts for rapid clinical editing -->
+<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+<button class="flex-shrink-0 px-2.5 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm transition-all" onclick="applyQuickRefinement('Add water-proofing tips')" type="button">
+        + Water-proofing tips
+      </button>
+<button class="flex-shrink-0 px-2.5 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm transition-all" onclick="applyQuickRefinement('Emphasize finishing full 7 days')" type="button">
+        + Finish all 7 days
+      </button>
+<button class="flex-shrink-0 px-2.5 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-on-surface font-label-sm text-label-sm transition-all" onclick="applyQuickRefinement('Make it even simpler reading level')" type="button">
+        + Simplify wording
+      </button>
+</div>
+</div>
+<!-- PMS INTEGRATION DELIVERY STATUS -->
+<div class="rounded-xl bg-surface-container-low p-space-sm px-space-md flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed/50 flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">cell_tower</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1">
+<span class="font-label-sm text-label-sm text-primary font-bold truncate">Twilio SMS + ZelixVet Pet Portal</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Recipient: +1 (555) 438-9102 • Eleanor Vance</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold bg-secondary-fixed/30 px-2 py-0.5 rounded-full flex-shrink-0">Authorized</span>
+</div>
+<!-- BOTTOM ACTION BAR -->
+<div class="pt-space-xs pb-space-sm flex flex-col space-y-space-sm">
+<!-- Action buttons -->
+<div class="flex items-center gap-space-sm">
+<button class="flex-1 py-3 px-space-md rounded-xl bg-surface-container-lowest text-on-surface hover:bg-surface-container shadow-sm font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]" id="copy-btn" onclick="copyInstructions()" type="button">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span id="copy-label" class="">Copy Text</span>
+</button>
+<button class="flex-[2] py-3 px-space-md rounded-xl bg-primary text-on-primary shadow-md hover:bg-primary-container font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]" onclick="const btn = this; btn.innerHTML = '&lt;span class=&quot;material-symbols-outlined text-[18px] animate-spin&quot;&gt;refresh&lt;/span&gt; Dispatching SMS &amp; Pet Portal...'; btn.classList.add('opacity-80'); setTimeout(() =&gt; { btn.innerHTML = '&lt;span class=&quot;material-symbols-outlined text-[18px]&quot;&gt;check_circle&lt;/span&gt; Dispatched! Redirecting...'; btn.className = 'flex-[2] py-3 px-space-md rounded-xl bg-secondary text-on-secondary shadow-md font-label-md text-label-md font-semibold flex items-center justify-center gap-2'; setTimeout(() =&gt; { window.location.href = '{{DATA:SCREEN:SCREEN_2}}'; }, 900); }, 1100);" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+        Send to Eleanor Vance
+      </button>
+</div>
+<!-- Security & Timestamp Guarantee preview -->
+<div class="flex items-center justify-between text-on-surface-variant px-1">
+<div class="flex items-center gap-1 text-[11px] font-label-sm">
+<span class="material-symbols-outlined text-[13px] text-secondary">lock</span>
+<span class="">HIPAA &amp; VCPR Compliant Cryptographic Audit</span>
+</div>
+<span class="text-[11px] font-code-vital">Draft v1.3 • Oct 21, 10:43 AM</span>
+</div>
+</div>
+</div>
+<!-- INTERACTIVE SCRIPT FOR VOICE, TABS, AND COPY -->
+<script>
+  function switchView(viewName) {
+    const clientTab = document.getElementById('tab-client');
+    const clinicalTab = document.getElementById('tab-clinical');
+    const clientContent = document.getElementById('content-client');
+    const clinicalContent = document.getElementById('content-clinical');
+
+    if (viewName === 'client') {
+      clientTab.className = "flex-1 py-2 rounded-lg font-label-md text-label-md font-semibold bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center gap-1.5 transition-all";
+      clinicalTab.className = "flex-1 py-2 rounded-lg font-label-md text-label-md font-semibold text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1.5 transition-all";
+      clientContent.classList.remove('hidden');
+      clinicalContent.classList.add('hidden');
+    } else {
+      clinicalTab.className = "flex-1 py-2 rounded-lg font-label-md text-label-md font-semibold bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center gap-1.5 transition-all";
+      clientTab.className = "flex-1 py-2 rounded-lg font-label-md text-label-md font-semibold text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1.5 transition-all";
+      clinicalContent.classList.remove('hidden');
+      clientContent.classList.add('hidden');
+    }
+  }
+
+  function toggleMicDictation() {
+    const micBtn = document.getElementById('mic-btn');
+    const input = document.getElementById('refinement-input');
+    const isRecording = micBtn.classList.contains('bg-error');
+
+    if (!isRecording) {
+      micBtn.className = "absolute right-1.5 w-9 h-9 rounded-lg bg-error text-on-error flex items-center justify-center animate-pulse transition-all shadow-md";
+      input.placeholder = "Listening... 'Add note about peanut butter on spoon when giving drops'";
+    } else {
+      micBtn.className = "absolute right-1.5 w-9 h-9 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center hover:bg-tertiary-container hover:text-on-tertiary transition-all";
+      input.value = "Remind Eleanor to avoid swimming and use a lick mat during drops";
+      input.placeholder = "e.g., Remind owner to avoid swimming until re-check...";
+    }
+  }
+
+  function applyQuickRefinement(instruction) {
+    const input = document.getElementById('refinement-input');
+    input.value = instruction;
+    input.focus();
+  }
+
+  function copyInstructions() {
+    const copyLabel = document.getElementById('copy-label');
+    copyLabel.textContent = "Copied!";
+    setTimeout(() => {
+      copyLabel.textContent = "Copy Text";
+    }, 2000);
+  }
+
+  function sendMessagePrompt() {
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Dispatching SMS & Portal...`;
+    btn.classList.add('opacity-80');
+    setTimeout(() => {
+      btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span> Dispatched to Eleanor!`;
+      btn.className = "flex-[2] py-3 px-space-md rounded-xl bg-secondary text-on-secondary shadow-md font-label-md text-label-md font-semibold flex items-center justify-center gap-2";
+    }, 1200);
+  }
+
+  // Interactive message-type and tone pill highlighting
+  document.querySelectorAll('.message-type-pill').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.message-type-pill').forEach(b => {
+        b.className = "message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1.5";
+      });
+      this.className = "message-type-pill flex-shrink-0 px-3.5 py-2 rounded-full font-label-md text-label-md font-semibold bg-primary text-on-primary shadow-sm flex items-center gap-1.5 transition-all";
+    });
+  });
+
+  document.querySelectorAll('.tone-pill').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tone-pill').forEach(b => {
+        b.className = "tone-pill flex-shrink-0 px-3 py-1.5 rounded-xl font-label-md text-label-md font-semibold bg-surface-container text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-1";
+      });
+      this.className = "tone-pill flex-shrink-0 px-3 py-1.5 rounded-xl font-label-md text-label-md font-semibold bg-secondary-fixed text-on-secondary-fixed shadow-sm flex items-center gap-1 transition-all";
+    });
+  });
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-4px_16px_rgba(14,77,69,0.06)]" data-active-classes="text-primary font-semibold"><div class="flex items-center justify-between h-16 px-1 overflow-x-auto no-scrollbar"><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="workspace" href="{{DATA:SCREEN:SCREEN_12}}"><span class="material-symbols-outlined text-[20px]">smart_toy</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Workspace</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="voice" href="{{DATA:SCREEN:SCREEN_14}}"><span class="material-symbols-outlined text-[20px]">mic</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Voice</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="soap" href="{{DATA:SCREEN:SCREEN_10}}"><span class="material-symbols-outlined text-[20px]">assignment</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">SOAP</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="treatment" href="{{DATA:SCREEN:SCREEN_8}}"><span class="material-symbols-outlined text-[20px]">medication</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Treatment</span></a><a aria-current="page" class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] transition-colors px-1 text-primary font-semibold" data-path="messaging" href="{{DATA:SCREEN:SCREEN_4}}"><span class="material-symbols-outlined text-[20px]">chat</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Messaging</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="patients" href="{{DATA:SCREEN:SCREEN_6}}"><span class="material-symbols-outlined text-[20px]">pets</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Patients</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="history" href="{{DATA:SCREEN:SCREEN_2}}"><span class="material-symbols-outlined text-[20px]">history</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">History</span></a></div></nav>
+
+</body></html>

@@ -1,0 +1,106 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#00352f',
+          container: '#0e4d45',
+          fixed: '#b4eee2',
+          'fixed-dim': '#98d2c7',
+        },
+        'on-primary': {
+          DEFAULT: '#ffffff',
+          container: '#84bdb2',
+          fixed: '#00201c',
+          'fixed-variant': '#124f47',
+        },
+        secondary: {
+          DEFAULT: '#006c49',
+          container: '#6cf8bb',
+          fixed: '#6ffbbe',
+          'fixed-dim': '#4edea3',
+        },
+        'on-secondary': {
+          DEFAULT: '#ffffff',
+          container: '#00714d',
+          fixed: '#002113',
+          'fixed-variant': '#005236',
+        },
+        tertiary: {
+          DEFAULT: '#0f00a3',
+          container: '#2c2abc',
+          fixed: '#e1e0ff',
+          'fixed-dim': '#c0c1ff',
+        },
+        'on-tertiary': {
+          DEFAULT: '#ffffff',
+          container: '#a8aaff',
+          fixed: '#07006c',
+          'fixed-variant': '#2f2ebe',
+        },
+        surface: {
+          DEFAULT: '#f9f9ff',
+          dim: '#cfdaf2',
+          bright: '#f9f9ff',
+          container: {
+            lowest: '#ffffff',
+            low: '#f0f3ff',
+            DEFAULT: '#e7eeff',
+            high: '#dee8ff',
+            highest: '#d8e3fb',
+          },
+          variant: '#d8e3fb',
+          tint: '#2f685f',
+        },
+        'on-surface': {
+          DEFAULT: '#111c2d',
+          variant: '#404946',
+        },
+        outline: {
+          DEFAULT: '#707976',
+          variant: '#bfc8c5',
+        },
+        background: '#f9f9ff',
+        'on-background': '#111c2d',
+        error: {
+          DEFAULT: '#ba1a1a',
+          container: '#ffdad6',
+        },
+        'on-error': {
+          DEFAULT: '#ffffff',
+          container: '#93000a',
+        },
+        'inverse-surface': '#263143',
+        'inverse-on-surface': '#ecf1ff',
+        'inverse-primary': '#98d2c7',
+      },
+      fontFamily: {
+        display: ['Manrope', 'sans-serif'],
+        headline: ['Manrope', 'sans-serif'],
+        'headline-sm': ['Manrope', 'sans-serif'],
+        'headline-md': ['Manrope', 'sans-serif'],
+        'headline-lg': ['Manrope', 'sans-serif'],
+        body: ['Hanken Grotesk', 'sans-serif'],
+        'body-sm': ['Hanken Grotesk', 'sans-serif'],
+        'body-md': ['Hanken Grotesk', 'sans-serif'],
+        'body-lg': ['Hanken Grotesk', 'sans-serif'],
+        label: ['Hanken Grotesk', 'sans-serif'],
+        'label-sm': ['Hanken Grotesk', 'sans-serif'],
+        'label-md': ['Hanken Grotesk', 'sans-serif'],
+        'title-md': ['Hanken Grotesk', 'sans-serif'],
+        'code-vital': ['JetBrains Mono', 'monospace'],
+      },
+      borderRadius: {
+        sm: '0.25rem',
+        DEFAULT: '0.5rem',
+        md: '0.75rem',
+        lg: '1rem',
+        xl: '1.5rem',
+      },
+    },
+  },
+  plugins: [],
+};

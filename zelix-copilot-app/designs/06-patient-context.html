@@ -1,0 +1,373 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "tertiary-fixed-dim": "#c0c1ff", "surface-container-lowest": "#ffffff", "surface-variant": "#d8e3fb", "outline": "#707976", "on-tertiary": "#ffffff", "on-surface": "#111c2d", "surface-container-highest": "#d8e3fb", "inverse-surface": "#263143", "primary-container": "#0e4d45", "on-primary": "#ffffff", "on-error": "#ffffff", "on-tertiary-fixed-variant": "#2f2ebe", "on-secondary-fixed-variant": "#005236", "on-tertiary-container": "#a8aaff", "surface-dim": "#cfdaf2", "outline-variant": "#bfc8c5", "secondary": "#006c49", "error-container": "#ffdad6", "on-tertiary-fixed": "#07006c", "on-error-container": "#93000a", "tertiary-container": "#2c2abc", "on-background": "#111c2d", "secondary-fixed": "#6ffbbe", "surface-container": "#e7eeff", "on-surface-variant": "#404946", "on-primary-container": "#84bdb2", "primary-fixed": "#b4eee2", "on-secondary-fixed": "#002113", "on-primary-fixed-variant": "#124f47", "inverse-on-surface": "#ecf1ff", "surface-tint": "#2f685f", "on-secondary-container": "#00714d", "tertiary": "#0f00a3", "background": "#f9f9ff", "on-secondary": "#ffffff", "inverse-primary": "#98d2c7", "surface-bright": "#f9f9ff", "surface-container-high": "#dee8ff", "on-primary-fixed": "#00201c", "secondary-fixed-dim": "#4edea3", "surface-container-low": "#f0f3ff", "surface": "#f9f9ff", "tertiary-fixed": "#e1e0ff", "primary-fixed-dim": "#98d2c7", "primary": "#00352f", "error": "#ba1a1a", "secondary-container": "#6cf8bb" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.25rem", "space-xl": "2rem", "space-2xl": "3rem", "space-md": "0.875rem", "margin-desktop": "2rem", "space-sm": "0.5rem", "margin": "1rem", "margin-tablet": "1.5rem", "gutter-desktop": "1.5rem", "gutter": "1.25rem", "space-xs": "0.25rem" }, fontFamily: { "headline-sm": ["Manrope"], "label-sm": ["Hanken Grotesk"], "headline-lg": ["Manrope"], "display": ["Manrope"], "title-md": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "headline-lg-mobile": ["Manrope"], "body-md": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"], "code-vital": ["JetBrains Mono"], "headline-md": ["Manrope"] }, fontSize: { "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.025em", "fontWeight": "600" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "display": ["2.5rem", { "lineHeight": "3rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "title-md": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-lg": ["1.0625rem", { "lineHeight": "1.625rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.625rem", { "lineHeight": "2.125rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-md": ["0.9375rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "label-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "code-vital": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "500" }], "headline-md": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="ZelixVet AI Copilot Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1UGQ1m60ezexD6xhtDk7MLRgXLphdv0_s3FnWmPJday-wVRldeJIDPvD3kx-cD0X2W1J2gz50B_4putk6ttz8kTvAajVDwkiPEGr7C-MNIiufYboG_rfwcOTeSdD1dVmquYV8zTgC_YulQ_7ycRV1B-K85WC9HnZYbmqES2G6ngstirotnJ6CfFIuZE0wXYKF5IdbeWv8TjgD3oPaF28q_YNGAmju6Gz0hssoDYAfAD"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">ZelixVet Copilot</span></div><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Patients</span></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed/30 text-on-secondary-fixed-variant"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="font-label-sm text-label-sm font-semibold tracking-wide">PMS Sync</span></div><button aria-label="Dr. Sarah Lin Clinician Profile" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-surface-container transition-colors" title="Dr. Sarah Lin, DVM"><img alt="Dr. Sarah Lin" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDofOVrdDi-tN8rVNH8aBJxuqZnz_15Hod7CGed8EHyKEmcGrXX47jnkh7CXQR9xnhmLIMYEJk4cDBT5nChOfjGt53YqoJ4kACSP0Y3sBm9USMayHEmIYm2ncXnzb2NOa2TT1hRMW-ZnoU0qH2R-IeJyujFA6AS48zMa1v_T5aLPV7PkwfMxdsgeKjvBzrwoUBGvYXnyl_YIcKuoIO-p_LfjAr5I_2pDoc_FGaFePs"></button></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive Toast Notification container (Micro-interaction) -->
+<div class="fixed top-20 left-4 right-4 z-50 transform -translate-y-28 opacity-0 transition-all duration-300 pointer-events-none flex items-center justify-between p-space-md rounded-xl bg-primary text-on-primary shadow-xl" id="toast-notify">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-secondary-container">check_circle</span>
+<span class="font-body-sm text-body-sm font-semibold" id="toast-text">Action recorded to patient chart</span>
+</div>
+<span class="font-code-vital text-[11px] opacity-75">SYNCED</span>
+</div>
+<div class="px-space-md py-space-sm flex flex-col gap-space-md max-w-xl mx-auto w-full">
+<!-- 1. Patient Master Identification Card (Bento Top) -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest shadow-md p-space-md flex flex-col gap-space-md">
+<!-- Ambient gentle teal background glow -->
+<div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-secondary-container/20 blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between gap-space-sm relative z-10">
+<div class="flex gap-space-md items-center min-w-0">
+<!-- Patient Avatar with Delighted Status Aura -->
+<div class="relative flex-shrink-0">
+<img class="w-16 h-16 rounded-full object-cover shadow-sm bg-surface-container-high" data-alt="Close up warm studio portrait of a friendly 5-year-old golden retriever named Barnaby, soft natural daylight, shallow depth of field, gentle expressive amber eyes, veterinary care setting backdrop with muted teal tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6CYkoqn2DzLVa_XXTgeQ0MLSWgy9PizUK2qClb9InQ5ohzNOOtyTexuzghOX50vRt8xr1Fyd_NAk40lP6LM8Ri7gBIO_X0ZCexes3QFXedm06cIOj3xkxzdKl_O2bQVR-fdrAiNEtFhLAIuBGEzJJ5FK7eRlnysy3tVGrmygoAytJYYgGzJL63Dt-PRTE0Lq0YNrNzreKUat6aJf59L-q9ualvqu_Yv5e0pi9OZs">
+<span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-secondary-fixed-dim ring-2 ring-surface-container-lowest flex items-center justify-center" title="Active Patient In-Clinic">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight truncate">Barnaby</h1>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">In Exam Room 3</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">
+              Golden Retriever • 5 yrs 2 mo • Male Neutered
+            </p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="font-code-vital text-[11px] text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded">#985141002348911</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-secondary">person</span>
+                Eleanor Vance
+              </span>
+</div>
+</div>
+</div>
+<button aria-label="Quick reload telemetry" class="p-2 rounded-lg bg-surface-container-low text-primary hover:bg-surface-container transition-colors flex-shrink-0" onclick="triggerToast('Patient telemetry refreshed from wireless collar')">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</button>
+</div>
+<!-- Quick Metrics Strip within Card -->
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs border-none relative z-10">
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">scale</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Weight Today</span>
+<div class="flex items-baseline gap-1">
+<span class="font-title-md text-title-md text-on-surface font-semibold">32.4</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">kg</span>
+<span class="font-code-vital text-[10px] text-secondary font-medium ml-1">+0.2kg</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">speed</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Body Condition</span>
+<div class="flex items-baseline gap-1">
+<span class="font-title-md text-title-md text-on-surface font-semibold">BCS 5/9</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium">Ideal</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Prominent Alerts & Contraindications Banner -->
+<div class="flex flex-col gap-space-xs">
+<!-- Critical Allergy (Bold warning, high contrast) -->
+<div class="p-space-md rounded-xl bg-error-container text-on-error-container shadow-sm flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-error text-on-error flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-error font-bold">Critical Contraindication</span>
+<span class="font-code-vital text-[10px] px-1.5 py-0.2 rounded bg-error/15 text-error">STRICT AVOID</span>
+</div>
+<p class="font-title-md text-title-md font-bold text-on-error-container mt-0.5">Penicillin Allergy</p>
+<p class="font-body-sm text-body-sm text-on-error-container/90 mt-0.5 leading-snug">Severe cutaneous erythema &amp; facial anaphylactoid flare recorded (2023). Avoid all Beta-lactams / Amoxicillin-Clavulanate.</p>
+</div>
+</div>
+<!-- Chronic Tag Alert -->
+<div class="p-space-sm px-space-md rounded-xl bg-surface-container-high text-on-surface flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-[18px] text-tertiary">spa</span>
+<div class="flex items-center gap-2 truncate">
+<span class="font-label-sm text-label-sm font-semibold text-tertiary">Chronic Condition:</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Recurrent Seasonal Atopy &amp; Bilateral Otitis Prone</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-lowest text-on-surface flex-shrink-0">Active Care Plan</span>
+</div>
+</div>
+<!-- 3. Telemetry & Vital Signs Today vs Baseline -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary">monitor_heart</span>
+<h2 class="font-title-md text-title-md text-primary">Vitals &amp; Telemetry</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded-full">Taken 14m ago by Tech Jamie</span>
+</div>
+<div class="grid grid-cols-3 gap-space-xs pt-space-xs">
+<!-- Temperature -->
+<div class="flex flex-col p-space-sm rounded-lg bg-surface-container-low items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Temp</span>
+<div class="flex items-baseline gap-0.5 my-0.5">
+<span class="font-title-md text-title-md font-bold text-on-surface">38.6</span>
+<span class="font-code-vital text-[11px] text-on-surface-variant">°C</span>
+</div>
+<span class="font-code-vital text-[10px] text-secondary font-medium">Norm: 38.3-39.2</span>
+</div>
+<!-- Heart Rate -->
+<div class="flex flex-col p-space-sm rounded-lg bg-surface-container-low items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Heart Rate</span>
+<div class="flex items-baseline gap-0.5 my-0.5">
+<span class="font-title-md text-title-md font-bold text-on-surface">88</span>
+<span class="font-code-vital text-[11px] text-on-surface-variant">bpm</span>
+</div>
+<span class="font-code-vital text-[10px] text-secondary font-medium">Norm: 70-120</span>
+</div>
+<!-- Resp Rate -->
+<div class="flex flex-col p-space-sm rounded-lg bg-surface-container-low items-center text-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Resp Rate</span>
+<div class="flex items-baseline gap-0.5 my-0.5">
+<span class="font-title-md text-title-md font-bold text-on-surface">22</span>
+<span class="font-code-vital text-[11px] text-on-surface-variant">brpm</span>
+</div>
+<span class="font-code-vital text-[10px] text-secondary font-medium">Calm • Resting</span>
+</div>
+</div>
+<!-- Weight History Sparkline / Telemetry Mini-Strip -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-lg mt-space-xs">
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">12-Month Weight Velocity</span>
+<span class="font-code-vital text-[11px] text-on-surface-variant">Stable across 4 clinical visits (32.1 - 32.4 kg)</span>
+</div>
+<!-- Inline Micro SVG Trend Sparkline -->
+<div class="flex items-center gap-1.5 flex-shrink-0">
+<svg class="w-20 h-6 overflow-visible" fill="none" viewBox="0 0 80 24">
+<path d="M 0 16 L 25 14 L 50 18 L 78 8" stroke="#006c49" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<circle class="fill-secondary" cx="78" cy="8" r="3"></circle>
+</svg>
+<span class="material-symbols-outlined text-[16px] text-secondary">trending_up</span>
+</div>
+</div>
+</div>
+<!-- 4. Active Medications & Prescriptions -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary">medication</span>
+<h2 class="font-title-md text-title-md text-primary">Active Regimens</h2>
+</div>
+<button class="text-tertiary-container hover:text-tertiary font-label-sm text-label-sm flex items-center gap-1 bg-tertiary-fixed/40 px-2 py-0.5 rounded-full transition-colors" onclick="triggerToast('Copilot checked 2 active meds for drug interactions: 0 flags')">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+          Audit Safety
+        </button>
+</div>
+<div class="flex flex-col gap-space-xs">
+<!-- Posatex Otic - Started Today -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>
+<span class="font-title-md text-[14px] text-on-surface font-semibold truncate">Posatex Otic Suspension</span>
+</div>
+<span class="font-code-vital text-[11px] px-2 py-0.5 rounded bg-secondary-fixed/50 text-on-secondary-fixed font-semibold whitespace-nowrap">Started Today</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pl-3.5">
+            8 drops q24h left ear (AS) × 7 days. Re-check scheduled for cytological clearance.
+          </p>
+</div>
+<!-- Apoquel 16mg - Chronic -->
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-1">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="w-2 h-2 rounded-full bg-outline flex-shrink-0"></span>
+<span class="font-title-md text-[14px] text-on-surface font-semibold truncate">Apoquel 16mg Tablets</span>
+</div>
+<span class="font-code-vital text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium whitespace-nowrap">Refill 2m ago</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pl-3.5">
+            1 tablet q24h as-needed during pollen surges. 14 tablets remaining in current canister.
+          </p>
+</div>
+</div>
+</div>
+<!-- 5. Recent Clinical Visits & Encounters Timeline -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary">calendar_month</span>
+<h2 class="font-title-md text-title-md text-primary">Clinical Encounters</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">3 Encounters Recorded</span>
+</div>
+<div class="relative flex flex-col gap-space-sm pt-space-xs pl-2">
+<!-- Connecting decorative background timeline strip -->
+<div class="absolute left-[17px] top-3 bottom-3 w-0.5 bg-surface-container-highest"></div>
+<!-- Visit 1: Today -->
+<div class="relative flex items-start gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center flex-shrink-0 ring-4 ring-surface-container-lowest z-10">
+<span class="material-symbols-outlined text-[14px]">stethoscope</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg min-w-0">
+<div class="flex items-center justify-between gap-1 flex-wrap">
+<span class="font-title-md text-[14px] text-on-surface font-bold">Acute Left Otitis Externa</span>
+<span class="font-label-sm text-[11px] text-secondary font-semibold bg-secondary-fixed/40 px-1.5 py-0.5 rounded">In Review</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Today, Oct 18 • Dr. Sarah Lin, DVM • Exam Room 3
+            </p>
+<div class="mt-2 flex items-center gap-2">
+<a href="{{DATA:SCREEN:SCREEN_10}}" class="font-code-vital text-[11px] text-tertiary bg-tertiary-fixed/30 hover:bg-tertiary-fixed/50 px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition-colors"><span class="material-symbols-outlined text-[13px]">mic</span> Voice Draft Generated</a>
+</div>
+</div>
+</div>
+<!-- Visit 2: Jul 14 -->
+<div class="relative flex items-start gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container text-primary flex items-center justify-center flex-shrink-0 ring-4 ring-surface-container-lowest z-10">
+<span class="material-symbols-outlined text-[14px]">vaccines</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="font-title-md text-[14px] text-on-surface font-semibold truncate">Annual Wellness &amp; Bordetella</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Completed</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Jul 14, 2024 • Dr. M. Patel • Routine exam, normal heart/lung auscultation.
+            </p>
+</div>
+</div>
+<!-- Visit 3: Mar 02 -->
+<div class="relative flex items-start gap-space-sm">
+<div class="w-6 h-6 rounded-full bg-surface-container text-primary flex items-center justify-center flex-shrink-0 ring-4 ring-surface-container-lowest z-10">
+<span class="material-symbols-outlined text-[14px]">healing</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-space-sm rounded-lg min-w-0">
+<div class="flex items-center justify-between gap-1">
+<span class="font-title-md text-[14px] text-on-surface font-semibold truncate">Paw Pad Abrasion (Right Metatarsal)</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Completed</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+              Mar 02, 2024 • Dr. Sarah Lin • Silver honey gel applied; healed in 5d.
+            </p>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. Vaccination & Preventative Care Table/List -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary">verified_user</span>
+<h2 class="font-title-md text-title-md text-primary">Preventative &amp; Vaccines</h2>
+</div>
+<div class="flex items-center gap-1 text-secondary font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+          All Compliant
+        </div>
+</div>
+<div class="grid grid-cols-1 gap-space-xs">
+<!-- Rabies -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">health_and_safety</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-[13px] text-on-surface font-semibold">Rabies 3-Year Canine</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant">Lot #DEF-8841 • Administered Jul 2023</span>
+</div>
+</div>
+<span class="font-code-vital text-[11px] px-2 py-0.5 rounded bg-surface-container font-semibold text-secondary whitespace-nowrap">Exp Oct 2026</span>
+</div>
+<!-- DHPP Booster -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">shield</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-[13px] text-on-surface font-semibold">DHPP Core (Distemper/Parvo)</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant">Annual booster verified</span>
+</div>
+</div>
+<span class="font-code-vital text-[11px] px-2 py-0.5 rounded bg-surface-container font-semibold text-secondary whitespace-nowrap">Exp Jul 2025</span>
+</div>
+<!-- Heartworm & Parasiticide -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">pest_control</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-[13px] text-on-surface font-semibold">NexGard SPECTRA (Monthly)</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant">Heartworm &amp; Tick oral chew</span>
+</div>
+</div>
+<span class="font-code-vital text-[11px] px-2 py-0.5 rounded bg-surface-container font-semibold text-secondary whitespace-nowrap">Up to date</span>
+</div>
+</div>
+</div>
+<!-- 7. Quick Clinical Action Triggers (Tactile high-touch buttons) -->
+<div class="flex flex-col gap-space-xs pt-space-xs mb-space-sm">
+<!-- Primary Action: Start Voice Consult -->
+<button class="w-full flex items-center justify-between p-space-md rounded-xl bg-primary text-on-primary shadow-md hover:bg-primary-container active:scale-[0.99] transition-all" onclick="window.location.href='{{DATA:SCREEN:SCREEN_14}}'">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[22px]">mic</span>
+</div>
+<div class="flex flex-col text-left">
+<span class="font-title-md text-title-md font-bold leading-tight">Start Voice Consult for Barnaby</span>
+<span class="font-body-sm text-body-sm text-inverse-primary">Live ambient transcription &amp; SOAP auto-generation</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-inverse-primary">arrow_forward</span>
+</button>
+<!-- Secondary Row: PMS Chart & Clinical Note -->
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="flex items-center justify-center gap-space-xs p-space-md rounded-xl bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container active:scale-[0.98] transition-all" onclick="triggerToast('Loading PMS Chart #CAN-78401 from Cornerstone...')">
+<span class="material-symbols-outlined text-[20px] text-primary">folder_open</span>
+<span class="font-label-md text-label-md font-bold truncate">Full PMS Chart</span>
+</button>
+<button class="flex items-center justify-center gap-space-xs p-space-md rounded-xl bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container active:scale-[0.98] transition-all" onclick="triggerToast('Drafting manual SOAP note for Barnaby...')">
+<span class="material-symbols-outlined text-[20px] text-secondary">post_add</span>
+<span class="font-label-md text-label-md font-bold truncate">Add Clinical Note</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+    function triggerToast(message) {
+      const toast = document.getElementById('toast-notify');
+      const text = document.getElementById('toast-text');
+      if (!toast || !text) return;
+      text.innerText = message;
+      toast.classList.remove('-translate-y-28', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-28', 'opacity-0');
+      }, 2600);
+    }
+
+    function handleVoiceTrigger() {
+      triggerToast('Connecting Ambient Mic to Room 3... Dr. Lin assigned.');
+    }
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-4px_16px_rgba(14,77,69,0.06)]" data-active-classes="text-primary font-semibold"><div class="flex items-center justify-between h-16 px-1 overflow-x-auto no-scrollbar"><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="workspace" href="{{DATA:SCREEN:SCREEN_12}}"><span class="material-symbols-outlined text-[20px]">smart_toy</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Workspace</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="voice" href="{{DATA:SCREEN:SCREEN_14}}"><span class="material-symbols-outlined text-[20px]">mic</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Voice</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="soap" href="{{DATA:SCREEN:SCREEN_10}}"><span class="material-symbols-outlined text-[20px]">assignment</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">SOAP</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="treatment" href="{{DATA:SCREEN:SCREEN_8}}"><span class="material-symbols-outlined text-[20px]">medication</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Treatment</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="messaging" href="{{DATA:SCREEN:SCREEN_4}}"><span class="material-symbols-outlined text-[20px]">chat</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Messaging</span></a><a aria-current="page" class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] transition-colors px-1 text-primary font-semibold" data-path="patients" href="{{DATA:SCREEN:SCREEN_6}}"><span class="material-symbols-outlined text-[20px]">pets</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">Patients</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors px-1" data-path="history" href="{{DATA:SCREEN:SCREEN_2}}"><span class="material-symbols-outlined text-[20px]">history</span><span class="font-label-sm text-[11px] leading-tight mt-0.5 whitespace-nowrap">History</span></a></div></nav>
+
+</body></html>

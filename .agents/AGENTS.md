@@ -32,3 +32,11 @@ Instead, you must strictly follow this read order:
 ## 6. Free-Tier Edge Inference Constraint
 - All edge gateway integrations must operate strictly within the zero-cost free tier (e.g. Cloudflare Workers AI 10,000 daily neurons).
 - Always use active model tags (e.g., `@cf/meta/llama-3.1-8b-instruct-fp8`) and strip internal `<think>` reasoning tags from model outputs before presenting to clinical workflows.
+
+## 7. 100% Complete Design Screen Conversion Invariant
+- When importing, scaffolding, or implementing user interfaces from design systems or design tool exports (e.g. Google Stitch MCP projects, Figma, etc.):
+  - **Always inventory every single screen** present in the design project (`list_screens`).
+  - **Never implement a partial subset** unless the user explicitly scopes down the task.
+  - Convert all screens into modular, production-ready components with seamless routing, preserving typography, palette tokens, and layout hierarchy.
+  - Archive all raw design source HTML/assets in a dedicated `/designs` directory for auditing and drift prevention.
+

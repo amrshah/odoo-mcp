@@ -14,6 +14,7 @@
 | **In-Odoo MCP Addon** | `addons/mcp_server` | `/mcp` | **Active (HTTP 200)** | Master switch enabled, OAuth 2.1 ready |
 | **FastMCP Standalone Server** | `odoo_mcp` | `8008/tcp` | **Active (HTTP 200)** | FastMCP 4.0.2 serving SSE on `/sse` |
 | **Zelix Copilot Backend** | `zelix_copilot` | `8010/tcp` | **Active (HTTP 200)** | Multi-model SLM orchestration backend |
+| **ZelixVet Copilot PWA** | `zelix-copilot-app` | `5173/tcp` | **Active (HTTP 200)** | Vite PWA with 11 Stitch clinical screens |
 | **Ollama Local Engine** | `localhost:11434` | `11434/tcp` | **Active (HTTP 200)** | Gemma 3 1B, Qwen 3.5 4B, Qwen 2.5 7B, DeepSeek R1 14B |
 
 ---

@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "background": "#f9f9ff", "on-tertiary-fixed": "#07006c", "error": "#ba1a1a", "secondary-container": "#6cf8bb", "inverse-primary": "#98d2c7", "on-tertiary-container": "#a8aaff", "inverse-surface": "#263143", "surface-container-high": "#dee8ff", "outline": "#707976", "primary-container": "#0e4d45", "secondary-fixed": "#6ffbbe", "on-surface-variant": "#404946", "on-tertiary": "#ffffff", "tertiary-fixed-dim": "#c0c1ff", "primary-fixed-dim": "#98d2c7", "surface-container-lowest": "#ffffff", "surface-tint": "#2f685f", "primary-fixed": "#b4eee2", "surface-variant": "#d8e3fb", "on-secondary-container": "#00714d", "inverse-on-surface": "#ecf1ff", "surface-dim": "#cfdaf2", "surface-container-highest": "#d8e3fb", "tertiary-container": "#2c2abc", "tertiary-fixed": "#e1e0ff", "surface-container-low": "#f0f3ff", "surface-container": "#e7eeff", "on-primary-fixed": "#00201c", "surface-bright": "#f9f9ff", "on-surface": "#111c2d", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-secondary-fixed-variant": "#005236", "on-error": "#ffffff", "tertiary": "#0f00a3", "on-tertiary-fixed-variant": "#2f2ebe", "on-primary-container": "#84bdb2", "on-secondary-fixed": "#002113", "on-error-container": "#93000a", "on-primary-fixed-variant": "#124f47", "primary": "#00352f", "error-container": "#ffdad6", "outline-variant": "#bfc8c5", "on-background": "#111c2d", "secondary": "#006c49", "secondary-fixed-dim": "#4edea3", "surface": "#f9f9ff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xs": "0.25rem", "space-xl": "2rem", "margin-tablet": "1.5rem", "space-md": "0.875rem", "gutter-desktop": "1.5rem", "space-lg": "1.25rem", "margin": "1rem", "space-sm": "0.5rem", "margin-desktop": "2rem", "gutter": "1.25rem", "space-2xl": "3rem" }, fontFamily: { "body-md": ["Hanken Grotesk"], "headline-lg-mobile": ["Manrope"], "body-lg": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "display": ["Manrope"], "title-md": ["Hanken Grotesk"], "label-sm": ["Hanken Grotesk"], "headline-sm": ["Manrope"], "code-vital": ["JetBrains Mono"], "headline-lg": ["Manrope"], "headline-md": ["Manrope"], "label-md": ["Hanken Grotesk"] }, fontSize: { "body-md": ["0.9375rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.625rem", { "lineHeight": "2.125rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-lg": ["1.0625rem", { "lineHeight": "1.625rem", "fontWeight": "400" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "display": ["2.5rem", { "lineHeight": "3rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "title-md": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.025em", "fontWeight": "600" }], "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "code-vital": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "500" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-md": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(14,77,69,0.05)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs min-w-0"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:text-primary transition-colors shrink-0" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-title-md text-title-md text-on-surface truncate">Settings</h1></div><div class="flex items-center gap-space-xs shrink-0"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full px-margin pb-space-2xl space-y-space-lg">
+<!-- Brand & Security Certification Pill -->
+<div class="flex items-center justify-between pt-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-on-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">ZelixVet</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm uppercase tracking-wider">AI Copilot</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Intelligent Clinical Scribe &amp; Diagnostics</p>
+</div>
+</div>
+<a aria-label="Security Settings" class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors shadow-sm" href="#settings">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+</a>
+</div>
+<!-- Trust & Certification Banner -->
+<div class="flex items-center justify-between px-space-md py-space-sm rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+<span class="font-label-sm text-label-sm text-on-surface">VCPR &amp; SOC2 Type II Certified Vault</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse" title="System Verified"></span>
+</div>
+<!-- Clinician Verified Identity Card -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg shadow-md space-y-space-md">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-md">
+<div class="relative w-14 h-14 rounded-full overflow-hidden shadow-sm bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="A poised Asian female veterinary surgeon in clean teal surgical scrubs with a stethoscope around her neck, warm professional clinical lighting, soft neutral background, photorealistic medical portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_bWMJyxHIyEAcVx43yS5EqN2SVn6PCqfCfJNeiGHqYG_Il5-sWaQvIShC3KdzgMGQtAYk8P-Eb0xA_IvAP71I7aaLIXjF03-blvD0B4nc5xCAbZ9HM76wqVxsiaM51Nl1XPRbQw6kbfv0ZqSBNsl63Dx6tvewxuNxdoZHScgYiQa4FWtn2Kseyxq2EvCJR7Eeq9m90gu0Cft-STj1n24fLaFy6eu7tgTwiUusqXI"/>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-secondary-container shadow"></span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<h2 class="font-title-md text-title-md text-on-surface truncate">Dr. Sarah Lin, DVM</h2>
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Associate Surgeon • License #VET-88319</p>
+<div class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[13px]">assignment_turned_in</span>
+<span>Shift Verified • On Rounds</span>
+</div>
+</div>
+</div>
+<a class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors" href="#switch-account" title="Switch User">
+<span class="material-symbols-outlined text-[20px]">swap_horiz</span>
+</a>
+</div>
+<!-- Active Ambient Shift Stats -->
+<div class="grid grid-cols-3 gap-2 pt-space-xs">
+<div class="p-2.5 rounded-lg bg-surface-container-low text-center">
+<span class="block font-code-vital text-code-vital text-on-surface">14</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Scheduled</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low text-center">
+<span class="block font-code-vital text-code-vital text-primary">3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Surgeries</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-low text-center">
+<span class="block font-code-vital text-code-vital text-secondary">98.4%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">AI Concordance</span>
+</div>
+</div>
+</div>
+<!-- Practice / Hospital Branch Switcher Card -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">domain</span>
+<label class="font-label-md text-label-md text-on-surface" for="practice-selector">Assigned Practice Unit</label>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">Primary</span>
+</div>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low text-on-surface font-body-md text-body-md py-3 px-space-md rounded-lg shadow-sm focus:outline-none focus:bg-surface-container cursor-pointer pr-10" id="practice-selector">
+<option selected="" value="west">Metropolitan Vet Hospital - West Campus (Surgical Suite B)</option>
+<option value="downtown">Downtown 24/7 Emergency &amp; Trauma Wing</option>
+<option value="south">South Regional Specialty Center (Oncology / Ortho)</option>
+<option value="mobile">Valley Equine &amp; Mobile Field Unit 4</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-space-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">unfold_more</span>
+</div>
+</div>
+<!-- Active Practice PMS Telemetry Bridge -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary shadow-sm"></span>
+<span class="font-code-vital text-code-vital text-on-surface truncate">Cornerstone PMS v24.2 • Bridge Live</span>
+</div>
+<a class="font-label-sm text-label-sm text-primary hover:underline shrink-0" href="#notifications">Sync: 12s ago</a>
+</div>
+</div>
+<!-- Biometric Quick Unlock Section -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-md space-y-space-md text-center">
+<div class="flex items-center justify-center">
+<button class="relative group p-5 rounded-full bg-surface-container hover:bg-surface-container-high transition-transform transform active:scale-95 shadow-inner" id="biometric-trigger">
+<div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-lg">
+<span class="material-symbols-outlined text-[36px]" id="biometric-icon">fingerprint</span>
+</div>
+<span class="absolute -top-1 -right-1 flex h-4 w-4">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-4 w-4 bg-secondary"></span>
+</span>
+</button>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-on-surface">Instant Biometric Unlock</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1" id="auth-status-text">Touch ID or Face ID recognized for Dr. Lin</p>
+</div>
+<!-- Master PIN / Password Toggle Area -->
+<div class="pt-space-xs">
+<button class="text-primary font-label-md text-label-md hover:underline inline-flex items-center gap-1" id="toggle-pin-btn" type="button">
+<span class="material-symbols-outlined text-[16px]">pin</span>
+<span>Use Master PIN or Credentials</span>
+</button>
+<div class="hidden mt-space-md space-y-space-sm" id="pin-input-drawer">
+<div class="flex justify-center gap-3">
+<input class="w-11 h-12 text-center font-headline-md text-headline-md bg-surface-container-low rounded-lg focus:outline-none focus:bg-surface-container text-on-surface" maxlength="1" placeholder="•" type="password"/>
+<input class="w-11 h-12 text-center font-headline-md text-headline-md bg-surface-container-low rounded-lg focus:outline-none focus:bg-surface-container text-on-surface" maxlength="1" placeholder="•" type="password"/>
+<input class="w-11 h-12 text-center font-headline-md text-headline-md bg-surface-container-low rounded-lg focus:outline-none focus:bg-surface-container text-on-surface" maxlength="1" placeholder="•" type="password"/>
+<input class="w-11 h-12 text-center font-headline-md text-headline-md bg-surface-container-low rounded-lg focus:outline-none focus:bg-surface-container text-on-surface" maxlength="1" placeholder="•" type="password"/>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Enter 4-digit Surgery Suite PIN</p>
+</div>
+</div>
+</div>
+<!-- Primary Workspace Login Action -->
+<div class="space-y-space-sm pt-space-xs">
+<a class="w-full py-3.5 px-space-lg rounded-lg bg-primary hover:bg-primary-container text-on-primary font-title-md text-title-md flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.99]" href="#workspace" id="primary-signin-btn">
+<span class="material-symbols-outlined text-[20px]">login</span>
+<span>Sign In to Clinical Workspace</span>
+</a>
+<!-- Clinical Auxiliary Actions -->
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<a class="flex-1 py-2.5 px-space-sm rounded-lg bg-surface-container text-on-surface text-center font-label-md text-label-md hover:bg-surface-container-high transition-colors truncate" href="#switch-account">
+        Switch Account
+      </a>
+<a class="flex-1 py-2.5 px-space-sm rounded-lg bg-error-container text-on-error-container text-center font-label-md text-label-md hover:opacity-90 transition-opacity truncate flex items-center justify-center gap-1" href="#offline-emergency">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+<span>Offline Emergency</span>
+</a>
+</div>
+</div>
+<!-- Institutional Security & Privacy Badges Section -->
+<div class="pt-space-sm space-y-space-xs">
+<div class="flex items-center justify-between text-on-surface-variant px-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Clinical Compliance Matrix</span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span> Encrypted
+      </span>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div class="p-2.5 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary text-[20px] mb-1">enhanced_encryption</span>
+<span class="font-label-sm text-label-sm text-on-surface leading-tight">256-bit AES</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Medical Vault</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-secondary text-[20px] mb-1">history_edu</span>
+<span class="font-label-sm text-label-sm text-on-surface leading-tight">Audit Trail</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">FDA / VCPR Compliant</span>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-lowest shadow-sm flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-on-tertiary-container text-[20px] mb-1">mic_off</span>
+<span class="font-label-sm text-label-sm text-on-surface leading-tight">Zero-Knowledge</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Audio Discarded</span>
+</div>
+</div>
+</div>
+<!-- Session Footnote / Clinician Care Assurance -->
+<div class="text-center pt-space-xs">
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+      ZelixVet Medical Copilot v4.8.1 • Authorized Vet Personnel Only
+    </p>
+</div>
+</div>
+<script>
+  (function() {
+    const toggleBtn = document.getElementById('toggle-pin-btn');
+    const pinDrawer = document.getElementById('pin-input-drawer');
+    const bioTrigger = document.getElementById('biometric-trigger');
+    const bioIcon = document.getElementById('biometric-icon');
+    const statusText = document.getElementById('auth-status-text');
+
+    if (toggleBtn && pinDrawer) {
+      toggleBtn.addEventListener('click', function() {
+        const isHidden = pinDrawer.classList.contains('hidden');
+        if (isHidden) {
+          pinDrawer.classList.remove('hidden');
+          toggleBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">fingerprint</span><span>Use Biometric Scan</span>';
+        } else {
+          pinDrawer.classList.add('hidden');
+          toggleBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">pin</span><span>Use Master PIN or Credentials</span>';
+        }
+      });
+    }
+
+    if (bioTrigger && bioIcon && statusText) {
+      bioTrigger.addEventListener('click', function() {
+        bioIcon.textContent = 'hourglass_top';
+        statusText.textContent = 'Authenticating biometric signatures...';
+        setTimeout(function() {
+          bioIcon.textContent = 'check_circle';
+          statusText.textContent = 'Biometrics confirmed for Dr. Sarah Lin!';
+          setTimeout(function() {
+            window.location.hash = 'workspace';
+          }, 600);
+        }, 800);
+      });
+    }
+  })();
+</script></main></body></html>

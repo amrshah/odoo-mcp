@@ -1,0 +1,441 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "tertiary-fixed-dim": "#c0c1ff", "surface-container-lowest": "#ffffff", "surface-variant": "#d8e3fb", "outline": "#707976", "on-tertiary": "#ffffff", "on-surface": "#111c2d", "surface-container-highest": "#d8e3fb", "inverse-surface": "#263143", "primary-container": "#0e4d45", "on-primary": "#ffffff", "on-error": "#ffffff", "on-tertiary-fixed-variant": "#2f2ebe", "on-secondary-fixed-variant": "#005236", "on-tertiary-container": "#a8aaff", "surface-dim": "#cfdaf2", "outline-variant": "#bfc8c5", "secondary": "#006c49", "error-container": "#ffdad6", "on-tertiary-fixed": "#07006c", "on-error-container": "#93000a", "tertiary-container": "#2c2abc", "on-background": "#111c2d", "secondary-fixed": "#6ffbbe", "surface-container": "#e7eeff", "on-surface-variant": "#404946", "on-primary-container": "#84bdb2", "primary-fixed": "#b4eee2", "on-secondary-fixed": "#002113", "on-primary-fixed-variant": "#124f47", "inverse-on-surface": "#ecf1ff", "surface-tint": "#2f685f", "on-secondary-container": "#00714d", "tertiary": "#0f00a3", "background": "#f9f9ff", "on-secondary": "#ffffff", "inverse-primary": "#98d2c7", "surface-bright": "#f9f9ff", "surface-container-high": "#dee8ff", "on-primary-fixed": "#00201c", "secondary-fixed-dim": "#4edea3", "surface-container-low": "#f0f3ff", "surface": "#f9f9ff", "tertiary-fixed": "#e1e0ff", "primary-fixed-dim": "#98d2c7", "primary": "#00352f", "error": "#ba1a1a", "secondary-container": "#6cf8bb" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.25rem", "space-xl": "2rem", "space-2xl": "3rem", "space-md": "0.875rem", "margin-desktop": "2rem", "space-sm": "0.5rem", "margin": "1rem", "margin-tablet": "1.5rem", "gutter-desktop": "1.5rem", "gutter": "1.25rem", "space-xs": "0.25rem" }, fontFamily: { "headline-sm": ["Manrope"], "label-sm": ["Hanken Grotesk"], "headline-lg": ["Manrope"], "display": ["Manrope"], "title-md": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "headline-lg-mobile": ["Manrope"], "body-md": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"], "code-vital": ["JetBrains Mono"], "headline-md": ["Manrope"] }, fontSize: { "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.025em", "fontWeight": "600" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "display": ["2.5rem", { "lineHeight": "3rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "title-md": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-lg": ["1.0625rem", { "lineHeight": "1.625rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.625rem", { "lineHeight": "2.125rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-md": ["0.9375rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "label-md": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "code-vital": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "500" }], "headline-md": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "600" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="ZelixVet AI Copilot Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1UGQ1m60ezexD6xhtDk7MLRgXLphdv0_s3FnWmPJday-wVRldeJIDPvD3kx-cD0X2W1J2gz50B_4putk6ttz8kTvAajVDwkiPEGr7C-MNIiufYboG_rfwcOTeSdD1dVmquYV8zTgC_YulQ_7ycRV1B-K85WC9HnZYbmqES2G6ngstirotnJ6CfFIuZE0wXYKF5IdbeWv8TjgD3oPaF28q_YNGAmju6Gz0hssoDYAfAD"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight truncate">ZelixVet Copilot</span></div><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Soap Notes</span></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-secondary-fixed/30 text-on-secondary-fixed-variant"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span class="font-label-sm text-label-sm font-semibold tracking-wide">PMS Sync</span></div><button aria-label="Doctor Profile" class="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDofOVrdDi-tN8rVNH8aBJxuqZnz_15Hod7CGed8EHyKEmcGrXX47jnkh7CXQR9xnhmLIMYEJk4cDBT5nChOfjGt53YqoJ4kACSP0Y3sBm9USMayHEmIYm2ncXnzb2NOa2TT1hRMW-ZnoU0qH2R-IeJyujFA6AS48zMa1v_T5aLPV7PkwfMxdsgeKjvBzrwoUBGvYXnyl_YIcKuoIO-p_LfjAr5I_2pDoc_FGaFePs"></button></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Patient Header Summary Strip -->
+<section class="px-margin pt-space-sm pb-space-xs">
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between gap-space-sm">
+<a class="flex items-center gap-space-sm min-w-0 cursor-pointer" href="{{DATA:SCREEN:SCREEN_6}}"><div class="relative flex-shrink-0"><img class="w-12 h-12 rounded-full object-cover" data-alt="A candid, warm close-up portrait of Barnaby the cheerful Golden Retriever with soft honey-toned fur, floppy ears, sitting relaxed in a bright veterinary clinic with soft natural morning light and subtle teal accents in the blurred background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA00Y0-2eizTLQZlv31KqTFYGWvCKsSdThr6SWdY5WJChDF_FrZkIbGY4xz6HNhiG0nSWhu_FBHFwsPC21Aw2QkdOVwCUiUZfp9D7U30CUts8a2wUiOHusjQRhXYI-Z12Z_VPxToeRWBHrrFF2EU9iGsmnolfSMVrsNdElnVhteTAcxbYRIkYaZC3nVIKSy5rHilyc5i72Ji9e28GiiY4lYUDUGSw6xlcYBr4BjWJQ"><span class="absolute -bottom-1 -right-1 bg-secondary text-on-secondary rounded-full w-5 h-5 flex items-center justify-center text-[11px] font-bold"><span class="material-symbols-outlined text-[13px]">pets</span></span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary truncate">Barnaby</span><span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-semibold flex-shrink-0">Canine</span></div><p class="font-body-sm text-body-sm text-on-surface-variant truncate">Golden Retriever • 32.4 kg • Dr. S. Lin</p></div></a>
+<a aria-label="View Patient Full Card" class="flex-shrink-0 w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-surface-container-highest transition-colors" href="{{DATA:SCREEN:SCREEN_6}}" id="patientQuickCardBtn"><span class="material-symbols-outlined text-[20px]">badge</span></a>
+</div>
+<!-- Quick Telemetry Snippet -->
+<div class="grid grid-cols-3 gap-2 mt-space-sm pt-space-xs">
+<div class="bg-surface-container-lowest rounded-lg p-2 text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Temp</span>
+<span class="font-code-vital text-code-vital text-primary font-bold">38.6°C</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-2 text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Heart Rate</span>
+<span class="font-code-vital text-code-vital text-primary font-bold">88 <span class="font-body-sm text-label-sm font-normal text-on-surface-variant">bpm</span></span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-2 text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Resp Rate</span>
+<span class="font-code-vital text-code-vital text-primary font-bold">22 <span class="font-body-sm text-label-sm font-normal text-on-surface-variant">bpm</span></span>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Draft Status Banner -->
+<section class="px-margin py-space-xs">
+<div class="bg-tertiary-fixed/30 rounded-xl p-space-sm flex flex-col gap-1.5 shadow-sm">
+<div class="flex items-center justify-between gap-space-xs">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-container text-on-tertiary shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed animate-spin" style="animation-duration: 4s;">auto_awesome</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wide">AI-Generated Draft v1.2</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-secondary">cloud_done</span>
+<span class="">Autosaved 1m ago</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pl-1">
+        Requires formal review &amp; licensed veterinarian signature prior to medical PMS sync.
+      </p>
+</div>
+</section>
+<!-- Missing Clarification Flag -->
+<section class="px-margin py-space-xs">
+<div class="bg-error-container/40 rounded-xl p-space-sm flex items-start gap-space-sm shadow-sm">
+<div class="w-8 h-8 rounded-full bg-error-container text-on-error-container flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">contact_support</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-error-container font-semibold">Missing Clinical Detail</span>
+<span class="font-label-sm text-label-sm text-error font-medium">Flagged by Copilot</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">
+          Clarification needed: Confirm swim location was <strong class="text-primary">freshwater vs ocean</strong> (leptospirosis / stagnant water risk factor).
+        </p>
+<div class="flex items-center gap-2 mt-2">
+<button class="px-2.5 py-1 rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors font-label-sm text-label-sm shadow-sm" onclick="resolveClarification(this, 'Ocean / Saltwater')">
+            + Saltwater
+          </button>
+<button class="px-2.5 py-1 rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors font-label-sm text-label-sm shadow-sm" onclick="resolveClarification(this, 'Freshwater Pond')">
+            + Freshwater
+          </button>
+<button class="px-2 py-1 text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm" onclick="dismissClarification(this)">
+            Dismiss
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Legal Clinical Disclaimer -->
+<section class="px-margin py-space-xs">
+<div class="bg-surface-container-high/60 rounded-xl p-space-sm flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant flex-shrink-0 mt-0.5">shield</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+<strong class="font-semibold text-on-surface">Notice:</strong> AI-generated clinical documentation must be reviewed, verified, and approved by a licensed veterinary professional prior to medical record sign-off.
+      </p>
+</div>
+</section>
+<!-- SOAP Sections Accordion -->
+<section class="px-margin py-space-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-1">
+<h2 class="font-headline-sm text-headline-sm text-primary">Clinical SOAP Record</h2>
+<div class="flex items-center gap-1.5">
+<button class="text-on-surface-variant hover:text-primary font-label-sm text-label-sm flex items-center gap-1 px-2 py-1 rounded-full hover:bg-surface-container transition-colors" id="expandAllBtn">
+<span class="material-symbols-outlined text-[16px]">unfold_more</span>
+<span class="">Toggle All</span>
+</button>
+</div>
+</div>
+<!-- S: Subjective Card -->
+<div class="soap-card bg-surface-container-lowest rounded-xl shadow-md overflow-hidden transition-all duration-200">
+<div class="p-space-md flex items-center justify-between cursor-pointer" onclick="toggleSoapCard(this)">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-primary-container text-on-primary font-display flex items-center justify-center text-title-md flex-shrink-0 shadow-sm">
+            S
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary truncate">Subjective</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">History &amp; Owner Observations</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed-variant hover:bg-tertiary-fixed flex items-center justify-center transition-colors" onclick="event.stopPropagation(); triggerRegenerate('Subjective')" title="Regenerate Section with Copilot">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+</button>
+<span class="material-symbols-outlined text-[22px] text-on-surface-variant transform transition-transform duration-200 chevron-icon rotate-180">expand_more</span>
+</div>
+</div>
+<div class="soap-content px-space-md pb-space-md pt-0">
+<div class="p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Chief Complaint &amp; History</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Ambient Voice Extracted</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest p-2 rounded transition-colors leading-relaxed">
+            Acute head shaking, left ear pruritus x 4 days after swimming. Owner reports mild odor noticed during cuddle session. Appetite, thirst, and energy reported normal. No known history of food indiscretion or seasonal atopy flares.
+          </div>
+<div class="flex items-center justify-between pt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">Source: Consultation Audio (00:42–02:15)</span>
+<span class="text-secondary font-medium">Click text to edit</span>
+</div>
+</div>
+</div>
+</div>
+<!-- O: Objective Card -->
+<div class="soap-card bg-surface-container-lowest rounded-xl shadow-md overflow-hidden transition-all duration-200">
+<div class="p-space-md flex items-center justify-between cursor-pointer" onclick="toggleSoapCard(this)">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-primary-container text-on-primary font-display flex items-center justify-center text-title-md flex-shrink-0 shadow-sm">
+            O
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary truncate">Objective</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Exam Telemetry &amp; Cytology</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed-variant hover:bg-tertiary-fixed flex items-center justify-center transition-colors" onclick="event.stopPropagation(); triggerRegenerate('Objective')" title="Regenerate Section with Copilot">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+</button>
+<span class="material-symbols-outlined text-[22px] text-on-surface-variant transform transition-transform duration-200 chevron-icon rotate-180">expand_more</span>
+</div>
+</div>
+<div class="soap-content px-space-md pb-space-md pt-0 flex flex-col gap-space-sm">
+<!-- Physical Exam & Vitals Detail -->
+<div class="p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Physical &amp; Otoscopic Findings</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Verified via Sensor</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest p-2 rounded transition-colors leading-relaxed space-y-2">
+<p class=""><strong class="font-semibold text-primary">Vitals:</strong> Temp: 38.6°C | HR: 88 bpm | RR: 22 bpm | Body Weight: 32.4 kg (BCS 5/9).</p>
+<p class=""><strong class="font-semibold text-primary">Otoscopic Exam:</strong> Left pinna erythematous, moderate dark brown ceruminous exudate in vertical and horizontal canal. Tympanic membrane visualized and intact. Right ear exhibits mild cerumen, pale pink epithelium, intact tympanum.</p>
+<p class=""><strong class="font-semibold text-primary">In-Clinic Cytology (AS):</strong> Malassezia pachydermatis 3+ bilaterally (predominantly AS), cocci 1+ AS. Zero rods or inflammatory neutrophils observed under 100x oil immersion.</p>
+</div>
+<div class="flex items-center justify-between pt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">Source: Smart Otoscope &amp; Digital Lab Hub</span>
+<span class="text-secondary font-medium">Click text to edit</span>
+</div>
+</div>
+<!-- Inline Clinical Photo Attachment -->
+<div class="bg-surface-container rounded-lg p-space-sm flex items-center gap-space-sm">
+<img class="w-16 h-16 rounded-lg object-cover flex-shrink-0 shadow-sm" data-alt="High resolution veterinary otoscopic camera image showing an inflamed canine left ear canal with brownish cerumen and clear visualization of an intact translucent tympanic membrane." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxG9lbxmPY9941-kr8eHwXwxjt9P-zdOKg93nUNymZgs0z0wjcEHJrRyNAwsnEcNYYFzJXmXJi9KzzxIB8Cd2XFtInyM2wbbmptIcU_5zxAUUjYMsRRf2Y24ttmawUum5V31NALED51UWrco438i4hYQm279uEcHOUWouRZen_HWp77tMUiFQXe7xp-P98xOcoQMEhAiZt29N47NrEVTYIG-KlSOw9kj2HwU9U9Xg">
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">AS_Otoscopy_Capture_01.raw</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Otoscopic snapshot recorded at 02:44</span>
+<span class="font-label-sm text-label-sm text-secondary font-medium mt-0.5">Attached to official legal SOAP</span>
+</div>
+</div>
+</div>
+</div>
+<!-- A: Assessment Card -->
+<div class="soap-card bg-surface-container-lowest rounded-xl shadow-md overflow-hidden transition-all duration-200">
+<div class="p-space-md flex items-center justify-between cursor-pointer" onclick="toggleSoapCard(this)">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-primary-container text-on-primary font-display flex items-center justify-center text-title-md flex-shrink-0 shadow-sm">
+            A
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary truncate">Assessment</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Differential Diagnoses &amp; Rationale</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed-variant hover:bg-tertiary-fixed flex items-center justify-center transition-colors" onclick="event.stopPropagation(); triggerRegenerate('Assessment')" title="Regenerate Section with Copilot">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+</button>
+<span class="material-symbols-outlined text-[22px] text-on-surface-variant transform transition-transform duration-200 chevron-icon rotate-180">expand_more</span>
+</div>
+</div>
+<div class="soap-content px-space-md pb-space-md pt-0">
+<div class="p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Differential Ranked Diagnoses</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">auto_awesome</span>
+<span class="">AI Ranked 98%</span>
+</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest p-2 rounded transition-colors leading-relaxed space-y-1.5">
+<div class="flex items-start gap-2">
+<span class="font-bold text-primary">1.</span>
+<p class=""><strong class="font-semibold text-on-surface">Acute Otitis Externa, Left &gt; Right:</strong> Secondary to Malassezia pachydermatis fungal overgrowth triggered by retained post-swim moisture.</p>
+</div>
+<div class="flex items-start gap-2">
+<span class="font-bold text-primary">2.</span>
+<p class=""><strong class="font-semibold text-on-surface">Low-grade secondary bacterial proliferation:</strong> Mild opportunistic cocci present in AS microenvironment.</p>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">SNOMED-CT: 271754008 (Otitis externa)</span>
+<span class="text-secondary font-medium">Click text to edit</span>
+</div>
+</div>
+</div>
+</div>
+<!-- P: Plan Card -->
+<div class="soap-card bg-surface-container-lowest rounded-xl shadow-md overflow-hidden transition-all duration-200">
+<div class="p-space-md flex items-center justify-between cursor-pointer" onclick="toggleSoapCard(this)">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-lg bg-primary-container text-on-primary font-display flex items-center justify-center text-title-md flex-shrink-0 shadow-sm">
+            P
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary truncate">Plan</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Therapy, Medication &amp; Follow-Up</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed-variant hover:bg-tertiary-fixed flex items-center justify-center transition-colors" onclick="event.stopPropagation(); triggerRegenerate('Plan')" title="Regenerate Section with Copilot">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+</button>
+<span class="material-symbols-outlined text-[22px] text-on-surface-variant transform transition-transform duration-200 chevron-icon rotate-180">expand_more</span>
+</div>
+</div>
+<div class="soap-content px-space-md pb-space-md pt-0 flex flex-col gap-space-sm">
+<div class="p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between mb-1.5">
+<span class="font-label-sm text-label-sm font-semibold text-primary">Treatment Protocols &amp; Prescriptions</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Dosage Checked</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest p-2 rounded transition-colors leading-relaxed space-y-2">
+<p class=""><strong class="font-semibold text-primary">1. In-clinic ear lavage:</strong> Gentle flush of left ear with TrizEDTA solution to clear ceruminous barrier before topical instillation.</p>
+<p class=""><strong class="font-semibold text-primary">2. Medication:</strong> Prescribe Posatex Otic Drops (Orbifloxacin / Posaconazole / Mometasone) — 8 drops AS q24h x 7 consecutive days.</p>
+<p class=""><strong class="font-semibold text-primary">3. Client Education:</strong> Restrict swimming until re-check. Keep ears dry; dry flap thoroughly after walks in wet conditions.</p>
+<p class=""><strong class="font-semibold text-primary">4. Follow-up:</strong> Re-check physical otoscopic exam &amp; cytology in 10–14 days. Advise owner to contact clinic if head tilt, nystagmus, or ataxia occurs.</p>
+</div>
+<div class="flex items-center justify-between pt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="">Drug Interaction Alert: 0 Conflicts</span>
+<span class="text-secondary font-medium">Click text to edit</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Transcript Source Drawer Accordion Trigger -->
+<section class="px-margin py-space-xs">
+<div class="bg-surface-container-low rounded-xl p-space-sm shadow-sm">
+<button class="w-full flex items-center justify-between text-left" id="toggleTranscriptBtn" onclick="toggleTranscript()">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary">record_voice_over</span>
+<span class="font-label-md text-label-md font-semibold text-primary">View Source Transcript Snippet</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">2m 45s</span>
+</div>
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant transition-transform duration-200" id="transcriptChevron">expand_more</span>
+</button>
+<!-- Expandable Snippet Content -->
+<div class="hidden mt-space-sm pt-space-xs space-y-2 font-body-sm text-body-sm text-on-surface-variant" id="transcriptBody">
+<div class="p-2 rounded bg-surface-container-lowest">
+<strong class="text-primary font-label-sm">[01:12] Dr. Lin:</strong> "How long has Barnaby been shaking his head like that, Mrs. Gable?"
+        </div>
+<div class="p-2 rounded bg-surface-container-lowest">
+<strong class="text-secondary font-label-sm">[01:18] Owner:</strong> "It really started about 4 days ago after he went swimming. He keeps scratching his left ear on the rug and there is this musty, yeasty smell."
+        </div>
+<div class="p-2 rounded bg-surface-container-lowest">
+<strong class="text-primary font-label-sm">[02:04] Dr. Lin:</strong> "Alright, let's take a look inside with the otoscope... The canal is quite red with thick dark brown wax, but the eardrum is completely intact."
+        </div>
+<div class="flex justify-end pt-1">
+<a class="text-secondary font-label-sm text-label-sm font-semibold inline-flex items-center gap-1 hover:underline" data-path="voice-consult" href="{{DATA:SCREEN:SCREEN_14}}">
+<span class="">Open Full Voice Consultation Hub</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Sticky Bottom Quick Action Deck -->
+<aside class="sticky bottom-16 z-40 px-margin pt-space-xs pb-space-sm bg-surface/90 backdrop-blur-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-xl flex flex-col gap-2">
+<!-- Shortcut Pill to Treatment Plans -->
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary">bolt</span>
+<span class="">Next Recommended Step</span>
+</div>
+<a class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-secondary-fixed/40 text-on-secondary-fixed-variant hover:bg-secondary-fixed transition-colors font-label-sm text-label-sm font-semibold shadow-sm" data-path="treatment-plans" href="{{DATA:SCREEN:SCREEN_8}}">
+<span class="material-symbols-outlined text-[14px]">medication</span>
+<span class="">Generate Treatment Plan</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+<!-- Core Dual Primary Actions -->
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<!-- Save Draft Button -->
+<button class="w-full py-2.5 px-3 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 shadow-sm" id="saveDraftBtn" onclick="handleSaveDraft()">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span class="">Save Draft</span>
+</button>
+<!-- Review & Approve Record Primary Teal CTA -->
+<button class="w-full py-2.5 px-3 rounded-lg bg-primary-container text-on-primary hover:opacity-95 transition-opacity font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 shadow-md" id="approveRecordBtn" onclick="handleApproveRecord()">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="">Approve Record</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Toast Notification Modal (Micro-interaction) -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 transform -translate-y-12 opacity-0 pointer-events-none transition-all duration-300 max-w-sm w-[90%]" id="toastNotification">
+<div class="bg-primary text-on-primary rounded-xl p-3 shadow-2xl flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[22px] text-secondary-fixed" id="toastIcon">check_circle</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-label-md text-label-md font-semibold text-white" id="toastTitle">Record Approved</span>
+<span class="font-body-sm text-body-sm text-primary-fixed truncate" id="toastDesc">Synced with practice management system.</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function toggleSoapCard(headerElement) {
+    const card = headerElement.closest('.soap-card');
+    const content = card.querySelector('.soap-content');
+    const chevron = headerElement.querySelector('.chevron-icon');
+    
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      chevron.classList.add('rotate-180');
+    } else {
+      content.classList.add('hidden');
+      chevron.classList.remove('rotate-180');
+    }
+  }
+
+  const expandAllBtn = document.getElementById('expandAllBtn');
+  let allExpanded = true;
+
+  if (expandAllBtn) {
+    expandAllBtn.addEventListener('click', () => {
+      const contents = document.querySelectorAll('.soap-content');
+      const chevrons = document.querySelectorAll('.chevron-icon');
+      allExpanded = !allExpanded;
+
+      contents.forEach(content => {
+        if (allExpanded) {
+          content.classList.remove('hidden');
+        } else {
+          content.classList.add('hidden');
+        }
+      });
+
+      chevrons.forEach(chevron => {
+        if (allExpanded) {
+          chevron.classList.add('rotate-180');
+        } else {
+          chevron.classList.remove('rotate-180');
+        }
+      });
+    });
+  }
+
+  function toggleTranscript() {
+    const body = document.getElementById('transcriptBody');
+    const chevron = document.getElementById('transcriptChevron');
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      chevron.classList.add('rotate-180');
+    } else {
+      body.classList.add('hidden');
+      chevron.classList.remove('rotate-180');
+    }
+  }
+
+  function resolveClarification(btn, resolutionText) {
+    const card = btn.closest('.px-margin');
+    showToast('Clarification Added', 'Appended "' + resolutionText + '" to Subjective history.');
+    if (card) {
+      card.style.transition = 'opacity 0.25s, transform 0.25s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => card.remove(), 260);
+    }
+  }
+
+  function dismissClarification(btn) {
+    const card = btn.closest('.px-margin');
+    if (card) {
+      card.style.transition = 'opacity 0.2s';
+      card.style.opacity = '0';
+      setTimeout(() => card.remove(), 210);
+    }
+  }
+
+  function triggerRegenerate(sectionName) {
+    showToast('Regenerating ' + sectionName, 'Copilot re-analyzing audio stream and telemetry...');
+  }
+
+  function handleSaveDraft() {
+    showToast('Draft Saved', 'All SOAP fields stored safely in local cache.');
+  }
+
+  function handleApproveRecord() {
+    showToast('Medical Sign-Off Complete', 'Approved by Dr. S. Lin. Legally signed & committed.');
+  }
+
+  function showToast(title, desc) {
+    const toast = document.getElementById('toastNotification');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastDesc = document.getElementById('toastDesc');
+    
+    if (toast && toastTitle && toastDesc) {
+      toastTitle.textContent = title;
+      toastDesc.textContent = desc;
+      toast.classList.remove('-translate-y-12', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('-translate-y-12', 'opacity-0', 'pointer-events-none');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_-4px_16px_rgba(14,77,69,0.06)]" data-active-classes="text-primary font-semibold"><div class="flex justify-between items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="workspace" href="{{DATA:SCREEN:SCREEN_12}}"><span class="material-symbols-outlined text-[22px]">smart_toy</span><span class="font-label-sm text-label-sm mt-0.5">Workspace</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="voice-consult" href="{{DATA:SCREEN:SCREEN_14}}"><span class="material-symbols-outlined text-[22px]">mic</span><span class="font-label-sm text-label-sm mt-0.5">Voice</span></a><a aria-current="page" class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] transition-colors text-primary font-semibold" data-path="soap-notes" href="{{DATA:SCREEN:SCREEN_10}}"><span class="material-symbols-outlined text-[22px]">assignment</span><span class="font-label-sm text-label-sm mt-0.5">SOAP</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="treatment-plans" href="{{DATA:SCREEN:SCREEN_8}}"><span class="material-symbols-outlined text-[22px]">medication</span><span class="font-label-sm text-label-sm mt-0.5">Treatment</span></a><a class="flex flex-col items-center justify-center flex-1 h-full min-w-[44px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="patients" href="{{DATA:SCREEN:SCREEN_6}}"><span class="material-symbols-outlined text-[22px]">pets</span><span class="font-label-sm text-label-sm mt-0.5">Patients</span></a></div></nav>
+
+</body></html>
