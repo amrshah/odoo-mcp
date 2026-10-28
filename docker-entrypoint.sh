@@ -14,7 +14,7 @@ if [ ! -f "$CONFIG_FILE" ] || [ ! -s "$CONFIG_FILE" ]; then
     mkdir -p /etc/odoo
     cat <<EOF > "$CONFIG_FILE"
 [options]
-addons_path = /usr/lib/python3/dist-packages/odoo/addons,/var/lib/odoo/addons/19.0,/mnt/extra-addons,/mnt/extra-addons/VetCairn
+addons_path = /usr/lib/python3/dist-packages/odoo/addons,/var/lib/odoo/addons/19.0,/mnt/extra-addons,/mnt/extra-addons/VetCairn,/mnt/extra-addons/stratos_vet_case_memory_suite
 data_dir = /var/lib/odoo
 admin_passwd = ${ADMIN_PASSWORD:-admin_master_secret}
 db_host = ${HOST:-db}
@@ -45,7 +45,7 @@ until pg_isready -h "${HOST:-db}" -p "${PORT:-5432}" -U "${USER:-odoo}" -d "${PO
 done
 echo "[+] PostgreSQL connection established!"
 
-ADDONS_PATH="/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons,/mnt/extra-addons/VetCairn"
+ADDONS_PATH="/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons,/mnt/extra-addons/VetCairn,/mnt/extra-addons/stratos_vet_case_memory_suite"
 
 DB_CLI_ARGS=(
     "--db_host=${HOST:-db}"

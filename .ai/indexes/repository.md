@@ -17,6 +17,7 @@ This document maps high-level concepts and system domains to physical source cod
 | **MCP Docker Definition** | [`mcp-server/Dockerfile`](file:///e:/myapps/odoo-mcp/mcp-server/Dockerfile), [`mcp-server/requirements.txt`](file:///e:/myapps/odoo-mcp/mcp-server/requirements.txt) | Python 3.12 slim container for FastMCP SSE server |
 | **VetCairn Clinical Suite** | [`addons/VetCairn/`](file:///e:/myapps/odoo-mcp/addons/VetCairn) | 22 veterinary clinic modules (patients, appointments, clinical encounters, Rx) |
 | **VetCairn Suite Installer** | [`addons/VetCairn/vet_installer/`](file:///e:/myapps/odoo-mcp/addons/VetCairn/vet_installer) | Master installer module declaring dependencies for all 22 vet modules |
+| **Stratos Vet Case Memory Suite** | [`addons/stratos_vet_case_memory_suite/`](file:///e:/myapps/odoo-mcp/addons/stratos_vet_case_memory_suite) | Veterinary case memory, clinical suggestions, self-learning patterns, voice dictation, and SOAP/VetCairn bridges |
 | **Stratos HMS Suite** | [`addons/stratos_hms/`](file:///e:/myapps/odoo-mcp/addons/stratos_hms) | Human hospital EMR suite with AI scribe, hospital memory, learned rules, lab, pharmacy, OT, wards |
 | **Automation & Verification** | [`scripts/test_mcp.py`](file:///e:/myapps/odoo-mcp/scripts/test_mcp.py), [`scripts/setup_odoo_mcp.py`](file:///e:/myapps/odoo-mcp/scripts/setup_odoo_mcp.py) | Verification tests and MCP model registration automation |
 
@@ -33,6 +34,11 @@ This document maps high-level concepts and system domains to physical source cod
 | `vet.vaccination` | Immunizations | `patient_id`, `vaccine_id`, `administered_date`, `next_due_date`, `lot_number`, `provider_id` |
 | `vet.treatment.plan` | Treatment Plans | `patient_id`, `name`, `start_date`, `diagnosis_id`, `state` |
 | `vet.diagnostic.order` | Diagnostic & Lab Orders | `patient_id`, `diagnostic_type_id`, `order_date`, `state`, `result_summary` |
+| `vet.cm.case` | Veterinary Clinical Cases | `name`, `animal_name`, `species_id`, `breed`, `symptom_ids`, `vital_ids`, `diagnosis_id`, `state`, `outcome` |
+| `vet.cm.suggestion` | Clinical Suggestions Engine | `case_id`, `state`, `match_ids`, `line_ids`, `rule_alert` |
+| `vet.cm.pattern` | Self-Learned Clinical Patterns | `species_id`, `symptom_ids`, `diagnosis_id`, `item_type`, `item_name`, `confidence`, `occurrence_count` |
+| `vet.cm.drug` | Formulary, Cautions & Dosing | `name`, `drug_class`, `default_dose_mg_kg`, `max_dose_mg_kg`, `species_block_ids`, `withdrawal_days_milk` |
+| `vet.cm.voice.note` | Veterinary Voice Dictation | `case_id`, `audio_mimetype`, `raw_transcript`, `structured_json`, `state` |
 | `hms.patient` | Human Hospital Patients | `name`, `mrn`, `dob`, `gender`, `cnic`, `phone`, `blood_group`, `emergency_contact_phone` |
 | `hms.visit` | Hospital Visits / Encounters | `name`, `patient_id`, `department_id`, `doctor_id`, `complaint`, `stage`, `ews_score`, `state` |
 | `hms.consult` | Doctor Consultation & Scribe | `visit_id`, `doctor_id`, `complaint`, `transcript`, `hpi`, `state`, `ai_summary` |

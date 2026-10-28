@@ -20,8 +20,8 @@ echo "      [+] Odoo 19 is online!"
 echo "[2/5] Ensuring Python dependencies for MCP (packaging, authlib, defusedxml)..."
 docker exec odoo_web pip install --no-cache-dir "packaging" "authlib>=1.6.12,<1.7.0" "defusedxml" || true
 
-echo "[3/5] Installing / Upgrading VetCairn, Stratos HMS, and Zelix AI modules..."
-docker exec odoo_web odoo -c /etc/odoo/odoo.conf -d odoo_hospital -i vet_installer,stratos_hms,zelix_ai,mcp_server -u vet_installer,stratos_hms,zelix_ai,mcp_server --stop-after-init
+echo "[3/5] Installing / Upgrading VetCairn, Stratos HMS, Zelix AI, and Vet Case Memory modules..."
+docker exec odoo_web odoo -c /etc/odoo/odoo.conf -d odoo_hospital -i vet_installer,stratos_hms,zelix_ai,mcp_server,stratos_vet_case_memory -u vet_installer,stratos_hms,zelix_ai,mcp_server,stratos_vet_case_memory --stop-after-init
 echo "      [+] Modules installed and upgraded successfully!"
 
 echo "[4/5] Enabling MCP Master Switch & Registering 84 Clinical Models..."
