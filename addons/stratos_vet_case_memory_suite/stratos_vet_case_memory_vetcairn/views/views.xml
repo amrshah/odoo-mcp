@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- One button bar: move the clinical-case button next to the Encounter button -->
+    <record id="vet_exam_view_form_case_memory_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.form.case.memory.vetcairn</field>
+        <field name="model">vet.exam</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_view_form"/>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <xpath expr="//div[@name='button_box_cm']/button[@name='action_cm_open_case']" position="move"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box_cm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_cm_open_case']" position="attributes">
+                <attribute name="invisible">not cm_case_id</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <menuitem id="menu_vetcairn_cm_cases" name="Clinical Suggestions"
+              parent="vet_clinical.menu_vet_clinical" action="stratos_vet_case_memory.action_vet_cm_case"
+              sequence="27" groups="stratos_vet_case_memory.group_vet_cm_nurse"/>
+    <menuitem id="menu_vetcairn_cm_queue" name="Suggestion Approval Queue"
+              parent="vet_clinical.menu_vet_clinical" action="stratos_vet_case_memory.action_vet_cm_approval_queue"
+              sequence="28" groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+</odoo>

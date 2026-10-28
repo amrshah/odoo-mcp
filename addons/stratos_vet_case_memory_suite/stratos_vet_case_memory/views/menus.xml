@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_cm_root" name="Vet Suggestions" sequence="45"
+              web_icon="stratos_vet_case_memory,static/description/icon.png"
+              groups="stratos_vet_case_memory.group_vet_cm_nurse"/>
+
+    <menuitem id="menu_vet_cm_cases" name="Clinical Cases" parent="menu_vet_cm_root"
+              action="action_vet_cm_case" sequence="10"/>
+    <menuitem id="menu_vet_cm_queue" name="Approval Queue" parent="menu_vet_cm_root"
+              action="action_vet_cm_approval_queue" sequence="20"
+              groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+    <menuitem id="menu_vet_cm_kb" name="Knowledge Base" parent="menu_vet_cm_root"
+              action="action_vet_cm_pattern" sequence="30"/>
+    <menuitem id="menu_vet_cm_voice" name="Voice History" parent="menu_vet_cm_root"
+              action="action_vet_cm_voice_note" sequence="40"/>
+
+    <menuitem id="menu_vet_cm_reports" name="Reports" parent="menu_vet_cm_root" sequence="80"
+              groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+    <menuitem id="menu_vet_cm_rep_accept" name="Suggestion Acceptance" parent="menu_vet_cm_reports"
+              action="action_vet_cm_decision_report" sequence="10"/>
+    <menuitem id="menu_vet_cm_rep_outcome" name="Outcome by Treatment" parent="menu_vet_cm_reports"
+              action="action_vet_cm_treatment_report" sequence="20"/>
+    <menuitem id="menu_vet_cm_rep_runs" name="Suggestion Runs" parent="menu_vet_cm_reports"
+              action="action_vet_cm_suggestion" sequence="30"/>
+
+    <menuitem id="menu_vet_cm_config" name="Configuration" parent="menu_vet_cm_root" sequence="90"
+              groups="stratos_vet_case_memory.group_vet_cm_manager"/>
+    <menuitem id="menu_vet_cm_settings" name="Settings" parent="menu_vet_cm_config"
+              action="action_vet_cm_settings" sequence="1" groups="base.group_system"/>
+    <menuitem id="menu_vet_cm_protocols" name="Protocols" parent="menu_vet_cm_config"
+              action="action_vet_cm_protocol" sequence="10"/>
+    <menuitem id="menu_vet_cm_drugs" name="Drugs &amp; Dosing Rules" parent="menu_vet_cm_config"
+              action="action_vet_cm_drug" sequence="20"/>
+    <menuitem id="menu_vet_cm_symptoms" name="Symptoms &amp; Voice Keywords" parent="menu_vet_cm_config"
+              action="action_vet_cm_symptom" sequence="30"/>
+    <menuitem id="menu_vet_cm_diagnoses" name="Diagnoses" parent="menu_vet_cm_config"
+              action="action_vet_cm_diagnosis" sequence="40"/>
+    <menuitem id="menu_vet_cm_tests" name="Tests" parent="menu_vet_cm_config"
+              action="action_vet_cm_test" sequence="50"/>
+    <menuitem id="menu_vet_cm_species" name="Species" parent="menu_vet_cm_config"
+              action="action_vet_cm_species" sequence="60"/>
+</odoo>

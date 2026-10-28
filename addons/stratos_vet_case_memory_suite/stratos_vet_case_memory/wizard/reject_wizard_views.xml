@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_cm_reject_wizard" model="ir.ui.view">
+        <field name="name">vet.cm.reject.wizard.form</field>
+        <field name="model">vet.cm.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject suggestion">
+                <p class="text-muted">Your reason is saved in the case history and teaches the
+                    system. "Does not fit this patient" and "Owner declined" are normal exclusions and carry no
+                    penalty. "Better option" and "Contraindicated" lower the pattern's confidence; patterns
+                    rejected repeatedly for these reasons are hidden until a senior vet reviews them.</p>
+                <group>
+                    <field name="line_ids" widget="many2many_tags" readonly="1"/>
+                    <field name="reason_type" widget="radio"/>
+                    <field name="reason" placeholder="Optional details..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Reject" class="btn-danger"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

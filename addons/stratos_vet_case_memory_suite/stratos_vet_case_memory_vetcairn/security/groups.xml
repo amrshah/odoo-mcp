@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_base.group_vet_technician" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('stratos_vet_case_memory.group_vet_cm_nurse'))]"/>
+    </record>
+    <record id="vet_base.group_vet_veterinarian" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('stratos_vet_case_memory.group_vet_cm_vet'))]"/>
+    </record>
+    <record id="vet_base.group_vet_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('stratos_vet_case_memory.group_vet_cm_manager'))]"/>
+    </record>
+</odoo>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_cm_voice_note_form" model="ir.ui.view">
+        <field name="name">vet.cm.voice.note.form</field>
+        <field name="model">vet.cm.voice.note</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_apply" type="object" string="Apply to Case" class="btn-primary"
+                            invisible="state != 'proposed' or case_state != 'draft'"
+                            groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                    <button name="action_structure_ai" type="object" string="Structure as SOAP (AI)" icon="fa-magic"
+                            invisible="state != 'proposed' or case_state != 'draft'"
+                            groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                    <button name="action_keep" type="object" string="Keep as History Only"
+                            invisible="state != 'proposed'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <field name="case_state" invisible="1"/>
+                    <group>
+                        <group>
+                            <field name="case_id" readonly="1"/>
+                            <field name="user_id"/>
+                            <field name="create_date" string="Recorded on"/>
+                        </group>
+                        <group>
+                            <field name="language" readonly="1"/>
+                            <field name="duration_sec"/>
+                            <field name="applied_by" invisible="not applied_by"/>
+                        </group>
+                    </group>
+                    <separator string="Transcript"/>
+                    <field name="transcript" readonly="1"/>
+                    <separator string="What the system heard (confirm before applying)"/>
+                    <group>
+                        <group>
+                            <field name="matched_symptom_ids" widget="many2many_tags" readonly="state != 'proposed'"/>
+                            <field name="new_symptom_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="temperature" readonly="state != 'proposed'"/>
+                            <field name="weight_kg" readonly="state != 'proposed'"/>
+                            <field name="heart_rate" readonly="state != 'proposed'"/>
+                            <field name="resp_rate" readonly="state != 'proposed'"/>
+                        </group>
+                    </group>
+                    <group string="AI – SOAP structure" invisible="not ai_done">
+                        <field name="ai_done" invisible="1"/>
+                        <field name="ai_subjective" readonly="state != 'proposed'"/>
+                        <field name="ai_objective" readonly="state != 'proposed'"/>
+                        <field name="ai_assessment" readonly="state != 'proposed'"/>
+                        <field name="ai_plan" readonly="state != 'proposed'"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_voice_note_list" model="ir.ui.view">
+        <field name="name">vet.cm.voice.note.list</field>
+        <field name="model">vet.cm.voice.note</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-warning="state == 'proposed'">
+                <field name="create_date" string="When"/>
+                <field name="case_id"/>
+                <field name="species_id" optional="show"/>
+                <field name="user_id"/>
+                <field name="language" optional="hide"/>
+                <field name="transcript"/>
+                <field name="matched_symptom_ids" widget="many2many_tags" optional="show"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_voice_note_search" model="ir.ui.view">
+        <field name="name">vet.cm.voice.note.search</field>
+        <field name="model">vet.cm.voice.note</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="transcript"/>
+                <field name="case_id"/>
+                <field name="user_id"/>
+                <filter name="proposed" string="To confirm" domain="[('state', '=', 'proposed')]"/>
+                <group>
+                    <filter name="g_case" string="Case" context="{'group_by': 'case_id'}"/>
+                    <filter name="g_user" string="Spoken by" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_voice_note" model="ir.actions.act_window">
+        <field name="name">Voice History</field>
+        <field name="res_model">vet.cm.voice.note</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

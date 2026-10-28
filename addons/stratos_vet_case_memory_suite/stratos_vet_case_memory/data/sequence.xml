@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_vet_cm_case" model="ir.sequence">
+        <field name="name">Vet clinical case</field>
+        <field name="code">vet.cm.case</field>
+        <field name="prefix">VC/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>

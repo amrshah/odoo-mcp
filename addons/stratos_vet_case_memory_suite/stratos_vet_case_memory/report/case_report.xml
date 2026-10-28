@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_vet_cm_case" model="ir.actions.report">
+        <field name="name">Clinical Case Summary</field>
+        <field name="model">vet.cm.case</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stratos_vet_case_memory.report_vet_cm_case</field>
+        <field name="report_file">stratos_vet_case_memory.report_vet_cm_case</field>
+        <field name="print_report_name">'Case - %s - %s' % (object.name, object.animal_name)</field>
+        <field name="binding_model_id" ref="model_vet_cm_case"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_vet_cm_case">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-size:12px">
+                        <h3 style="color:#0b5850">Clinical Case <span t-field="o.name"/></h3>
+                        <div t-if="o.zoonotic" style="border:1px solid #b91c1c;color:#b91c1c;padding:6px;margin-bottom:8px">
+                            <b>Zoonotic risk</b> – <span t-field="o.diagnosis_id"/>. Use PPE and inform the owner.
+                        </div>
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <td><b>Animal</b></td><td><span t-field="o.animal_name"/> (<span t-field="o.species_id"/><t t-if="o.breed">, <span t-field="o.breed"/></t>)</td>
+                                <td><b>Owner</b></td><td><span t-field="o.owner_id"/></td>
+                            </tr>
+                            <tr>
+                                <td><b>Age / Weight</b></td><td><span t-field="o.age_months"/> months · <span t-field="o.weight_kg"/> kg</td>
+                                <td><b>Date / Vet</b></td><td><span t-field="o.date"/> · <span t-field="o.vet_id"/></td>
+                            </tr>
+                            <tr>
+                                <td><b>Vitals</b></td>
+                                <td colspan="3">Temp <span t-field="o.temperature"/> °C · HR <span t-field="o.heart_rate"/> bpm · RR <span t-field="o.resp_rate"/> /min</td>
+                            </tr>
+                        </table>
+
+                        <h5 class="mt-2" style="color:#0b5850">Presenting complaint &amp; signs</h5>
+                        <p t-if="o.complaint" t-field="o.complaint"/>
+                        <p><t t-esc="', '.join(o.symptom_ids.mapped('name'))"/></p>
+
+                        <h5 style="color:#0b5850">Assessment</h5>
+                        <p><b>Diagnosis:</b> <span t-field="o.diagnosis_id"/></p>
+                        <p t-if="o.assessment" t-field="o.assessment"/>
+
+                        <t t-if="o.test_line_ids">
+                            <h5 style="color:#0b5850">Tests</h5>
+                            <table class="table table-sm">
+                                <thead><tr><th>Test</th><th>Status</th><th>Result</th></tr></thead>
+                                <tbody>
+                                    <tr t-foreach="o.test_line_ids" t-as="t">
+                                        <td><span t-field="t.test_id"/></td><td><span t-field="t.state"/></td><td><span t-field="t.result"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <t t-if="o.treatment_line_ids">
+                            <h5 style="color:#0b5850">Treatment</h5>
+                            <table class="table table-sm">
+                                <thead><tr><th>Drug</th><th>Dose</th><th>Route</th><th>Frequency</th><th>Days</th><th>Notes</th></tr></thead>
+                                <tbody>
+                                    <tr t-foreach="o.treatment_line_ids" t-as="l">
+                                        <td><span t-field="l.drug_id"/></td>
+                                        <td>
+                                            <t t-if="l.dose_basis == 'per_kg'"><t t-esc="'%g' % l.dose_mgkg"/> mg/kg = <t t-esc="'%.1f' % l.total_mg"/> mg</t>
+                                            <t t-else=""><span t-field="l.fixed_dose"/></t>
+                                        </td>
+                                        <td><span t-field="l.route"/></td>
+                                        <td><span t-field="l.frequency"/></td>
+                                        <td><span t-field="l.days"/></td>
+                                        <td><span t-field="l.warning"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <t t-set="decided" t-value="o.suggestion_ids.line_ids.filtered(lambda l: l.decision != 'pending')"/>
+                        <t t-if="decided">
+                            <h5 style="color:#0b5850">Decision-support audit</h5>
+                            <table class="table table-sm">
+                                <thead><tr><th>Suggestion</th><th>Confidence</th><th>Decision</th><th>By</th><th>Reason</th></tr></thead>
+                                <tbody>
+                                    <tr t-foreach="decided" t-as="d">
+                                        <td><span t-field="d.item_type"/>: <span t-field="d.item_name"/></td>
+                                        <td><t t-esc="'%g' % d.confidence"/>%</td>
+                                        <td><span t-field="d.decision"/></td>
+                                        <td><span t-field="d.decided_by"/></td>
+                                        <td><span t-field="d.reject_reason"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <t t-if="o.voice_note_ids">
+                            <h5 style="color:#0b5850">Voice history</h5>
+                            <div t-foreach="o.voice_note_ids" t-as="v" style="margin-bottom:4px">
+                                <i><span t-field="v.create_date"/> – <span t-field="v.user_id"/>:</i> <span t-field="v.transcript"/>
+                            </div>
+                        </t>
+
+                        <h5 style="color:#0b5850">Outcome</h5>
+                        <p><span t-field="o.outcome"/><t t-if="o.outcome_note"> – <span t-field="o.outcome_note"/></t></p>
+                        <p class="text-muted" style="font-size:10px;margin-top:16px">
+                            System suggestions are decision support only. All diagnoses and orders above were
+                            decided by the attending veterinarian.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

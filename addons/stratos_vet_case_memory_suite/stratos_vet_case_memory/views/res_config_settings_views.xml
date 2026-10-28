@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_vet_cm" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.vet.cm</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="95"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Vet Clinical Suggestions" string="Vet Clinical Suggestions"
+                     name="stratos_vet_case_memory" groups="stratos_vet_case_memory.group_vet_cm_manager">
+                    <block title="Similarity matching" name="vet_cm_matching">
+                        <setting string="Weights" help="How much each factor counts when comparing cases (any scale; normalised).">
+                            <div class="content-group">
+                                <div class="row mt8"><label for="vet_cm_w_symptoms" class="col-lg-5"/><field name="vet_cm_w_symptoms"/></div>
+                                <div class="row"><label for="vet_cm_w_age" class="col-lg-5"/><field name="vet_cm_w_age"/></div>
+                                <div class="row"><label for="vet_cm_w_weight" class="col-lg-5"/><field name="vet_cm_w_weight"/></div>
+                                <div class="row"><label for="vet_cm_w_breed" class="col-lg-5"/><field name="vet_cm_w_breed"/></div>
+                                <div class="row"><label for="vet_cm_w_vitals" class="col-lg-5"/><field name="vet_cm_w_vitals"/></div>
+                            </div>
+                        </setting>
+                        <setting string="Safety thresholds" help="Below these, no case-based suggestion is shown.">
+                            <div class="content-group">
+                                <div class="row mt8"><label for="vet_cm_min_cases" class="col-lg-5"/><field name="vet_cm_min_cases"/></div>
+                                <div class="row"><label for="vet_cm_min_similarity" class="col-lg-5"/><field name="vet_cm_min_similarity"/></div>
+                                <div class="row"><label for="vet_cm_min_confidence" class="col-lg-5"/><field name="vet_cm_min_confidence"/></div>
+                                <div class="row"><label for="vet_cm_max_matches" class="col-lg-5"/><field name="vet_cm_max_matches"/></div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Voice &amp; AI" name="vet_cm_ai">
+                        <setting string="Dictation language" help="Browser speech recognition (Chrome / Edge).">
+                            <field name="vet_cm_voice_lang"/>
+                        </setting>
+                        <setting string="AI layer" help="Optional. Structures dictation into SOAP and explains suggestions. The AI never approves anything.">
+                            <field name="vet_cm_ai_enabled"/>
+                            <div class="content-group" invisible="not vet_cm_ai_enabled">
+                                <div class="row mt8"><label for="vet_cm_ai_provider" class="col-lg-4"/><field name="vet_cm_ai_provider"/></div>
+                                <div class="row" invisible="vet_cm_ai_provider == 'mock'"><label for="vet_cm_ai_model" class="col-lg-4"/><field name="vet_cm_ai_model" placeholder="default"/></div>
+                                <div class="row" invisible="vet_cm_ai_provider == 'mock'"><label for="vet_cm_ai_api_key" class="col-lg-4"/><field name="vet_cm_ai_api_key" password="True"/></div>
+                            </div>
+                        </setting>
+                        <setting string="Demo data" help="Load 50 finalised demo cases (dogs, cats, cattle, goats) plus 6 open cases.">
+                            <button name="action_vet_cm_load_demo" type="object" string="Load demo cases" class="btn-link" icon="fa-database"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'stratos_vet_case_memory', 'bin_size': False}</field>
+    </record>
+</odoo>

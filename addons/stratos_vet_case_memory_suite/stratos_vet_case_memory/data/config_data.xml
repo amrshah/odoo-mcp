@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="param_ai_enabled" model="ir.config_parameter">
+        <field name="key">vet_cm.ai_enabled</field>
+        <field name="value">True</field>
+    </record>
+    <record id="param_ai_provider" model="ir.config_parameter">
+        <field name="key">vet_cm.ai_provider</field>
+        <field name="value">mock</field>
+    </record>
+</odoo>

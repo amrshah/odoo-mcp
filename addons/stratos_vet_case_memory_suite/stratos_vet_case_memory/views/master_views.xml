@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_cm_species_list" model="ir.ui.view">
+        <field name="name">vet.cm.species.list</field>
+        <field name="model">vet.cm.species</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="food_producing"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_vet_cm_species" model="ir.actions.act_window">
+        <field name="name">Species</field>
+        <field name="res_model">vet.cm.species</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="view_vet_cm_symptom_list" model="ir.ui.view">
+        <field name="name">vet.cm.symptom.list</field>
+        <field name="model">vet.cm.symptom</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="category"/>
+                <field name="weight"/>
+                <field name="keywords"/>
+                <field name="species_ids" widget="many2many_tags" optional="show"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_vet_cm_symptom_search" model="ir.ui.view">
+        <field name="name">vet.cm.symptom.search</field>
+        <field name="model">vet.cm.symptom</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="keywords"/>
+                <group><filter name="g_cat" string="Category" context="{'group_by': 'category'}"/></group>
+            </search>
+        </field>
+    </record>
+    <record id="action_vet_cm_symptom" model="ir.actions.act_window">
+        <field name="name">Symptoms &amp; Voice Keywords</field>
+        <field name="res_model">vet.cm.symptom</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="view_vet_cm_diagnosis_list" model="ir.ui.view">
+        <field name="name">vet.cm.diagnosis.list</field>
+        <field name="model">vet.cm.diagnosis</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="species_ids" widget="many2many_tags"/>
+                <field name="zoonotic"/>
+                <field name="notifiable"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_vet_cm_diagnosis" model="ir.actions.act_window">
+        <field name="name">Diagnoses</field>
+        <field name="res_model">vet.cm.diagnosis</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="view_vet_cm_test_list" model="ir.ui.view">
+        <field name="name">vet.cm.test.list</field>
+        <field name="model">vet.cm.test</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="test_type"/>
+                <field name="price"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_vet_cm_test" model="ir.actions.act_window">
+        <field name="name">Tests</field>
+        <field name="res_model">vet.cm.test</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <record id="view_vet_cm_drug_list" model="ir.ui.view">
+        <field name="name">vet.cm.drug.list</field>
+        <field name="model">vet.cm.drug</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="dose_basis"/>
+                <field name="dose_default"/>
+                <field name="dose_min" optional="show"/>
+                <field name="dose_max" optional="show"/>
+                <field name="fixed_dose" optional="show"/>
+                <field name="route"/>
+                <field name="blocked_species_ids" widget="many2many_tags"/>
+                <field name="withdrawal_milk_days" optional="show"/>
+                <field name="withdrawal_meat_days" optional="show"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_vet_cm_drug_form" model="ir.ui.view">
+        <field name="name">vet.cm.drug.form</field>
+        <field name="model">vet.cm.drug</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" placeholder="Drug name"/></h1></div>
+                    <group>
+                        <group string="Dosing">
+                            <field name="active_ingredient"/>
+                            <field name="dose_basis"/>
+                            <field name="dose_default" invisible="dose_basis != 'per_kg'"/>
+                            <field name="dose_min" invisible="dose_basis != 'per_kg'"/>
+                            <field name="dose_max" invisible="dose_basis != 'per_kg'"/>
+                            <field name="fixed_dose" invisible="dose_basis != 'fixed'"/>
+                            <field name="route"/>
+                            <field name="frequency"/>
+                            <field name="days"/>
+                        </group>
+                        <group string="Safety">
+                            <field name="blocked_species_ids" widget="many2many_tags"/>
+                            <field name="caution_breeds"/>
+                            <field name="avoid_pregnant"/>
+                            <field name="withdrawal_milk_days"/>
+                            <field name="withdrawal_meat_days"/>
+                            <field name="price_per_mg"/>
+                        </group>
+                    </group>
+                    <field name="note" placeholder="Notes..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_vet_cm_drug" model="ir.actions.act_window">
+        <field name="name">Drugs &amp; Dosing Rules</field>
+        <field name="res_model">vet.cm.drug</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_vet_cm_protocol_list" model="ir.ui.view">
+        <field name="name">vet.cm.protocol.list</field>
+        <field name="model">vet.cm.protocol</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="species_id"/>
+                <field name="diagnosis_id"/>
+                <field name="author_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_vet_cm_protocol_form" model="ir.ui.view">
+        <field name="name">vet.cm.protocol.form</field>
+        <field name="model">vet.cm.protocol</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <p class="text-muted">Starter knowledge used when fewer than the minimum number of similar
+                        cases exist (e.g. a new species or a new clinic).</p>
+                    <group>
+                        <group>
+                            <field name="species_id"/>
+                            <field name="diagnosis_id"/>
+                            <field name="author_id"/>
+                        </group>
+                        <group>
+                            <field name="symptom_ids" widget="many2many_tags"/>
+                            <field name="test_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="drug_id"/>
+                            <field name="dose_mgkg"/>
+                            <field name="frequency"/>
+                            <field name="days"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_vet_cm_protocol" model="ir.actions.act_window">
+        <field name="name">Protocols</field>
+        <field name="res_model">vet.cm.protocol</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

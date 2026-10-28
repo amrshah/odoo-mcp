@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <function model="vet.cm.demo.loader" name="action_load_demo"/>
+</odoo>

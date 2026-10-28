@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_cm_case_form" model="ir.ui.view">
+        <field name="name">vet.cm.case.form</field>
+        <field name="model">vet.cm.case</field>
+        <field name="arch" type="xml">
+            <form string="Clinical Case">
+                <header>
+                    <button name="action_get_suggestions" type="object" string="Get Suggestions"
+                            class="btn-primary" icon="fa-lightbulb-o" invisible="state != 'draft'"
+                            groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                    <button name="action_finalise" type="object" string="Finalise Case"
+                            invisible="state != 'draft'" groups="stratos_vet_case_memory.group_vet_cm_vet"
+                            confirm="Finalise and lock this case? It will feed the knowledge base."/>
+                    <button name="action_amend" type="object" string="Amend"
+                            invisible="state != 'final'" groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                    <button name="action_print" type="object" string="Print" icon="fa-print"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,final"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_suggestions" type="object" class="oe_stat_button"
+                                icon="fa-lightbulb-o" invisible="not suggestion_count">
+                            <div class="o_stat_info">
+                                <field name="suggestion_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Suggestion runs</span>
+                            </div>
+                        </button>
+                        <button name="action_open_voice" type="object" class="oe_stat_button"
+                                icon="fa-microphone">
+                            <div class="o_stat_info">
+                                <field name="voice_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Voice notes</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Finalised" bg_color="text-bg-success" invisible="state != 'final'"/>
+                    <widget name="web_ribbon" title="Superseded" bg_color="text-bg-secondary" invisible="state != 'superseded'"/>
+                    <div class="alert alert-danger mb-2" role="alert" invisible="not zoonotic">
+                        <i class="fa fa-exclamation-triangle" title="Warning"/> <b>Zoonotic risk:</b> use PPE and inform the owner.
+                    </div>
+                    <div class="alert alert-warning mb-2" role="alert" invisible="not pending_line_count or state != 'draft'">
+                        <i class="fa fa-hourglass-half" title="Pending"/> <field name="pending_line_count" class="d-inline"/> suggestion(s) waiting for the vet's decision.
+                        <button name="action_open_suggestions" type="object" string="Review" class="btn-link p-0 ms-2"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h2><field name="animal_name" placeholder="Animal name / ear tag" readonly="state != 'draft'"/></h2>
+                    </div>
+                    <div class="mb-3" invisible="state != 'draft'">
+                        <widget name="vet_voice_recorder"/>
+                    </div>
+                    <group>
+                        <group string="Animal">
+                            <field name="species_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="breed" readonly="state != 'draft'"/>
+                            <field name="sex" readonly="state != 'draft'"/>
+                            <field name="repro_status" readonly="state != 'draft'"/>
+                            <label for="age_months"/>
+                            <div class="o_row">
+                                <field name="age_months" readonly="state != 'draft'"/>
+                                <field name="life_stage" class="text-muted" readonly="1"/>
+                            </div>
+                            <field name="weight_kg" readonly="state != 'draft'"/>
+                            <field name="owner_id" readonly="state != 'draft'"/>
+                            <field name="owner_phone" widget="phone"/>
+                        </group>
+                        <group string="Visit &amp; Vitals">
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="vet_id" readonly="state != 'draft'"/>
+                            <field name="temperature" readonly="state != 'draft'"/>
+                            <field name="heart_rate" readonly="state != 'draft'"/>
+                            <field name="resp_rate" readonly="state != 'draft'"/>
+                            <field name="food_producing" invisible="1"/>
+                            <field name="amended_from_id" invisible="not amended_from_id"/>
+                            <field name="superseded_by_id" invisible="not superseded_by_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Symptoms" name="symptoms">
+                            <group>
+                                <field name="complaint" placeholder="What the owner reports..." readonly="state != 'draft'"/>
+                                <field name="symptom_ids" widget="many2many_tags" options="{'no_create': True}"
+                                       placeholder="Type or dictate symptoms..." readonly="state != 'draft'"/>
+                            </group>
+                        </page>
+                        <page string="Diagnosis &amp; Plan" name="plan">
+                            <group>
+                                <field name="diagnosis_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                                <field name="estimate_total" string="Owner estimate (PKR)"/>
+                            </group>
+                            <separator string="Tests"/>
+                            <field name="test_line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="test_id" options="{'no_create': True}"/>
+                                    <field name="state"/>
+                                    <field name="result"/>
+                                    <field name="from_suggestion" string="From suggestion" widget="boolean_toggle" readonly="1"/>
+                                </list>
+                            </field>
+                            <separator string="Treatment / prescription"/>
+                            <field name="treatment_line_ids" readonly="state != 'draft'">
+                                <list editable="bottom" decoration-danger="warning">
+                                    <field name="drug_id" options="{'no_create': True}"/>
+                                    <field name="dose_basis" column_invisible="1"/>
+                                    <field name="dose_mgkg" invisible="dose_basis == 'fixed'"/>
+                                    <field name="total_mg" invisible="dose_basis == 'fixed'"/>
+                                    <field name="fixed_dose" invisible="dose_basis != 'fixed'"/>
+                                    <field name="route"/>
+                                    <field name="frequency"/>
+                                    <field name="days"/>
+                                    <field name="warning"/>
+                                    <field name="from_suggestion" string="From suggestion" widget="boolean_toggle" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="SOAP Notes" name="soap">
+                            <group>
+                                <field name="subjective" readonly="state != 'draft'"/>
+                                <field name="objective" readonly="state != 'draft'"/>
+                                <field name="assessment" readonly="state != 'draft'"/>
+                                <field name="plan" readonly="state != 'draft'"/>
+                            </group>
+                        </page>
+                        <page string="Voice History" name="voice">
+                            <field name="voice_note_ids" readonly="1">
+                                <list decoration-warning="state == 'proposed'">
+                                    <field name="create_date" string="When"/>
+                                    <field name="user_id"/>
+                                    <field name="language"/>
+                                    <field name="transcript"/>
+                                    <field name="matched_symptom_ids" widget="many2many_tags"/>
+                                    <field name="state" widget="badge"/>
+                                    <button name="action_apply" type="object" string="Apply" icon="fa-check"
+                                            class="btn-link text-success" invisible="state != 'proposed' or case_state != 'draft'"
+                                            groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                                    <field name="case_state" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Suggestion Runs" name="suggestions" invisible="not suggestion_count">
+                            <field name="suggestion_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="user_id"/>
+                                    <field name="match_count"/>
+                                    <field name="low_evidence"/>
+                                    <field name="state" widget="badge" decoration-warning="state == 'pending'" decoration-success="state == 'done'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Outcome" name="outcome">
+                            <group>
+                                <field name="outcome"/>
+                                <field name="outcome_date"/>
+                                <field name="outcome_note"/>
+                            </group>
+                            <p class="text-muted">The outcome teaches the system which treatments work.
+                                It can be recorded at follow-up, even after the case is finalised.</p>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_case_list" model="ir.ui.view">
+        <field name="name">vet.cm.case.list</field>
+        <field name="model">vet.cm.case</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'superseded'" decoration-info="state == 'draft'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="animal_name"/>
+                <field name="species_id"/>
+                <field name="breed" optional="show"/>
+                <field name="owner_id" optional="show"/>
+                <field name="vet_id" optional="show"/>
+                <field name="symptom_ids" widget="many2many_tags" optional="hide"/>
+                <field name="diagnosis_id"/>
+                <field name="outcome" widget="badge" decoration-success="outcome == 'resolved'"
+                       decoration-info="outcome == 'improved'" decoration-warning="outcome == 'not_improved'"
+                       decoration-danger="outcome == 'died'"/>
+                <field name="state" widget="badge" decoration-success="state == 'final'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_case_kanban" model="ir.ui.view">
+        <field name="name">vet.cm.case.kanban</field>
+        <field name="model">vet.cm.case</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between">
+                            <field name="animal_name" class="fw-bold"/>
+                            <field name="name" class="text-muted small"/>
+                        </div>
+                        <div class="small"><field name="species_id"/> · <field name="breed"/></div>
+                        <field name="symptom_ids" widget="many2many_tags"/>
+                        <div class="small text-primary"><field name="diagnosis_id"/></div>
+                        <footer>
+                            <field name="outcome" widget="badge"/>
+                            <field name="vet_id" widget="many2one_avatar_user" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_case_search" model="ir.ui.view">
+        <field name="name">vet.cm.case.search</field>
+        <field name="model">vet.cm.case</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="animal_name"/>
+                <field name="owner_id"/>
+                <field name="species_id"/>
+                <field name="symptom_ids"/>
+                <field name="diagnosis_id"/>
+                <filter name="open" string="In consultation" domain="[('state', '=', 'draft')]"/>
+                <filter name="final" string="Finalised" domain="[('state', '=', 'final')]"/>
+                <separator/>
+                <filter name="mine" string="My cases" domain="[('vet_id', '=', uid)]"/>
+                <filter name="followup" string="Awaiting follow-up" domain="[('state', '=', 'final'), ('outcome', '=', 'pending')]"/>
+                <filter name="zoonotic" string="Zoonotic" domain="[('diagnosis_id.zoonotic', '=', True)]"/>
+                <group>
+                    <filter name="g_species" string="Species" context="{'group_by': 'species_id'}"/>
+                    <filter name="g_diag" string="Diagnosis" context="{'group_by': 'diagnosis_id'}"/>
+                    <filter name="g_outcome" string="Outcome" context="{'group_by': 'outcome'}"/>
+                    <filter name="g_vet" string="Veterinarian" context="{'group_by': 'vet_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_case_pivot" model="ir.ui.view">
+        <field name="name">vet.cm.case.pivot</field>
+        <field name="model">vet.cm.case</field>
+        <field name="arch" type="xml">
+            <pivot string="Cases">
+                <field name="diagnosis_id" type="row"/>
+                <field name="outcome" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_case" model="ir.actions.act_window">
+        <field name="name">Clinical Cases</field>
+        <field name="res_model">vet.cm.case</field>
+        <field name="view_mode">list,kanban,form,pivot</field>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Start a new clinical case</p>
+            <p>Enter the animal, symptoms and vitals (or dictate them), then press
+                <b>Get Suggestions</b>. The system learns from every finalised case.</p>
+        </field>
+    </record>
+</odoo>

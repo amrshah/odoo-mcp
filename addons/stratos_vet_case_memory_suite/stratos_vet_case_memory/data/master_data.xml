@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+    <record id="sp_dog" model="vet.cm.species">
+        <field name="name">Dog (Canine)</field>
+        <field name="code">DOG</field>
+        <field name="sequence">10</field>
+        <field name="food_producing" eval="False"/>
+    </record>
+    <record id="sp_cat" model="vet.cm.species">
+        <field name="name">Cat (Feline)</field>
+        <field name="code">CAT</field>
+        <field name="sequence">20</field>
+        <field name="food_producing" eval="False"/>
+    </record>
+    <record id="sp_cattle" model="vet.cm.species">
+        <field name="name">Cattle (Bovine)</field>
+        <field name="code">BOV</field>
+        <field name="sequence">30</field>
+        <field name="food_producing" eval="True"/>
+    </record>
+    <record id="sp_buffalo" model="vet.cm.species">
+        <field name="name">Buffalo</field>
+        <field name="code">BUF</field>
+        <field name="sequence">40</field>
+        <field name="food_producing" eval="True"/>
+    </record>
+    <record id="sp_goat" model="vet.cm.species">
+        <field name="name">Goat (Caprine)</field>
+        <field name="code">CAP</field>
+        <field name="sequence">50</field>
+        <field name="food_producing" eval="True"/>
+    </record>
+    <record id="sp_sheep" model="vet.cm.species">
+        <field name="name">Sheep (Ovine)</field>
+        <field name="code">OVI</field>
+        <field name="sequence">60</field>
+        <field name="food_producing" eval="True"/>
+    </record>
+    <record id="sp_horse" model="vet.cm.species">
+        <field name="name">Horse (Equine)</field>
+        <field name="code">EQU</field>
+        <field name="sequence">70</field>
+        <field name="food_producing" eval="False"/>
+    </record>
+    <record id="sp_poultry" model="vet.cm.species">
+        <field name="name">Poultry</field>
+        <field name="code">PLT</field>
+        <field name="sequence">80</field>
+        <field name="food_producing" eval="True"/>
+    </record>
+    <record id="sp_rabbit" model="vet.cm.species">
+        <field name="name">Rabbit</field>
+        <field name="code">RAB</field>
+        <field name="sequence">90</field>
+        <field name="food_producing" eval="False"/>
+    </record>
+    <record id="sp_bird" model="vet.cm.species">
+        <field name="name">Bird (Pet / Exotic)</field>
+        <field name="code">AVI</field>
+        <field name="sequence">100</field>
+        <field name="food_producing" eval="False"/>
+    </record>
+    <record id="sym_fever" model="vet.cm.symptom">
+        <field name="name">Fever</field>
+        <field name="category">general</field>
+        <field name="weight">2</field>
+        <field name="keywords">fever, febrile, high temperature, pyrexia, bukhar, بخار</field>
+    </record>
+    <record id="sym_lethargy" model="vet.cm.symptom">
+        <field name="name">Lethargy / weakness</field>
+        <field name="category">general</field>
+        <field name="weight">1</field>
+        <field name="keywords">lethargic, lethargy, dull, depressed, weak, weakness, susti, kamzori</field>
+    </record>
+    <record id="sym_anorexia" model="vet.cm.symptom">
+        <field name="name">Anorexia (not eating)</field>
+        <field name="category">general</field>
+        <field name="weight">2</field>
+        <field name="keywords">not eating, off food, off feed, inappetence, anorexic, loss of appetite, khana nahi, chara nahi</field>
+    </record>
+    <record id="sym_dehydration" model="vet.cm.symptom">
+        <field name="name">Dehydration</field>
+        <field name="category">general</field>
+        <field name="weight">2</field>
+        <field name="keywords">dehydrated, dehydration, sunken eyes, skin tent</field>
+    </record>
+    <record id="sym_weight_loss" model="vet.cm.symptom">
+        <field name="name">Weight loss</field>
+        <field name="category">general</field>
+        <field name="weight">1</field>
+        <field name="keywords">weight loss, losing weight, thin</field>
+    </record>
+    <record id="sym_pale_gums" model="vet.cm.symptom">
+        <field name="name">Pale mucous membranes</field>
+        <field name="category">blood</field>
+        <field name="weight">3</field>
+        <field name="keywords">pale gums, pale mucous, anaemic, anemic, pale membranes</field>
+    </record>
+    <record id="sym_lymph" model="vet.cm.symptom">
+        <field name="name">Enlarged lymph nodes</field>
+        <field name="category">blood</field>
+        <field name="weight">3</field>
+        <field name="keywords">enlarged lymph nodes, swollen lymph nodes, swollen glands, lymphadenopathy</field>
+    </record>
+    <record id="sym_dark_urine" model="vet.cm.symptom">
+        <field name="name">Dark / red urine</field>
+        <field name="category">urinary</field>
+        <field name="weight">3</field>
+        <field name="keywords">dark urine, coffee coloured urine, brown urine, red water</field>
+    </record>
+    <record id="sym_vomiting" model="vet.cm.symptom">
+        <field name="name">Vomiting</field>
+        <field name="category">gi</field>
+        <field name="weight">2</field>
+        <field name="keywords">vomit, vomiting, vomits, vomited, ulti, qay, قے</field>
+    </record>
+    <record id="sym_diarrhoea" model="vet.cm.symptom">
+        <field name="name">Diarrhoea</field>
+        <field name="category">gi</field>
+        <field name="weight">2</field>
+        <field name="keywords">diarrhoea, diarrhea, loose stool, loose motions, dast, دست</field>
+    </record>
+    <record id="sym_bloody_diarrhoea" model="vet.cm.symptom">
+        <field name="name">Bloody diarrhoea</field>
+        <field name="category">gi</field>
+        <field name="weight">3</field>
+        <field name="keywords">bloody diarrhoea, bloody diarrhea, blood in stool, haemorrhagic diarrhoea, hemorrhagic diarrhea, khooni dast</field>
+    </record>
+    <record id="sym_abdominal_pain" model="vet.cm.symptom">
+        <field name="name">Abdominal pain</field>
+        <field name="category">gi</field>
+        <field name="weight">1</field>
+        <field name="keywords">abdominal pain, painful abdomen, tummy pain, pait dard</field>
+    </record>
+    <record id="sym_bloat" model="vet.cm.symptom">
+        <field name="name">Ruminal bloat / distension</field>
+        <field name="category">gi</field>
+        <field name="weight">3</field>
+        <field name="keywords">bloat, bloated, distended abdomen, left flank distension, afara, aphara</field>
+    </record>
+    <record id="sym_salivation" model="vet.cm.symptom">
+        <field name="name">Excess salivation</field>
+        <field name="category">gi</field>
+        <field name="weight">2</field>
+        <field name="keywords">drooling, salivation, frothing, raal</field>
+    </record>
+    <record id="sym_mouth_lesions" model="vet.cm.symptom">
+        <field name="name">Oral lesions / erosions</field>
+        <field name="category">gi</field>
+        <field name="weight">3</field>
+        <field name="keywords">mouth ulcers, oral lesions, mouth sores, erosions in mouth, oral erosions</field>
+    </record>
+    <record id="sym_sneezing" model="vet.cm.symptom">
+        <field name="name">Sneezing</field>
+        <field name="category">resp</field>
+        <field name="weight">3</field>
+        <field name="keywords">sneeze, sneezing, sneezes, cheenk</field>
+    </record>
+    <record id="sym_nasal_discharge" model="vet.cm.symptom">
+        <field name="name">Nasal discharge</field>
+        <field name="category">resp</field>
+        <field name="weight">2</field>
+        <field name="keywords">nasal discharge, runny nose, snot, naak beh</field>
+    </record>
+    <record id="sym_ocular_discharge" model="vet.cm.symptom">
+        <field name="name">Ocular discharge</field>
+        <field name="category">resp</field>
+        <field name="weight">2</field>
+        <field name="keywords">eye discharge, ocular discharge, watery eyes, conjunctivitis</field>
+    </record>
+    <record id="sym_cough" model="vet.cm.symptom">
+        <field name="name">Cough</field>
+        <field name="category">resp</field>
+        <field name="weight">2</field>
+        <field name="keywords">cough, coughing, khansi</field>
+    </record>
+    <record id="sym_dyspnoea" model="vet.cm.symptom">
+        <field name="name">Laboured breathing</field>
+        <field name="category">resp</field>
+        <field name="weight">2</field>
+        <field name="keywords">difficulty breathing, laboured breathing, labored breathing, dyspnoea, dyspnea, saans phoolna</field>
+    </record>
+    <record id="sym_pruritus" model="vet.cm.symptom">
+        <field name="name">Pruritus (itching)</field>
+        <field name="category">skin</field>
+        <field name="weight">2</field>
+        <field name="keywords">itch, itching, itchy, scratching, pruritus, kharish</field>
+    </record>
+    <record id="sym_alopecia" model="vet.cm.symptom">
+        <field name="name">Alopecia (hair loss)</field>
+        <field name="category">skin</field>
+        <field name="weight">2</field>
+        <field name="keywords">hair loss, alopecia, bald patches</field>
+    </record>
+    <record id="sym_crusts" model="vet.cm.symptom">
+        <field name="name">Crusts / scabs</field>
+        <field name="category">skin</field>
+        <field name="weight">2</field>
+        <field name="keywords">crusts, crusting, scabs, scaly</field>
+    </record>
+    <record id="sym_head_shaking" model="vet.cm.symptom">
+        <field name="name">Head shaking</field>
+        <field name="category">skin</field>
+        <field name="weight">3</field>
+        <field name="keywords">head shaking, shaking head, shakes head, shaking its head, shaking his head, shaking her head</field>
+    </record>
+    <record id="sym_ear_discharge" model="vet.cm.symptom">
+        <field name="name">Ear discharge / odour</field>
+        <field name="category">skin</field>
+        <field name="weight">3</field>
+        <field name="keywords">ear discharge, smelly ear, ear odour, ear odor, waxy ear, ear smell</field>
+    </record>
+    <record id="sym_fleas" model="vet.cm.symptom">
+        <field name="name">Fleas seen</field>
+        <field name="category">skin</field>
+        <field name="weight">3</field>
+        <field name="keywords">fleas, flea dirt, pissu</field>
+    </record>
+    <record id="sym_straining" model="vet.cm.symptom">
+        <field name="name">Straining to urinate</field>
+        <field name="category">urinary</field>
+        <field name="weight">3</field>
+        <field name="keywords">straining to urinate, stranguria, straining in the litter, straining</field>
+    </record>
+    <record id="sym_haematuria" model="vet.cm.symptom">
+        <field name="name">Blood in urine</field>
+        <field name="category">urinary</field>
+        <field name="weight">3</field>
+        <field name="keywords">blood in urine, haematuria, hematuria, red urine</field>
+    </record>
+    <record id="sym_frequent_urination" model="vet.cm.symptom">
+        <field name="name">Frequent urination</field>
+        <field name="category">urinary</field>
+        <field name="weight">2</field>
+        <field name="keywords">frequent urination, pollakiuria, peeing often, urinating often</field>
+    </record>
+    <record id="sym_swollen_udder" model="vet.cm.symptom">
+        <field name="name">Swollen / hot udder</field>
+        <field name="category">repro</field>
+        <field name="weight">3</field>
+        <field name="keywords">swollen udder, hard udder, hot udder, udder swelling, swollen quarter</field>
+    </record>
+    <record id="sym_abnormal_milk" model="vet.cm.symptom">
+        <field name="name">Abnormal milk (clots / watery)</field>
+        <field name="category">repro</field>
+        <field name="weight">3</field>
+        <field name="keywords">clots in milk, watery milk, abnormal milk, flakes in milk, milk clots</field>
+    </record>
+    <record id="sym_milk_drop" model="vet.cm.symptom">
+        <field name="name">Drop in milk yield</field>
+        <field name="category">repro</field>
+        <field name="weight">2</field>
+        <field name="keywords">milk drop, reduced milk, less milk, drop in milk, doodh kam</field>
+    </record>
+    <record id="sym_abortion" model="vet.cm.symptom">
+        <field name="name">Abortion</field>
+        <field name="category">repro</field>
+        <field name="weight">3</field>
+        <field name="keywords">abortion, aborted, miscarriage</field>
+    </record>
+    <record id="sym_retained_placenta" model="vet.cm.symptom">
+        <field name="name">Retained placenta</field>
+        <field name="category">repro</field>
+        <field name="weight">3</field>
+        <field name="keywords">retained placenta, retained afterbirth</field>
+    </record>
+    <record id="sym_lameness" model="vet.cm.symptom">
+        <field name="name">Lameness</field>
+        <field name="category">neuro</field>
+        <field name="weight">2</field>
+        <field name="keywords">lame, lameness, limping</field>
+    </record>
+    <record id="dx_parvo" model="vet.cm.diagnosis">
+        <field name="name">Canine parvovirus enteritis</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_dog')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_gastro" model="vet.cm.diagnosis">
+        <field name="name">Acute gastroenteritis (dietary)</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_dog'), ref('sp_cat')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_babesia" model="vet.cm.diagnosis">
+        <field name="name">Canine babesiosis (tick fever)</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_dog')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_mange" model="vet.cm.diagnosis">
+        <field name="name">Sarcoptic mange</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_dog')])]"/>
+        <field name="zoonotic" eval="True"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_otitis" model="vet.cm.diagnosis">
+        <field name="name">Otitis externa</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_dog'), ref('sp_cat')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_flutd" model="vet.cm.diagnosis">
+        <field name="name">Feline lower urinary tract disease (FLUTD)</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_cat')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_uri" model="vet.cm.diagnosis">
+        <field name="name">Feline upper respiratory infection</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_cat')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_fad" model="vet.cm.diagnosis">
+        <field name="name">Flea allergy dermatitis</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_dog'), ref('sp_cat')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_mastitis" model="vet.cm.diagnosis">
+        <field name="name">Clinical mastitis</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_cattle'), ref('sp_buffalo'), ref('sp_goat')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_theileria" model="vet.cm.diagnosis">
+        <field name="name">Theileriosis</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_cattle'), ref('sp_buffalo')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_brucella" model="vet.cm.diagnosis">
+        <field name="name">Brucellosis</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_cattle'), ref('sp_buffalo'), ref('sp_goat'), ref('sp_sheep')])]"/>
+        <field name="zoonotic" eval="True"/>
+        <field name="notifiable" eval="True"/>
+    </record>
+    <record id="dx_ppr" model="vet.cm.diagnosis">
+        <field name="name">Peste des petits ruminants (PPR)</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_goat'), ref('sp_sheep')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="True"/>
+    </record>
+    <record id="dx_pneumonia" model="vet.cm.diagnosis">
+        <field name="name">Pneumonia (pasteurellosis)</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_goat'), ref('sp_sheep'), ref('sp_cattle')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="dx_bloat" model="vet.cm.diagnosis">
+        <field name="name">Frothy bloat</field>
+        <field name="species_ids" eval="[(6, 0, [ref('sp_cattle'), ref('sp_buffalo'), ref('sp_goat'), ref('sp_sheep')])]"/>
+        <field name="zoonotic" eval="False"/>
+        <field name="notifiable" eval="False"/>
+    </record>
+    <record id="test_parvo_snap" model="vet.cm.test">
+        <field name="name">Parvovirus antigen rapid test</field>
+        <field name="test_type">rapid</field>
+        <field name="price">2500</field>
+    </record>
+    <record id="test_cbc" model="vet.cm.test">
+        <field name="name">Complete blood count (CBC)</field>
+        <field name="test_type">lab</field>
+        <field name="price">2000</field>
+    </record>
+    <record id="test_smear" model="vet.cm.test">
+        <field name="name">Blood smear – haemoparasites</field>
+        <field name="test_type">lab</field>
+        <field name="price">800</field>
+    </record>
+    <record id="test_biochem" model="vet.cm.test">
+        <field name="name">Biochemistry panel</field>
+        <field name="test_type">lab</field>
+        <field name="price">4500</field>
+    </record>
+    <record id="test_scraping" model="vet.cm.test">
+        <field name="name">Deep skin scraping</field>
+        <field name="test_type">lab</field>
+        <field name="price">1000</field>
+    </record>
+    <record id="test_ear_cyto" model="vet.cm.test">
+        <field name="name">Ear cytology</field>
+        <field name="test_type">lab</field>
+        <field name="price">1000</field>
+    </record>
+    <record id="test_urinalysis" model="vet.cm.test">
+        <field name="name">Urinalysis</field>
+        <field name="test_type">lab</field>
+        <field name="price">1500</field>
+    </record>
+    <record id="test_us_abd" model="vet.cm.test">
+        <field name="name">Abdominal ultrasound</field>
+        <field name="test_type">imaging</field>
+        <field name="price">4000</field>
+    </record>
+    <record id="test_felv" model="vet.cm.test">
+        <field name="name">FeLV / FIV rapid test</field>
+        <field name="test_type">rapid</field>
+        <field name="price">3500</field>
+    </record>
+    <record id="test_cmt" model="vet.cm.test">
+        <field name="name">California Mastitis Test</field>
+        <field name="test_type">rapid</field>
+        <field name="price">300</field>
+    </record>
+    <record id="test_milk_cs" model="vet.cm.test">
+        <field name="name">Milk culture &amp; sensitivity</field>
+        <field name="test_type">lab</field>
+        <field name="price">3000</field>
+    </record>
+    <record id="test_rbpt" model="vet.cm.test">
+        <field name="name">Rose Bengal plate test (Brucella)</field>
+        <field name="test_type">rapid</field>
+        <field name="price">600</field>
+    </record>
+    <record id="test_ppr_ag" model="vet.cm.test">
+        <field name="name">PPR antigen test</field>
+        <field name="test_type">rapid</field>
+        <field name="price">2500</field>
+    </record>
+    <record id="test_xray_chest" model="vet.cm.test">
+        <field name="name">Chest X-ray</field>
+        <field name="test_type">imaging</field>
+        <field name="price">3000</field>
+    </record>
+    <record id="test_faecal" model="vet.cm.test">
+        <field name="name">Faecal examination</field>
+        <field name="test_type">lab</field>
+        <field name="price">600</field>
+    </record>
+    <record id="drug_maropitant" model="vet.cm.drug">
+        <field name="name">Maropitant injection</field>
+        <field name="active_ingredient">Maropitant citrate</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">1</field>
+        <field name="dose_max">2</field>
+        <field name="dose_default">1</field>
+        <field name="route">sc</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">3</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.9</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_metronidazole" model="vet.cm.drug">
+        <field name="name">Metronidazole</field>
+        <field name="active_ingredient">Metronidazole</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">10</field>
+        <field name="dose_max">25</field>
+        <field name="dose_default">15</field>
+        <field name="route">po</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">5</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.02</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_ampicillin" model="vet.cm.drug">
+        <field name="name">Ampicillin injection</field>
+        <field name="active_ingredient">Ampicillin sodium</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">10</field>
+        <field name="dose_max">30</field>
+        <field name="dose_default">22</field>
+        <field name="route">iv</field>
+        <field name="frequency">Three times daily</field>
+        <field name="days">5</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.03</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_ondansetron" model="vet.cm.drug">
+        <field name="name">Ondansetron injection</field>
+        <field name="active_ingredient">Ondansetron</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">0.1</field>
+        <field name="dose_max">1</field>
+        <field name="dose_default">0.5</field>
+        <field name="route">iv</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">3</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">1.5</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_fluids" model="vet.cm.drug">
+        <field name="name">IV fluids – Lactated Ringer's</field>
+        <field name="active_ingredient">Lactated Ringer's</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">60 ml/kg/day</field>
+        <field name="route">iv</field>
+        <field name="frequency">Continuous</field>
+        <field name="days">3</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_famotidine" model="vet.cm.drug">
+        <field name="name">Famotidine</field>
+        <field name="active_ingredient">Famotidine</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">0.5</field>
+        <field name="dose_max">1</field>
+        <field name="dose_default">0.5</field>
+        <field name="route">po</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">5</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.5</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_imidocarb" model="vet.cm.drug">
+        <field name="name">Imidocarb dipropionate</field>
+        <field name="active_ingredient">Imidocarb</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">5</field>
+        <field name="dose_max">6.6</field>
+        <field name="dose_default">6.6</field>
+        <field name="route">sc</field>
+        <field name="frequency">Once, repeat after 14 days</field>
+        <field name="days">1</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.6</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_doxycycline" model="vet.cm.drug">
+        <field name="name">Doxycycline</field>
+        <field name="active_ingredient">Doxycycline</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">5</field>
+        <field name="dose_max">10</field>
+        <field name="dose_default">10</field>
+        <field name="route">po</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">21</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.05</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_ivermectin" model="vet.cm.drug">
+        <field name="name">Ivermectin injection</field>
+        <field name="active_ingredient">Ivermectin</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">0.2</field>
+        <field name="dose_max">0.4</field>
+        <field name="dose_default">0.3</field>
+        <field name="route">sc</field>
+        <field name="frequency">Once weekly</field>
+        <field name="days">3</field>
+        <field name="caution_breeds">Collie, Rough Collie, Border Collie, Australian Shepherd, Shetland Sheepdog, Old English Sheepdog</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">35</field>
+        <field name="price_per_mg">4.0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_chlorhex" model="vet.cm.drug">
+        <field name="name">Chlorhexidine medicated shampoo</field>
+        <field name="active_ingredient">Chlorhexidine 4%</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">Bath, 10 min contact</field>
+        <field name="route">topical</field>
+        <field name="frequency">Twice weekly</field>
+        <field name="days">21</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_otic" model="vet.cm.drug">
+        <field name="name">Otic drops (gentamicin / betamethasone / clotrimazole)</field>
+        <field name="active_ingredient">Gentamicin, betamethasone, clotrimazole</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">4 drops in each affected ear</field>
+        <field name="route">otic</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">7</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_meloxicam" model="vet.cm.drug">
+        <field name="name">Meloxicam</field>
+        <field name="active_ingredient">Meloxicam</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">0.05</field>
+        <field name="dose_max">0.5</field>
+        <field name="dose_default">0.1</field>
+        <field name="route">po</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">3</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">5</field>
+        <field name="withdrawal_meat_days">15</field>
+        <field name="price_per_mg">1.2</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_buprenorphine" model="vet.cm.drug">
+        <field name="name">Buprenorphine</field>
+        <field name="active_ingredient">Buprenorphine</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">0.01</field>
+        <field name="dose_max">0.03</field>
+        <field name="dose_default">0.02</field>
+        <field name="route">sc</field>
+        <field name="frequency">Three times daily</field>
+        <field name="days">3</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">60.0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_amoxiclav" model="vet.cm.drug">
+        <field name="name">Amoxicillin–clavulanate</field>
+        <field name="active_ingredient">Amoxicillin + clavulanic acid</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">12.5</field>
+        <field name="dose_max">25</field>
+        <field name="dose_default">12.5</field>
+        <field name="route">po</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">7</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.04</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_paracetamol" model="vet.cm.drug">
+        <field name="name">Paracetamol (acetaminophen)</field>
+        <field name="active_ingredient">Paracetamol</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">10</field>
+        <field name="dose_max">15</field>
+        <field name="dose_default">10</field>
+        <field name="route">po</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">3</field>
+        <field name="blocked_species_ids" eval="[(6, 0, [ref('sp_cat')])]"/>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0.01</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_permethrin" model="vet.cm.drug">
+        <field name="name">Permethrin spot-on</field>
+        <field name="active_ingredient">Permethrin</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">1 pipette by weight</field>
+        <field name="route">topical</field>
+        <field name="frequency">Once monthly</field>
+        <field name="days">1</field>
+        <field name="blocked_species_ids" eval="[(6, 0, [ref('sp_cat')])]"/>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_fipronil" model="vet.cm.drug">
+        <field name="name">Fipronil spot-on</field>
+        <field name="active_ingredient">Fipronil</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">1 pipette by weight</field>
+        <field name="route">topical</field>
+        <field name="frequency">Once monthly</field>
+        <field name="days">1</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_oxytet" model="vet.cm.drug">
+        <field name="name">Oxytetracycline LA injection</field>
+        <field name="active_ingredient">Oxytetracycline</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">10</field>
+        <field name="dose_max">20</field>
+        <field name="dose_default">20</field>
+        <field name="route">im</field>
+        <field name="frequency">Once, repeat after 72 h</field>
+        <field name="days">2</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">7</field>
+        <field name="withdrawal_meat_days">28</field>
+        <field name="price_per_mg">0.01</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_cloxacillin" model="vet.cm.drug">
+        <field name="name">Intramammary cloxacillin</field>
+        <field name="active_ingredient">Cloxacillin</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">1 tube per affected quarter</field>
+        <field name="route">intramammary</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">3</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">4</field>
+        <field name="withdrawal_meat_days">7</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_ceftiofur" model="vet.cm.drug">
+        <field name="name">Ceftiofur injection</field>
+        <field name="active_ingredient">Ceftiofur</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">1.1</field>
+        <field name="dose_max">2.2</field>
+        <field name="dose_default">2.2</field>
+        <field name="route">im</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">5</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">8</field>
+        <field name="price_per_mg">0.08</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_buparvaquone" model="vet.cm.drug">
+        <field name="name">Buparvaquone injection</field>
+        <field name="active_ingredient">Buparvaquone</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">2.5</field>
+        <field name="dose_max">2.5</field>
+        <field name="dose_default">2.5</field>
+        <field name="route">im</field>
+        <field name="frequency">Once, repeat after 48–72 h if needed</field>
+        <field name="days">1</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">2</field>
+        <field name="withdrawal_meat_days">42</field>
+        <field name="price_per_mg">0.3</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_antibloat" model="vet.cm.drug">
+        <field name="name">Anti-bloat drench (poloxalene)</field>
+        <field name="active_ingredient">Poloxalene</field>
+        <field name="dose_basis">fixed</field>
+        <field name="dose_min">0</field>
+        <field name="dose_max">0</field>
+        <field name="dose_default">0</field>
+        <field name="fixed_dose">Drench as per body weight</field>
+        <field name="route">po</field>
+        <field name="frequency">Once</field>
+        <field name="days">1</field>
+        <field name="avoid_pregnant" eval="False"/>
+        <field name="withdrawal_milk_days">0</field>
+        <field name="withdrawal_meat_days">0</field>
+        <field name="price_per_mg">0</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="drug_enrofloxacin" model="vet.cm.drug">
+        <field name="name">Enrofloxacin injection</field>
+        <field name="active_ingredient">Enrofloxacin</field>
+        <field name="dose_basis">per_kg</field>
+        <field name="dose_min">2.5</field>
+        <field name="dose_max">10</field>
+        <field name="dose_default">5</field>
+        <field name="route">im</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">5</field>
+        <field name="avoid_pregnant" eval="True"/>
+        <field name="withdrawal_milk_days">4</field>
+        <field name="withdrawal_meat_days">14</field>
+        <field name="price_per_mg">0.02</field>
+        <field name="note">Demo dosing values for training only – verify against your local formulary.</field>
+    </record>
+    <record id="proto_dog_parvo" model="vet.cm.protocol">
+        <field name="name">Canine parvo – supportive protocol</field>
+        <field name="species_id" ref="sp_dog"/>
+        <field name="diagnosis_id" ref="dx_parvo"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_vomiting'), ref('sym_bloody_diarrhoea'), ref('sym_lethargy'), ref('sym_anorexia'), ref('sym_fever'), ref('sym_dehydration')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_parvo_snap'), ref('test_cbc')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_dog_parvo_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_dog_parvo"/>
+        <field name="drug_id" ref="drug_fluids"/>
+        <field name="dose_mgkg">0</field>
+        <field name="frequency">Continuous</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_dog_parvo_l1" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_dog_parvo"/>
+        <field name="drug_id" ref="drug_maropitant"/>
+        <field name="dose_mgkg">1</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_dog_parvo_l2" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_dog_parvo"/>
+        <field name="drug_id" ref="drug_metronidazole"/>
+        <field name="dose_mgkg">15</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">5</field>
+    </record>
+    <record id="proto_dog_parvo_l3" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_dog_parvo"/>
+        <field name="drug_id" ref="drug_ampicillin"/>
+        <field name="dose_mgkg">22</field>
+        <field name="frequency">Three times daily</field>
+        <field name="days">5</field>
+    </record>
+    <record id="proto_dog_babesia" model="vet.cm.protocol">
+        <field name="name">Canine tick fever protocol</field>
+        <field name="species_id" ref="sp_dog"/>
+        <field name="diagnosis_id" ref="dx_babesia"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_fever'), ref('sym_pale_gums'), ref('sym_lethargy'), ref('sym_anorexia'), ref('sym_dark_urine')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_smear'), ref('test_cbc')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_dog_babesia_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_dog_babesia"/>
+        <field name="drug_id" ref="drug_imidocarb"/>
+        <field name="dose_mgkg">6.6</field>
+        <field name="frequency">Once, repeat after 14 days</field>
+        <field name="days">1</field>
+    </record>
+    <record id="proto_dog_babesia_l1" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_dog_babesia"/>
+        <field name="drug_id" ref="drug_doxycycline"/>
+        <field name="dose_mgkg">10</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">21</field>
+    </record>
+    <record id="proto_cat_uri" model="vet.cm.protocol">
+        <field name="name">Feline URI protocol</field>
+        <field name="species_id" ref="sp_cat"/>
+        <field name="diagnosis_id" ref="dx_uri"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_sneezing'), ref('sym_nasal_discharge'), ref('sym_ocular_discharge'), ref('sym_fever')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_felv')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_cat_uri_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_cat_uri"/>
+        <field name="drug_id" ref="drug_doxycycline"/>
+        <field name="dose_mgkg">5</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">7</field>
+    </record>
+    <record id="proto_cat_flutd" model="vet.cm.protocol">
+        <field name="name">FLUTD protocol</field>
+        <field name="species_id" ref="sp_cat"/>
+        <field name="diagnosis_id" ref="dx_flutd"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_straining'), ref('sym_haematuria'), ref('sym_frequent_urination')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_urinalysis'), ref('test_us_abd')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_cat_flutd_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_cat_flutd"/>
+        <field name="drug_id" ref="drug_buprenorphine"/>
+        <field name="dose_mgkg">0.02</field>
+        <field name="frequency">Three times daily</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_cattle_mastitis" model="vet.cm.protocol">
+        <field name="name">Bovine clinical mastitis protocol</field>
+        <field name="species_id" ref="sp_cattle"/>
+        <field name="diagnosis_id" ref="dx_mastitis"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_swollen_udder'), ref('sym_abnormal_milk'), ref('sym_milk_drop'), ref('sym_fever')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_cmt'), ref('test_milk_cs')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_cattle_mastitis_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_cattle_mastitis"/>
+        <field name="drug_id" ref="drug_cloxacillin"/>
+        <field name="dose_mgkg">0</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_cattle_mastitis_l1" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_cattle_mastitis"/>
+        <field name="drug_id" ref="drug_meloxicam"/>
+        <field name="dose_mgkg">0.5</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_buffalo_mastitis" model="vet.cm.protocol">
+        <field name="name">Buffalo clinical mastitis protocol</field>
+        <field name="species_id" ref="sp_buffalo"/>
+        <field name="diagnosis_id" ref="dx_mastitis"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_swollen_udder'), ref('sym_abnormal_milk'), ref('sym_milk_drop'), ref('sym_fever')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_cmt'), ref('test_milk_cs')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_buffalo_mastitis_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_buffalo_mastitis"/>
+        <field name="drug_id" ref="drug_cloxacillin"/>
+        <field name="dose_mgkg">0</field>
+        <field name="frequency">Twice daily</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_buffalo_mastitis_l1" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_buffalo_mastitis"/>
+        <field name="drug_id" ref="drug_meloxicam"/>
+        <field name="dose_mgkg">0.5</field>
+        <field name="frequency">Once daily</field>
+        <field name="days">3</field>
+    </record>
+    <record id="proto_buffalo_mastitis_l2" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_buffalo_mastitis"/>
+        <field name="drug_id" ref="drug_oxytet"/>
+        <field name="dose_mgkg">20</field>
+        <field name="frequency">Once, repeat after 72 h</field>
+        <field name="days">2</field>
+    </record>
+    <record id="proto_goat_ppr" model="vet.cm.protocol">
+        <field name="name">PPR – supportive protocol</field>
+        <field name="species_id" ref="sp_goat"/>
+        <field name="diagnosis_id" ref="dx_ppr"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_fever'), ref('sym_nasal_discharge'), ref('sym_mouth_lesions'), ref('sym_diarrhoea')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_ppr_ag')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_goat_ppr_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_goat_ppr"/>
+        <field name="drug_id" ref="drug_oxytet"/>
+        <field name="dose_mgkg">20</field>
+        <field name="frequency">Once, repeat after 72 h</field>
+        <field name="days">2</field>
+    </record>
+    <record id="proto_sheep_ppr" model="vet.cm.protocol">
+        <field name="name">PPR – supportive protocol (sheep)</field>
+        <field name="species_id" ref="sp_sheep"/>
+        <field name="diagnosis_id" ref="dx_ppr"/>
+        <field name="symptom_ids" eval="[(6, 0, [ref('sym_fever'), ref('sym_nasal_discharge'), ref('sym_mouth_lesions'), ref('sym_diarrhoea')])]"/>
+        <field name="test_ids" eval="[(6, 0, [ref('test_ppr_ag')])]"/>
+        <field name="author_id" ref="base.user_admin"/>
+    </record>
+    <record id="proto_sheep_ppr_l0" model="vet.cm.protocol.line">
+        <field name="protocol_id" ref="proto_sheep_ppr"/>
+        <field name="drug_id" ref="drug_oxytet"/>
+        <field name="dose_mgkg">20</field>
+        <field name="frequency">Once, repeat after 72 h</field>
+        <field name="days">2</field>
+    </record>
+</data>
+</odoo>

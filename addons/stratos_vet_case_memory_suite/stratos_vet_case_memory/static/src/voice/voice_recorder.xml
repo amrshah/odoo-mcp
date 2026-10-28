@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="stratos_vet_case_memory.VetVoiceRecorder">
+        <div class="o_vet_voice border rounded p-2">
+            <t t-if="!supported">
+                <span class="text-muted"><i class="fa fa-microphone-slash me-1"/>
+                    Voice dictation needs Google Chrome or Microsoft Edge. You can still type the findings.</span>
+            </t>
+            <t t-else="">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button t-if="!state.recording" class="btn btn-primary btn-sm" t-on-click="start"
+                            t-att-disabled="state.saving or props.readonly">
+                        <i class="fa fa-microphone me-1"/>Dictate
+                    </button>
+                    <t t-else="">
+                        <button class="btn btn-danger btn-sm" t-on-click="stopAndSave">
+                            <i class="fa fa-stop me-1"/>Stop &amp; Save
+                        </button>
+                        <button class="btn btn-secondary btn-sm" t-on-click="cancel">Discard</button>
+                        <span class="o_vet_voice_dot"/>
+                        <span class="text-danger small">Listening… <t t-esc="state.seconds"/>s</span>
+                    </t>
+                    <select class="form-select form-select-sm w-auto" t-model="state.lang"
+                            t-att-disabled="state.recording">
+                        <t t-foreach="langs" t-as="l" t-key="l[0]">
+                            <option t-att-value="l[0]" t-esc="l[1]"/>
+                        </t>
+                    </select>
+                    <span t-if="state.saving" class="text-muted small"><i class="fa fa-spinner fa-spin me-1"/>Saving…</span>
+                    <span t-if="!state.recording and !state.saving" class="text-muted small">
+                        Speak the history and findings. Nothing is applied to the case until a vet confirms.
+                    </span>
+                </div>
+                <div t-if="state.recording or text" class="o_vet_voice_live mt-2 p-2 rounded">
+                    <t t-esc="state.finalText"/> <span class="text-muted fst-italic" t-esc="state.interim"/>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

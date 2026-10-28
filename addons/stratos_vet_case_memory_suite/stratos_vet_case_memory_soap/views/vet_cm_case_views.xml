@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_vet_cm_case_form_soap" model="ir.ui.view">
+        <field name="name">vet.cm.case.form.soap</field>
+        <field name="model">vet.cm.case</field>
+        <field name="inherit_id" ref="stratos_vet_case_memory.view_vet_cm_case_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_exam" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="not exam_count">
+                    <div class="o_stat_info">
+                        <field name="exam_count" class="o_stat_value"/>
+                        <span class="o_stat_text">SOAP exam</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

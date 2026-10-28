@@ -1,0 +1,21 @@
+.o_vet_voice {
+    background-color: var(--o-view-background-color, #fff);
+    .o_vet_voice_live {
+        background-color: rgba(11, 88, 80, 0.06);
+        min-height: 2.5rem;
+        white-space: pre-wrap;
+    }
+    .o_vet_voice_dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #dc3545;
+        display: inline-block;
+        animation: o_vet_voice_pulse 1s infinite;
+    }
+}
+@keyframes o_vet_voice_pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.25; }
+    100% { opacity: 1; }
+}

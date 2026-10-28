@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Reusable line list (inside the suggestion form) -->
+    <record id="view_vet_cm_suggestion_line_list_embedded" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.line.list.embedded</field>
+        <field name="model">vet.cm.suggestion.line</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" decoration-danger="blocked"
+                  decoration-success="decision in ('approved', 'modified')" decoration-muted="decision in ('rejected', 'ignored')">
+                <field name="item_type" column_invisible="1"/>
+                <field name="case_state" column_invisible="1"/>
+                <field name="blocked" column_invisible="1"/>
+                <field name="item_name" string="Suggestion"/>
+                <field name="source" widget="badge" decoration-warning="source == 'protocol'" optional="show"/>
+                <field name="confidence" widget="progressbar"/>
+                <field name="support_count" string="Cases"/>
+                <field name="success_rate" string="Success %" optional="show"/>
+                <field name="dose_display" optional="show"/>
+                <field name="withdrawal" optional="show"/>
+                <field name="warning"/>
+                <field name="decision" widget="badge" decoration-warning="decision == 'pending'"
+                       decoration-success="decision in ('approved', 'modified')" decoration-danger="decision == 'rejected'"/>
+                <button name="action_approve" type="object" string="Approve" icon="fa-check" class="btn-link text-success"
+                        invisible="decision != 'pending' or blocked or case_state != 'draft'"
+                        groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                <button name="action_modify" type="object" string="Modify" icon="fa-pencil" class="btn-link"
+                        invisible="decision != 'pending' or blocked or case_state != 'draft' or item_type != 'drug'"
+                        groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                <button name="action_reject" type="object" string="Reject" icon="fa-times" class="btn-link text-danger"
+                        invisible="decision != 'pending' or blocked or case_state != 'draft'"
+                        groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_suggestion_form" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.form</field>
+        <field name="model">vet.cm.suggestion</field>
+        <field name="arch" type="xml">
+            <form string="Clinical Suggestions" create="0">
+                <header>
+                    <button name="action_explain_ai" type="object" string="Explain with AI" icon="fa-magic"
+                            invisible="not ai_enabled" groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <field name="ai_enabled" invisible="1"/>
+                    <field name="case_state" invisible="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="case_id" readonly="1"/></h3>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not low_evidence">
+                        <i class="fa fa-info-circle" title="Info"/> <b>Low evidence</b> – suggestions from senior-vet protocols.
+                    </div>
+                    <field name="summary" readonly="1"/>
+                    <group>
+                        <group>
+                            <field name="species_id"/>
+                            <field name="match_count"/>
+                            <field name="candidate_count"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="user_id"/>
+                            <field name="low_evidence" invisible="1"/>
+                            <field name="suppressed_count" invisible="not suppressed_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Diagnosis" name="diag">
+                            <field name="diagnosis_line_ids" context="{'list_view_ref': 'stratos_vet_case_memory.view_vet_cm_suggestion_line_list_embedded'}"/>
+                        </page>
+                        <page string="Tests" name="tests">
+                            <field name="test_line_ids" context="{'list_view_ref': 'stratos_vet_case_memory.view_vet_cm_suggestion_line_list_embedded'}"/>
+                        </page>
+                        <page string="Treatment" name="drugs">
+                            <field name="drug_line_ids" context="{'list_view_ref': 'stratos_vet_case_memory.view_vet_cm_suggestion_line_list_embedded'}"/>
+                        </page>
+                        <page string="Similar Past Cases" name="matches">
+                            <field name="match_ids" readonly="1">
+                                <list>
+                                    <field name="matched_case_id"/>
+                                    <field name="case_date"/>
+                                    <field name="animal_name"/>
+                                    <field name="breed"/>
+                                    <field name="score" widget="progressbar"/>
+                                    <field name="sym_score" optional="show"/>
+                                    <field name="age_score" optional="hide"/>
+                                    <field name="weight_score" optional="hide"/>
+                                    <field name="breed_score" optional="hide"/>
+                                    <field name="vitals_score" optional="hide"/>
+                                    <field name="diagnosis_id"/>
+                                    <field name="outcome" widget="badge" decoration-success="outcome == 'resolved'"
+                                           decoration-info="outcome == 'improved'" decoration-danger="outcome in ('died', 'not_improved')"/>
+                                    <button name="action_open_case" type="object" icon="fa-external-link" string="Open"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="AI Explanation" name="ai" invisible="not ai_explanation">
+                            <field name="ai_explanation"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_suggestion_list" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.list</field>
+        <field name="model">vet.cm.suggestion</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="name"/>
+                <field name="case_id"/>
+                <field name="species_id"/>
+                <field name="date"/>
+                <field name="user_id"/>
+                <field name="match_count"/>
+                <field name="low_evidence"/>
+                <field name="state" widget="badge" decoration-warning="state == 'pending'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_suggestion" model="ir.actions.act_window">
+        <field name="name">Suggestion Runs</field>
+        <field name="res_model">vet.cm.suggestion</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Modify dialog -->
+    <record id="view_vet_cm_suggestion_line_modify" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.line.modify</field>
+        <field name="model">vet.cm.suggestion.line</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <form string="Modify suggestion">
+                <group>
+                    <group string="Suggested">
+                        <field name="item_name" readonly="1"/>
+                        <field name="dose_mgkg" readonly="1"/>
+                        <field name="frequency" readonly="1"/>
+                        <field name="days" readonly="1"/>
+                    </group>
+                    <group string="Your decision">
+                        <field name="final_mgkg"/>
+                        <field name="final_frequency"/>
+                        <field name="final_days"/>
+                        <field name="total_mg"/>
+                    </group>
+                </group>
+                <field name="warning" readonly="1" class="text-danger"/>
+                <footer>
+                    <button name="action_confirm_modify" type="object" string="Save as modified &amp; approve" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Approval queue -->
+    <record id="view_vet_cm_suggestion_line_queue" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.line.queue</field>
+        <field name="model">vet.cm.suggestion.line</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" decoration-danger="blocked">
+                
+                <field name="case_state" column_invisible="1"/>
+                <field name="blocked" column_invisible="1"/>
+                <field name="case_id"/>
+                <field name="species_id" optional="show"/>
+                <field name="vet_id" optional="show"/>
+                <field name="item_type" string="Type"/>
+                <field name="item_name" string="Suggestion"/>
+                <field name="confidence" widget="progressbar"/>
+                <field name="support_count" string="Cases"/>
+                <field name="dose_display" optional="show"/>
+                <field name="warning" optional="show"/>
+                <field name="decision" widget="badge" decoration-warning="decision == 'pending'"
+                       decoration-success="decision in ('approved', 'modified')" decoration-danger="decision == 'rejected'"/>
+                <field name="decided_by" optional="hide"/>
+                <field name="reject_reason" optional="hide"/>
+                <button name="action_open_case" type="object" icon="fa-external-link" string="Case"/>
+                <button name="action_approve" type="object" string="Approve" icon="fa-check" class="btn-link text-success"
+                        invisible="decision != 'pending' or blocked or case_state != 'draft'"
+                        groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                <button name="action_modify" type="object" string="Modify" icon="fa-pencil" class="btn-link"
+                        invisible="decision != 'pending' or blocked or case_state != 'draft' or item_type != 'drug'"
+                        groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+                <button name="action_reject" type="object" string="Reject" icon="fa-times" class="btn-link text-danger"
+                        invisible="decision != 'pending' or blocked or case_state != 'draft'"
+                        groups="stratos_vet_case_memory.group_vet_cm_vet"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_suggestion_line_search" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.line.search</field>
+        <field name="model">vet.cm.suggestion.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="case_id"/>
+                <field name="item_name"/>
+                <field name="vet_id"/>
+                <filter name="pending" string="Pending" domain="[('decision', '=', 'pending'), ('blocked', '=', False), ('case_state', '=', 'draft')]"/>
+                <filter name="mine" string="My cases" domain="[('vet_id', '=', uid)]"/>
+                <separator/>
+                <filter name="approved" string="Approved" domain="[('decision', 'in', ('approved', 'modified'))]"/>
+                <filter name="rejected" string="Rejected" domain="[('decision', '=', 'rejected')]"/>
+                <group>
+                    <filter name="g_case" string="Case" context="{'group_by': 'case_id'}"/>
+                    <filter name="g_vet" string="Veterinarian" context="{'group_by': 'vet_id'}"/>
+                    <filter name="g_type" string="Type" context="{'group_by': 'item_type'}"/>
+                    <filter name="g_decision" string="Decision" context="{'group_by': 'decision'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_suggestion_line_pivot" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.line.pivot</field>
+        <field name="model">vet.cm.suggestion.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Suggestion decisions">
+                <field name="vet_id" type="row"/>
+                <field name="decision" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_suggestion_line_graph" model="ir.ui.view">
+        <field name="name">vet.cm.suggestion.line.graph</field>
+        <field name="model">vet.cm.suggestion.line</field>
+        <field name="arch" type="xml">
+            <graph string="Suggestion decisions" type="bar" stacked="1">
+                <field name="item_type"/>
+                <field name="decision"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_approval_queue" model="ir.actions.act_window">
+        <field name="name">Approval Queue</field>
+        <field name="res_model">vet.cm.suggestion.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_vet_cm_suggestion_line_queue"/>
+        <field name="context">{'search_default_pending': 1, 'search_default_g_case': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing waiting for a decision</p>
+            <p>Suggestions appear here until a vet approves, modifies or rejects them.</p>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_decision_report" model="ir.actions.act_window">
+        <field name="name">Suggestion Acceptance</field>
+        <field name="res_model">vet.cm.suggestion.line</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="domain">[('decision', '!=', 'pending')]</field>
+    </record>
+
+    <record id="view_vet_cm_treatment_pivot" model="ir.ui.view">
+        <field name="name">vet.cm.case.treatment.pivot</field>
+        <field name="model">vet.cm.case.treatment</field>
+        <field name="arch" type="xml">
+            <pivot string="Treatment outcomes">
+                <field name="species_id" type="row"/>
+                <field name="drug_id" type="row"/>
+                <field name="outcome" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_vet_cm_treatment_graph" model="ir.ui.view">
+        <field name="name">vet.cm.case.treatment.graph</field>
+        <field name="model">vet.cm.case.treatment</field>
+        <field name="arch" type="xml">
+            <graph string="Treatment outcomes" type="bar" stacked="1">
+                <field name="drug_id"/>
+                <field name="outcome"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_vet_cm_treatment_report" model="ir.actions.act_window">
+        <field name="name">Outcome by Treatment</field>
+        <field name="res_model">vet.cm.case.treatment</field>
+        <field name="view_mode">pivot,graph</field>
+        <field name="domain">[('case_id.state', '=', 'final')]</field>
+    </record>
+</odoo>
