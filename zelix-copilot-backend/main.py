@@ -282,7 +282,12 @@ async def chat(payload: ChatPayload):
                     ChatMessage(role=ChatRole.SYSTEM, content=system_prompt),
                     ChatMessage(role=ChatRole.USER, content=user_query),
                 ]
-                ai_resp = default_ai.chat(messages=messages, temperature=0.3, max_tokens=1000)
+                ai_resp = default_ai.chat(
+                    messages=messages,
+                    temperature=0.3,
+                    max_tokens=1000,
+                    ai_config=(payload.context or {}).get("ai_config"),
+                )
                 general_response = ai_resp.content.strip()
                 if "<think>" in general_response and "</think>" in general_response:
                     general_response = re.sub(r"<think>.*?</think>", "", general_response, flags=re.DOTALL).strip()

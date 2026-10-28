@@ -187,6 +187,19 @@ class ZelixCopilotController(http.Controller):
         except Exception as e:
             pass
 
+        # 4. Inject Alamia AI Edge configuration from Odoo settings / environment
+        try:
+            ICP = env['ir.config_parameter'].sudo()
+            enriched["ai_config"] = {
+                "provider": ICP.get_param("zelix_ai.ai_provider", "cloudflare"),
+                "cf_account_id": ICP.get_param("zelix_ai.cf_account_id", "be941241fb3499e9567c7ec28528c984"),
+                "cf_api_token": ICP.get_param("zelix_ai.cf_api_token", "") or os.getenv("CLOUDFLARE_API_TOKEN", ""),
+                "cf_gateway_id": ICP.get_param("zelix_ai.cf_gateway_id", ""),
+                "cf_model": ICP.get_param("zelix_ai.cf_model", "@cf/meta/llama-3.1-8b-instruct-fp8"),
+            }
+        except Exception as e:
+            logger.debug("Error adding AI config: %s", e)
+
         return enriched
 
     @http.route("/zelix_ai/chat", type="jsonrpc", auth="user", methods=["POST"], csrf=False)

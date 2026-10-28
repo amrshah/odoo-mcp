@@ -69,6 +69,32 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
             or default_mod
         )
 
+    def _resolve_endpoint(self, kwargs: Dict[str, Any]) -> tuple[str, str, str]:
+        """Dynamically resolves API endpoint, bearer token, and model from request context or env."""
+        ai_cfg = kwargs.get("ai_config") or {}
+        cf_token = ai_cfg.get("cf_api_token") or os.getenv("CLOUDFLARE_API_TOKEN") or self.api_key
+        cf_account = ai_cfg.get("cf_account_id") or os.getenv("CLOUDFLARE_ACCOUNT_ID") or "be941241fb3499e9567c7ec28528c984"
+        cf_gateway = ai_cfg.get("cf_gateway_id") or os.getenv("CLOUDFLARE_GATEWAY_ID") or ""
+        cf_model = ai_cfg.get("cf_model") or kwargs.get("model") or os.getenv("CLOUDFLARE_MODEL") or "@cf/meta/llama-3.1-8b-instruct-fp8"
+        provider = ai_cfg.get("provider") or os.getenv("AI_PROVIDER") or "cloudflare"
+
+        if provider == "cloudflare" or cf_token:
+            if cf_gateway:
+                url = f"https://gateway.ai.cloudflare.com/v1/{cf_account}/{cf_gateway}/workers-ai/v1/chat/completions"
+            else:
+                url = f"https://api.cloudflare.com/client/v4/accounts/{cf_account}/ai/v1/chat/completions"
+            return url, (cf_token or ""), cf_model
+
+        # Fallback to local / remote endpoint
+        base = (self.base_url or os.getenv("ALAMIA_AI_URL") or "http://localhost:11434/v1").rstrip("/")
+        if "/chat/completions" in base:
+            url = base
+        elif base.endswith("/v1"):
+            url = f"{base}/chat/completions"
+        else:
+            url = f"{base}/v1/chat/completions"
+        return url, (self.api_key or ""), (kwargs.get("model") or self.default_model)
+
     def chat(
         self,
         messages: List[ChatMessage],
@@ -77,7 +103,7 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
         max_tokens: Optional[int] = None,
         **kwargs: Any,
     ) -> ChatResponse:
-        model_name = model or self.default_model
+        url, api_key, model_name = self._resolve_endpoint({"model": model, **kwargs})
         payload = {
             "model": model_name,
             "messages": [{"role": m.role.value if hasattr(m.role, "value") else str(m.role), "content": m.content} for m in messages],
@@ -86,23 +112,17 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
         if max_tokens:
             payload["max_tokens"] = max_tokens
 
-        if "/chat/completions" in self.base_url:
-            url = self.base_url
-        elif self.base_url.endswith("/v1"):
-            url = f"{self.base_url}/chat/completions"
-        else:
-            url = f"{self.base_url}/v1/chat/completions"
         data_bytes = json.dumps(payload).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
             "User-Agent": "ZelixAICopilot/2.0",
         }
-        if self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
 
         req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:
+            with urllib.request.urlopen(req, timeout=30) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
                 choice = result["choices"][0]["message"]
                 content = choice.get("content", "")
@@ -121,7 +141,7 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
                 )
         except Exception as e:
             logger.warning(f"AI Provider request failed to {url}: {e}")
-            raise RuntimeError(f"AI Provider error: {e}") from e
+            raise RuntimeError(f"AI Provider error: {e} [Endpoint: {url}]") from e
 
     def stream(
         self,
