@@ -12,7 +12,13 @@ const PALETTE = ["#4f46e5", "#0f9d7a", "#f59e0b", "#dc2626", "#0ea5e9", "#a855f7
 
 export class CommandCenter extends Component {
     static template = "stratos_hms.CommandCenter";
-    static props = ["*"];
+    static props = {
+        action: { type: Object, optional: true },
+        actionId: { type: [Number, Boolean], optional: true },
+        className: { type: String, optional: true },
+        globalState: { type: Object, optional: true },
+        "*": true,
+    };
 
     setup() {
         this.orm = useService("orm");

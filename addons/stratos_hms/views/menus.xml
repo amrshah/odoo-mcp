@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Root -->
-    <menuitem id="menu_hms_root" name="Hospital" sequence="1" web_icon="stratos_hms,static/description/icon.png" groups="stratos_hms.group_hms_user"/>
+    <menuitem id="menu_hms_root" name="Hospital" sequence="30" web_icon="stratos_hms,static/description/icon.png" groups="stratos_hms.group_hms_user"/>
 
     <!-- Command Centre (management) -->
     <menuitem id="menu_hms_command" name="Command Centre" parent="menu_hms_root" action="action_hms_command_center" sequence="1" groups="stratos_hms.group_hms_hod,stratos_hms.group_hms_manager"/>

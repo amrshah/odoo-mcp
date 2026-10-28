@@ -58,6 +58,15 @@ for mod_name in target_modules:
     else:
         print(f"[!] Module '{mod_name}' not found in module list!")
 
+# 1.5 Clear cached web asset bundles to ensure clean recompilation
+try:
+    deleted = env['ir.attachment'].sudo().search([('url', '=like', '/web/assets/%')]).unlink()
+    if deleted:
+        print(f"[+] Cleared {deleted} cached web asset attachments for clean asset recompile.")
+    env.cr.commit()
+except Exception as e:
+    print(f"[*] Note on clearing asset cache: {e}")
+
 env.cr.commit()
 
 # 2. Enable MCP master switch

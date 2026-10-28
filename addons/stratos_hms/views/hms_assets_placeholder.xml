@@ -4,5 +4,6 @@
     <record id="action_hms_command_center" model="ir.actions.client">
         <field name="name">Command Centre</field>
         <field name="tag">hms_command_center</field>
+        <field name="target">main</field>
     </record>
 </odoo>
