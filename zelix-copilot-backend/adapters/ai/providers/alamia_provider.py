@@ -26,22 +26,47 @@ class AlamiaAIModelProvider(BaseAIModelProvider):
         api_key: Optional[str] = None,
         default_model: Optional[str] = None,
     ) -> None:
-        models = ["gemma3:1b-it-qat", "qwen3.5:4b", "qwen2.5:7b-instruct", "deepseek-r1:14b"]
+        models = [
+            "gemma3:1b-it-qat", "qwen3.5:4b", "qwen2.5:7b-instruct", "deepseek-r1:14b",
+            "@cf/meta/llama-3.1-8b-instruct-fp8", "@cf/meta/llama-3.2-3b-instruct",
+            "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"
+        ]
         super().__init__(name=name, models=models)
-        default_endpoint = "http://host.docker.internal:11434/v1" if (os.path.exists("/.dockerenv") or os.environ.get("HOSTNAME")) else "http://localhost:11434/v1"
+
+        cf_account = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+        cf_token = os.getenv("CLOUDFLARE_API_TOKEN")
+        cf_gateway = os.getenv("CLOUDFLARE_GATEWAY_ID")
+        cf_model = os.getenv("CLOUDFLARE_MODEL")
+        is_cf = (os.getenv("AI_PROVIDER") == "cloudflare") or (bool(cf_account and cf_token) and not base_url and not os.getenv("ALAMIA_AI_URL"))
+
+        if is_cf and cf_account:
+            if cf_gateway:
+                cf_endpoint = f"https://gateway.ai.cloudflare.com/v1/{cf_account}/{cf_gateway}/workers-ai/v1"
+            else:
+                cf_endpoint = f"https://api.cloudflare.com/client/v4/accounts/{cf_account}/ai/v1"
+            default_endpoint = cf_endpoint
+            default_key = cf_token or ""
+            default_mod = cf_model or "@cf/meta/llama-3.1-8b-instruct-fp8"
+        else:
+            default_endpoint = "http://host.docker.internal:11434/v1" if (os.path.exists("/.dockerenv") or os.environ.get("HOSTNAME")) else "http://localhost:11434/v1"
+            default_key = os.getenv("BITNET_API_KEY") or os.getenv("ALAMIA_AI_API_KEY", "")
+            default_mod = os.getenv("BITNET_DEFAULT_MODEL") or os.getenv("ALAMIA_AI_MODEL") or "qwen3.5:4b"
+
         self.base_url = (
             base_url
+            or (cf_endpoint if is_cf and cf_account else None)
             or os.getenv("ALAMIA_AI_URL")
             or os.getenv("ALAMIA_AI_ENDPOINT")
             or os.getenv("OLLAMA_ENDPOINT")
             or default_endpoint
         ).rstrip("/")
-        self.api_key = api_key or os.getenv("BITNET_API_KEY") or os.getenv("ALAMIA_AI_API_KEY", "")
+        self.api_key = api_key or (cf_token if is_cf and cf_token else None) or default_key
         self.default_model = (
             default_model
+            or (default_mod if is_cf else None)
             or os.getenv("BITNET_DEFAULT_MODEL")
             or os.getenv("ALAMIA_AI_MODEL")
-            or "qwen3.5:4b"
+            or default_mod
         )
 
     def chat(

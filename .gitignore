@@ -40,3 +40,6 @@ odoo_web_data/
 .DS_Store
 Thumbs.db
 *.zip
+
+# Wrangler
+.wrangler/

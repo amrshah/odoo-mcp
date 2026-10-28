@@ -14,15 +14,42 @@ class ResConfigSettings(models.TransientModel):
     zelix_ai_provider = fields.Selection(
         [
             ("offline", "Offline — Case Memory, Learned Rules & Protocols Only"),
+            ("cloudflare", "Alamia AI Gateway & Edge Workers"),
             ("bitnet", "Microsoft BitNet 1.58b (Alamia AI Remote Endpoint)"),
             ("ollama", "Local Ollama (Gemma 3 / Qwen 2.5 / DeepSeek)"),
             ("anthropic", "Anthropic Claude (Sonnet 3.5 / 4.5)"),
             ("openai", "OpenAI (GPT-4o / GPT-4o-mini)"),
         ],
         string="AI Provider",
-        default="bitnet",
+        default="cloudflare",
         config_parameter="zelix_ai.ai_provider",
         help="Select the AI reasoning provider for Zelix Copilot.",
+    )
+
+    # Alamia AI Gateway & Edge Workers (CF Powered)
+    zelix_cf_account_id = fields.Char(
+        string="Alamia Account ID",
+        default="be941241fb3499e9567c7ec28528c984",
+        config_parameter="zelix_ai.cf_account_id",
+    )
+    zelix_cf_api_token = fields.Char(
+        string="Alamia AI API Token",
+        config_parameter="zelix_ai.cf_api_token",
+    )
+    zelix_cf_gateway_id = fields.Char(
+        string="Alamia Gateway Slug (Optional)",
+        config_parameter="zelix_ai.cf_gateway_id",
+        help="Optional Alamia AI Gateway slug for response caching and request telemetry.",
+    )
+    zelix_cf_model = fields.Selection(
+        [
+            ("@cf/meta/llama-3.1-8b-instruct-fp8", "Alamia Llama 3.1 8B (Fast & Accurate)"),
+            ("@cf/meta/llama-3.2-3b-instruct", "Alamia Llama 3.2 3B (Lightweight)"),
+            ("@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", "Alamia DeepSeek R1 32B (Clinical Reasoning)"),
+        ],
+        string="Alamia AI Model",
+        default="@cf/meta/llama-3.1-8b-instruct-fp8",
+        config_parameter="zelix_ai.cf_model",
     )
 
     # BitNet / Alamia Remote Provider
@@ -117,6 +144,34 @@ class ResConfigSettings(models.TransientModel):
                 rule_count = self.env["zelix.ai.rule"].sudo().search_count([("active", "=", True)])
                 msg = f"Offline mode active. Institutional memory: {case_count} cases, {rule_count} learned clinician rules available."
                 return self._notify("success", "Zelix AI Offline Engine", msg)
+
+            elif provider == "cloudflare":
+                account_id = self.zelix_cf_account_id or "be941241fb3499e9567c7ec28528c984"
+                token = self.zelix_cf_api_token
+                if not token:
+                    raise UserError(_("Please provide an Alamia AI API Token in settings."))
+                gateway_id = self.zelix_cf_gateway_id
+                if gateway_id:
+                    url = f"https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/workers-ai/v1/chat/completions"
+                else:
+                    url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions"
+                resp = requests.post(
+                    url,
+                    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                    json={
+                        "model": self.zelix_cf_model or "@cf/meta/llama-3.1-8b-instruct-fp8",
+                        "messages": [{"role": "user", "content": "ping"}],
+                        "max_tokens": 10,
+                    },
+                    timeout=timeout,
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    msg = f"Alamia AI Gateway & Edge Online! Model: {self.zelix_cf_model}."
+                    return self._notify("success", "Alamia AI Connection Succeeded", msg)
+                else:
+                    msg = f"Alamia AI returned HTTP {resp.status_code}: {resp.text[:200]}"
+                    return self._notify("warning", "Alamia AI Warning", msg)
 
             elif provider == "bitnet":
                 url = (self.zelix_bitnet_url or "https://ai.alamiaconnect.com").rstrip("/")

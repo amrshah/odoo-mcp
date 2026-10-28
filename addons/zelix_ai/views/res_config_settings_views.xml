@@ -13,6 +13,18 @@
                         <setting string="AI Provider" help="Pluggable. Offline mode uses veterinary case memory and learned rules with zero external network dependencies.">
                             <field name="zelix_ai_provider"/>
                             
+                            <!-- Alamia AI Gateway & Edge Workers Settings -->
+                            <div class="mt-2" invisible="zelix_ai_provider != 'cloudflare'">
+                                <label for="zelix_cf_account_id" string="Alamia Account ID"/>
+                                <field name="zelix_cf_account_id" placeholder="be941241fb3499e9567c7ec28528c984"/>
+                                <label for="zelix_cf_api_token" string="Alamia AI API Token" class="mt-1"/>
+                                <field name="zelix_cf_api_token" password="True" placeholder="Paste your API Token" class="mt-1"/>
+                                <label for="zelix_cf_gateway_id" string="Alamia Gateway Slug (Optional)" class="mt-1"/>
+                                <field name="zelix_cf_gateway_id" placeholder="e.g. zelix-gateway (optional for caching &amp; telemetry)" class="mt-1"/>
+                                <label for="zelix_cf_model" string="Alamia AI Model" class="mt-1"/>
+                                <field name="zelix_cf_model" class="mt-1"/>
+                            </div>
+
                             <!-- BitNet Settings -->
                             <div class="mt-2" invisible="zelix_ai_provider != 'bitnet'">
                                 <label for="zelix_bitnet_url" string="BitNet Endpoint URL"/>

@@ -25,11 +25,15 @@ class ResConfigSettings(models.TransientModel):
     ], string="Default dictation language", config_parameter="vet_cm.voice_lang", default="en-US")
     vet_cm_ai_enabled = fields.Boolean("Enable AI layer", config_parameter="vet_cm.ai_enabled")
     vet_cm_ai_provider = fields.Selection([
-        ("mock", "Demo mode (no provider)"), ("anthropic", "Anthropic (Claude)"),
+        ("mock", "Demo mode (no provider)"),
+        ("cloudflare", "Alamia AI Gateway & Edge Workers"),
+        ("anthropic", "Anthropic (Claude)"),
         ("openai", "OpenAI"),
     ], string="AI provider", config_parameter="vet_cm.ai_provider", default="mock")
-    vet_cm_ai_model = fields.Char("AI model", config_parameter="vet_cm.ai_model")
+    vet_cm_ai_model = fields.Char("AI model", config_parameter="vet_cm.ai_model", default="@cf/meta/llama-3.1-8b-instruct-fp8")
     vet_cm_ai_api_key = fields.Char("API key", config_parameter="vet_cm.ai_api_key")
+    vet_cm_cf_account_id = fields.Char("Alamia Account ID", config_parameter="vet_cm.cf_account_id", default="be941241fb3499e9567c7ec28528c984")
+    vet_cm_cf_gateway_id = fields.Char("Alamia Gateway Slug (Optional)", config_parameter="vet_cm.cf_gateway_id")
 
     def action_vet_cm_load_demo(self):
         return self.env["vet.cm.demo.loader"].action_load_demo()

@@ -36,6 +36,8 @@
                             <field name="vet_cm_ai_enabled"/>
                             <div class="content-group" invisible="not vet_cm_ai_enabled">
                                 <div class="row mt8"><label for="vet_cm_ai_provider" class="col-lg-4"/><field name="vet_cm_ai_provider"/></div>
+                                <div class="row" invisible="vet_cm_ai_provider != 'cloudflare'"><label for="vet_cm_cf_account_id" class="col-lg-4"/><field name="vet_cm_cf_account_id"/></div>
+                                <div class="row" invisible="vet_cm_ai_provider != 'cloudflare'"><label for="vet_cm_cf_gateway_id" class="col-lg-4"/><field name="vet_cm_cf_gateway_id" placeholder="e.g. zelix-gateway (optional)"/></div>
                                 <div class="row" invisible="vet_cm_ai_provider == 'mock'"><label for="vet_cm_ai_model" class="col-lg-4"/><field name="vet_cm_ai_model" placeholder="default"/></div>
                                 <div class="row" invisible="vet_cm_ai_provider == 'mock'"><label for="vet_cm_ai_api_key" class="col-lg-4"/><field name="vet_cm_ai_api_key" password="True"/></div>
                             </div>

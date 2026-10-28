@@ -35,6 +35,31 @@ class VetCmAiClient(models.AbstractModel):
         if not key:
             raise UserError(_("Add the API key in Settings → Vet Clinical Suggestions."))
         try:
+            if provider == "cloudflare":
+                account_id = self._cfg("cf_account_id") or "be941241fb3499e9567c7ec28528c984"
+                gateway_id = self._cfg("cf_gateway_id") or False
+                if gateway_id:
+                    url = f"https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/workers-ai/v1/chat/completions"
+                else:
+                    url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions"
+                body = {
+                    "model": model or "@cf/meta/llama-3.1-8b-instruct-fp8",
+                    "messages": [{"role": "system", "content": system},
+                                 {"role": "user", "content": user}],
+                }
+                if json_mode:
+                    body["response_format"] = {"type": "json_object"}
+                resp = requests.post(
+                    url,
+                    headers={"Authorization": f"Bearer {key}",
+                             "Content-Type": "application/json"},
+                    data=json.dumps(body), timeout=60)
+                resp.raise_for_status()
+                content = resp.json()["choices"][0]["message"]["content"]
+                if content and "<think>" in content and "</think>" in content:
+                    import re
+                    content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
+                return content
             if provider == "anthropic":
                 resp = requests.post(
                     "https://api.anthropic.com/v1/messages",

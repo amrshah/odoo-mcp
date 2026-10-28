@@ -83,6 +83,11 @@ services:
       - ALAMIA_AI_URL=${ALAMIA_AI_URL:-https://ai.alamiaconnect.com}
       - BITNET_API_KEY=${BITNET_API_KEY:-51129693340}
       - BITNET_DEFAULT_MODEL=${BITNET_DEFAULT_MODEL:-/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf}
+      - AI_PROVIDER=${AI_PROVIDER:-cloudflare}
+      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID:-be941241fb3499e9567c7ec28528c984}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-}
+      - CLOUDFLARE_GATEWAY_ID=${CLOUDFLARE_GATEWAY_ID:-}
+      - CLOUDFLARE_MODEL=${CLOUDFLARE_MODEL:-@cf/meta/llama-3.1-8b-instruct-fp8}
     restart: unless-stopped
 
 volumes:
