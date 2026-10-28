@@ -4,6 +4,7 @@ Built on the Alamia AI Copilot Starter Clean Core Architecture.
 """
 
 import os
+import re
 import sys
 import uuid
 import time
@@ -28,6 +29,7 @@ from core.policies.engine import PolicyEngine
 from core.policies.confirmation import ConfirmationPolicy
 from core.audit.logger import InMemoryAuditLogger
 from core.audit.entry import AuditEntry
+from core.ai.models import ChatMessage, ChatRole
 from core.ai.router import AIModelRouter
 from core.runtime.engine import CopilotEngine
 
@@ -247,27 +249,64 @@ async def chat(payload: ChatPayload):
 
     # 2. Handle general / ambiguous queries without executing unrelated domain skills
     if decision.intent == "general_query":
-        general_response = (
-            "Hello! I am your Zelix AI Clinical Copilot.\n\n"
-            "I can assist you with:\n"
-            "- **Patient & Entity Lookup**: e.g. *\"Looking for Anabia\"*, *\"Find Max\"*, *\"Show me Anabia\"*\n"
-            "- **Patient 360 History**: e.g. *\"Summarize Max\"*, *\"What is Max's history?\"*\n"
-            "- **Clinical Scribe**: e.g. *\"Draft a SOAP note for vomiting x3\"*\n"
-            "- **Prescription Safety**: e.g. *\"Prescribe Cerenia 16mg for Max\"*\n"
-            "- **Clinic Operations**: e.g. *\"Give me today's clinic summary\"*\n\n"
-            "How can I help you today?"
-        )
+        clean_q = user_query.lower().strip().rstrip("!?.,")
+        simple_greetings = {"hello", "hi", "hey", "help", "who are you", "what can you do", "menu", "options", "start", "hi there", "greetings"}
+        
+        if clean_q in simple_greetings or not clean_q:
+            general_response = (
+                "Hello! I am your Zelix AI Clinical Copilot.\n\n"
+                "I can assist you with:\n"
+                "- **Clinical Knowledge & Advice**: e.g. *\"How should nails of a dog be treated?\"*, *\"Canine parvovirus protocol\"*\n"
+                "- **Patient & Entity Lookup**: e.g. *\"Looking for Anabia\"*, *\"Find Max\"*, *\"Show me Anabia\"*\n"
+                "- **Patient 360 History**: e.g. *\"Summarize Max\"*, *\"What is Max's history?\"*\n"
+                "- **Clinical Scribe**: e.g. *\"Draft a SOAP note for vomiting x3\"*\n"
+                "- **Prescription Safety**: e.g. *\"Prescribe Cerenia 16mg for Max\"*\n"
+                "- **Clinic Operations**: e.g. *\"Give me today's clinic summary\"*\n\n"
+                "How can I help you today?"
+            )
+            model_used = "orchestrator"
+        else:
+            # Clinical Q&A / Veterinary Procedure Advice -> Answer via AI Provider
+            try:
+                system_prompt = (
+                    "You are Zelix AI, an expert Veterinary & Healthcare Clinical AI Copilot assisting clinicians, technicians, and veterinary staff.\n"
+                    "Provide clear, authoritative, evidence-based veterinary clinical guidance.\n"
+                    "Structure your response clearly using GitHub-style Markdown (bold headings, bullet points, numbered clinical steps).\n"
+                    "When explaining procedures or care (such as nail trimming, wound management, or drug administration):\n"
+                    "1. Specify necessary equipment and tools.\n"
+                    "2. Provide step-by-step technique with anatomical safety precautions (e.g. locating and avoiding the quick/blood vessels in nails).\n"
+                    "3. Explain immediate first aid if complications occur (e.g. styptic powder, silver nitrate, or direct pressure for nail bleeding).\n"
+                    "4. Note when behavioural restraint, desensitization, or direct clinic escalation is warranted."
+                )
+                messages = [
+                    ChatMessage(role=ChatRole.SYSTEM, content=system_prompt),
+                    ChatMessage(role=ChatRole.USER, content=user_query),
+                ]
+                ai_resp = default_ai.chat(messages=messages, temperature=0.3, max_tokens=1000)
+                general_response = ai_resp.content.strip()
+                if "<think>" in general_response and "</think>" in general_response:
+                    general_response = re.sub(r"<think>.*?</think>", "", general_response, flags=re.DOTALL).strip()
+                model_used = getattr(ai_resp, "model", None) or default_ai.default_model
+            except Exception as e:
+                logger.error(f"Error answering clinical query via AI model: {e}")
+                general_response = (
+                    f"**Clinical Query**: {user_query}\n\n"
+                    f"Unable to reach the live AI inference gateway at this moment ({e}). "
+                    f"Please verify the AI connection in Settings."
+                )
+                model_used = "fallback"
+
         return {
             "response": general_response,
             "message": general_response,
             "content": general_response,
-            "workflow_id": "general_query",
-            "skill_id": "general_query",
+            "workflow_id": "clinical_knowledge" if clean_q not in simple_greetings and clean_q else "general_query",
+            "skill_id": "clinical_knowledge" if clean_q not in simple_greetings and clean_q else "general_query",
             "action_cards": [],
             "proposed_actions": [],
             "intent_decision": decision.model_dump(),
             "patient_summary": None,
-            "model_used": "orchestrator",
+            "model_used": model_used,
             "request_id": f"req_{uuid.uuid4().hex[:8]}",
             "execution_time_ms": int((time.time() - start_time) * 1000),
         }

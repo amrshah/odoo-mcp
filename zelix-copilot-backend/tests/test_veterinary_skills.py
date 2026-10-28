@@ -76,3 +76,26 @@ def test_veterinary_clinic_activity_skill():
     assert result.success is True
     assert "Clinic & Hospital Operations Daily Summary" in result.output["response_text"]
     assert result.output["total_patients"] >= 1
+
+
+def test_veterinary_clinical_qa_greeting_vs_clinical_inquiry():
+    """Verify that greetings return the menu while clinical queries answer clinical questions."""
+    from main import app
+    from fastapi.testclient import TestClient
+
+    client = TestClient(app)
+
+    # 1. Greeting query -> returns menu
+    r1 = client.post("/api/copilot/chat", json={"message": "hello"})
+    assert r1.status_code == 200
+    data1 = r1.json()
+    assert "Hello! I am your Zelix AI Clinical Copilot" in data1["response"]
+    assert data1["workflow_id"] == "general_query"
+
+    # 2. Clinical question -> answered via clinical workflow
+    r2 = client.post("/api/copilot/chat", json={"message": "how should nails of a dog be treated?"})
+    assert r2.status_code == 200
+    data2 = r2.json()
+    assert data2["workflow_id"] == "clinical_knowledge"
+    # Ensure it did NOT return the canned greeting menu
+    assert "Hello! I am your Zelix AI Clinical Copilot" not in data2["response"]
