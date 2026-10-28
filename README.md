@@ -82,7 +82,7 @@ When running via Docker Compose, the MCP Server is active on port **8008** with 
 
 - **SSE Endpoint**: `http://localhost:8008/sse`
 
-### Option B: Local Stdio Mode (For Claude Desktop, Cursor, Antigravity)
+### Option B: Local Stdio Mode (For Claude Desktop, Cursor etc)
 
 You can run the MCP server directly using Python:
 
