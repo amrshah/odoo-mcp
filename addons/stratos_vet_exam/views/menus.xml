@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_vet_exam_root" name="Vet Exams" sequence="45"
+              web_icon="stratos_vet_exam,static/description/icon.png"/>
+
+    <menuitem id="menu_vet_exam" name="Exams" parent="menu_vet_exam_root"
+              action="action_vet_exam" sequence="10"/>
+    <menuitem id="menu_vet_exam_template" name="Templates" parent="menu_vet_exam_root"
+              action="action_vet_exam_template" sequence="20"/>
+
+    <menuitem id="menu_vet_exam_config" name="Configuration" parent="menu_vet_exam_root" sequence="90"/>
+    <menuitem id="menu_vet_exam_node" name="Exam Structure" parent="menu_vet_exam_config"
+              action="action_vet_exam_node" sequence="10"/>
+    <menuitem id="menu_vet_exam_load_standard" name="Load Standard List" parent="menu_vet_exam_config"
+              action="action_vet_exam_load_standard" sequence="20"/>
+</odoo>

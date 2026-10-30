@@ -31,7 +31,17 @@ try:
 except Exception as e:
     print(f"[*] Note on service user setup: {e}")
 
-target_modules = ['vet_installer', 'stratos_hms', 'zelix_ai', 'mcp_server', 'stratos_vet_case_memory']
+target_modules = [
+    'vet_installer',
+    'stratos_vet_exam',
+    'stratos_vet_exam_vetcairn',
+    'stratos_vet_case_memory',
+    'stratos_vet_case_memory_soap',
+    'stratos_vet_case_memory_vetcairn',
+    'stratos_hms',
+    'zelix_ai',
+    'mcp_server',
+]
 Module = env['ir.module.module'].sudo()
 
 try:

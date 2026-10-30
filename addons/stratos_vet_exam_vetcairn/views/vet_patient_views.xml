@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_patient_view_form_exam" model="ir.ui.view">
+        <field name="name">vet.patient.form.structured.exam</field>
+        <field name="model">vet.patient</field>
+        <field name="inherit_id" ref="vet_base.view_vet_patient_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='owners']" position="after">
+                <page string="Structured Exams" name="structured_exams">
+                    <field name="exam_ids" readonly="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="template_id"/>
+                            <field name="encounter_id"/>
+                            <field name="vet_id" widget="many2one_avatar_user"/>
+                            <field name="state" widget="badge" decoration-info="state == 'draft'"
+                                   decoration-success="state == 'done'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

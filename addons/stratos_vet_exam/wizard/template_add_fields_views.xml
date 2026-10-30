@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_exam_template_add_fields_view_form" model="ir.ui.view">
+        <field name="name">vet.exam.template.add.fields.form</field>
+        <field name="model">vet.exam.template.add.fields</field>
+        <field name="arch" type="xml">
+            <form string="Add from Structure">
+                <p class="text-muted">
+                    Pick a whole heading to add every field under it (e.g. “Objective / Oral”),
+                    or pick single fields. Fields already in the template are skipped.
+                </p>
+                <field name="template_id" invisible="1"/>
+                <field name="node_ids" options="{'no_create': True}">
+                    <list>
+                        <field name="complete_name"/>
+                        <field name="node_type"/>
+                        <field name="type_label"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_add" type="object" string="Add to Template" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vet_exam_template_add_fields" model="ir.actions.act_window">
+        <field name="name">Add from Structure</field>
+        <field name="res_model">vet.exam.template.add.fields</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

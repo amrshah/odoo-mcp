@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_exam_template_view_form_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.template.form.vetcairn</field>
+        <field name="model">vet.exam.template</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_template_view_form"/>
+        <field name="arch" type="xml">
+            <field name="species" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="species" position="after">
+                <field name="species_ids" widget="many2many_tags" options="{'no_create': True}"
+                       placeholder="All species"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="vet_exam_template_view_list_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.template.list.vetcairn</field>
+        <field name="model">vet.exam.template</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_template_view_list"/>
+        <field name="arch" type="xml">
+            <field name="species" position="replace">
+                <field name="species_ids" widget="many2many_tags"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="vet_exam_template_view_kanban_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.template.kanban.vetcairn</field>
+        <field name="model">vet.exam.template</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_template_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='species']/.." position="replace">
+                <div><field name="species_ids" widget="many2many_tags"/></div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="vet_exam_template_view_search_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.template.search.vetcairn</field>
+        <field name="model">vet.exam.template</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_template_view_search"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="species_ids"/>
+            </field>
+            <filter name="group_species" position="replace"/>
+        </field>
+    </record>
+</odoo>

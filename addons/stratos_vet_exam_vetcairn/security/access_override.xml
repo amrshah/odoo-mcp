@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Narrow the base module's "all internal users" rights to VetCairn roles:
+         every VetCairn user can read; writing is granted per role in ir.model.access.csv -->
+    <record id="stratos_vet_exam.access_vet_exam_node" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_user"/>
+        <field name="perm_write" eval="False"/><field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="stratos_vet_exam.access_vet_exam_option" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_user"/>
+        <field name="perm_write" eval="False"/><field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="stratos_vet_exam.access_vet_exam_template" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_user"/>
+        <field name="perm_write" eval="False"/><field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="stratos_vet_exam.access_vet_exam_template_line" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_user"/>
+        <field name="perm_write" eval="False"/><field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="stratos_vet_exam.access_vet_exam" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_user"/>
+        <field name="perm_write" eval="False"/><field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="stratos_vet_exam.access_vet_exam_line" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_user"/>
+        <field name="perm_write" eval="False"/><field name="perm_create" eval="False"/><field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="stratos_vet_exam.access_vet_exam_template_add_fields" model="ir.model.access">
+        <field name="group_id" ref="vet_base.group_vet_veterinarian"/>
+    </record>
+</odoo>

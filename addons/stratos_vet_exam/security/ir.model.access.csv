@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_exam_node,vet.exam.node,model_vet_exam_node,base.group_user,1,1,1,1
+access_vet_exam_option,vet.exam.option,model_vet_exam_option,base.group_user,1,1,1,1
+access_vet_exam_template,vet.exam.template,model_vet_exam_template,base.group_user,1,1,1,1
+access_vet_exam_template_line,vet.exam.template.line,model_vet_exam_template_line,base.group_user,1,1,1,1
+access_vet_exam,vet.exam,model_vet_exam,base.group_user,1,1,1,1
+access_vet_exam_line,vet.exam.line,model_vet_exam_line,base.group_user,1,1,1,1
+access_vet_exam_template_add_fields,vet.exam.template.add.fields,model_vet_exam_template_add_fields,base.group_user,1,1,1,1

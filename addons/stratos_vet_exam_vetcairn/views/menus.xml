@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Hide the standalone "Vet Exams" app; everything moves under VetCairn -->
+    <record id="stratos_vet_exam.menu_vet_exam_root" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <menuitem id="menu_vetcairn_exams" name="Structured Exams"
+              parent="vet_clinical.menu_vet_clinical" action="stratos_vet_exam.action_vet_exam"
+              sequence="25" groups="vet_base.group_vet_user"/>
+    <menuitem id="menu_vetcairn_exam_templates" name="Exam Templates"
+              parent="vet_clinical.menu_vet_clinical" action="stratos_vet_exam.action_vet_exam_template"
+              sequence="26" groups="vet_base.group_vet_user"/>
+
+    <menuitem id="menu_vetcairn_exam_structure" name="Exam Structure"
+              parent="vet_base.menu_vetcairn_configuration" action="stratos_vet_exam.action_vet_exam_node"
+              sequence="40" groups="vet_base.group_vet_manager"/>
+    <menuitem id="menu_vetcairn_exam_load_standard" name="Load Standard Exam List"
+              parent="vet_base.menu_vetcairn_configuration"
+              action="stratos_vet_exam.action_vet_exam_load_standard"
+              sequence="41" groups="vet_base.group_vet_manager"/>
+</odoo>

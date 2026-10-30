@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_exam_node_view_list" model="ir.ui.view">
+        <field name="name">vet.exam.node.list</field>
+        <field name="model">vet.exam.node</field>
+        <field name="arch" type="xml">
+            <list string="Exam Structure">
+                <field name="sequence" widget="handle"/>
+                <field name="complete_name"/>
+                <field name="node_type"/>
+                <field name="type_label"/>
+                <field name="default_note" optional="hide"/>
+                <field name="section_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vet_exam_node_view_form" model="ir.ui.view">
+        <field name="name">vet.exam.node.form</field>
+        <field name="model">vet.exam.node</field>
+        <field name="arch" type="xml">
+            <form string="Structure Item">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Oral, Blood Glucose, Tartar"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="node_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="parent_id" required="node_type == 'field'"
+                                   placeholder="Leave empty for a main heading"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="complete_name"/>
+                            <field name="field_count" invisible="node_type == 'field'"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sub-headings &amp; Fields" name="children" invisible="node_type == 'field'">
+                            <field name="child_ids" context="{'default_node_type': 'field'}">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="node_type"/>
+                                    <field name="type_label"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Field Setup" name="setup" invisible="node_type != 'field'">
+                            <group>
+                                <group string="What does this field record?">
+                                    <field name="field_type" widget="radio" nolabel="1" colspan="2"/>
+                                </group>
+                                <group string="Notes">
+                                    <field name="include_note"/>
+                                    <field name="big_note" invisible="not include_note"/>
+                                </group>
+                            </group>
+                            <group invisible="field_type not in ('value', 'value_status')">
+                                <group string="Unit">
+                                    <field name="unit" placeholder="mg/dL, bpm, mmHg, /hpf"/>
+                                </group>
+                                <group string="Unit Choices (optional)">
+                                    <field name="unit_option_ids" nolabel="1" colspan="2">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name" string="Unit"/>
+                                            <field name="kind" column_invisible="1"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
+                            <group string="Status Options" invisible="field_type not in ('status', 'value_status')">
+                                <field name="status_option_ids" nolabel="1" colspan="2">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name" string="Option"/>
+                                        <field name="kind" column_invisible="1"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <group string="Default Note / Details">
+                                <field name="default_note" nolabel="1" colspan="2"
+                                       placeholder="Standard wording, e.g. “No abnormalities detected on palpation.” Pre-fills this field in every template that uses it."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="vet_exam_node_view_search" model="ir.ui.view">
+        <field name="name">vet.exam.node.search</field>
+        <field name="model">vet.exam.node</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="complete_name" string="Name"/>
+                <field name="section_id"/>
+                <filter name="top_level" string="Main Headings" domain="[('parent_id', '=', False)]"/>
+                <filter name="headings" string="Headings" domain="[('node_type', '=', 'heading')]"/>
+                <filter name="fields" string="Fields" domain="[('node_type', '=', 'field')]"/>
+                <separator/>
+                <filter name="with_default" string="Has Default Note" domain="[('default_note', '!=', False)]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_section" string="Main Heading" context="{'group_by': 'section_id'}"/>
+                    <filter name="group_type" string="Item Type" context="{'group_by': 'node_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vet_exam_node" model="ir.actions.act_window">
+        <field name="name">Exam Structure</field>
+        <field name="res_model">vet.exam.node</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_top_level': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Add your first main heading</p>
+            <p>The master list every template is built from. Open a main heading to add
+               sub-headings and fields, or use “Load Standard List”.</p>
+        </field>
+    </record>
+
+    <record id="action_vet_exam_load_standard" model="ir.actions.server">
+        <field name="name">Load Standard List</field>
+        <field name="model_id" ref="model_vet_exam_node"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_load_standard()</field>
+    </record>
+</odoo>

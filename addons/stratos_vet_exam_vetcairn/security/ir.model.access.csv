@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vet_exam_node_manager,vet.exam.node manager,stratos_vet_exam.model_vet_exam_node,vet_base.group_vet_manager,1,1,1,1
+access_vet_exam_option_manager,vet.exam.option manager,stratos_vet_exam.model_vet_exam_option,vet_base.group_vet_manager,1,1,1,1
+access_vet_exam_template_vet,vet.exam.template veterinarian,stratos_vet_exam.model_vet_exam_template,vet_base.group_vet_veterinarian,1,1,1,0
+access_vet_exam_template_manager,vet.exam.template manager,stratos_vet_exam.model_vet_exam_template,vet_base.group_vet_manager,1,1,1,1
+access_vet_exam_template_line_vet,vet.exam.template.line veterinarian,stratos_vet_exam.model_vet_exam_template_line,vet_base.group_vet_veterinarian,1,1,1,1
+access_vet_exam_tech,vet.exam technician,stratos_vet_exam.model_vet_exam,vet_base.group_vet_technician,1,1,1,0
+access_vet_exam_vet,vet.exam veterinarian,stratos_vet_exam.model_vet_exam,vet_base.group_vet_veterinarian,1,1,1,1
+access_vet_exam_line_tech,vet.exam.line technician,stratos_vet_exam.model_vet_exam_line,vet_base.group_vet_technician,1,1,1,1

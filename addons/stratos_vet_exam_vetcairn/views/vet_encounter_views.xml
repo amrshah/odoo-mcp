@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_encounter_view_form_exam" model="ir.ui.view">
+        <field name="name">vet.encounter.form.structured.exam</field>
+        <field name="model">vet.encounter</field>
+        <field name="inherit_id" ref="vet_clinical.view_vet_encounter_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button name="action_structured_exam" type="object" string="Structured Exam"
+                        class="btn-secondary" groups="vet_base.group_vet_technician"
+                        invisible="not id"/>
+            </xpath>
+            <xpath expr="//page[@name='plan']" position="after">
+                <page string="Structured Exams" name="structured_exams">
+                    <field name="exam_ids" readonly="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="template_id"/>
+                            <field name="vet_id" widget="many2one_avatar_user"/>
+                            <field name="filled_count"/>
+                            <field name="sent_to_encounter_at"/>
+                            <field name="state" widget="badge" decoration-info="state == 'draft'"
+                                   decoration-success="state == 'done'"/>
+                        </list>
+                    </field>
+                    <button name="action_new_structured_exam" type="object" string="New Structured Exam"
+                            class="btn-link" icon="fa-plus" groups="vet_base.group_vet_technician"
+                            invisible="state == 'locked'"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

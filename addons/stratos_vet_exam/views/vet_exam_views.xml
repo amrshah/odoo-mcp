@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_exam_view_list" model="ir.ui.view">
+        <field name="name">vet.exam.list</field>
+        <field name="model">vet.exam</field>
+        <field name="arch" type="xml">
+            <list string="Exams" decoration-muted="state == 'done'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="patient_name"/>
+                <field name="owner_id"/>
+                <field name="template_id"/>
+                <field name="vet_id" widget="many2one_avatar_user"/>
+                <field name="filled_count" optional="show"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="vet_exam_view_form" model="ir.ui.view">
+        <field name="name">vet.exam.form</field>
+        <field name="model">vet.exam</field>
+        <field name="arch" type="xml">
+            <form string="Exam">
+                <header>
+                    <button name="action_print" type="object" string="Print / PDF" class="btn-primary"/>
+                    <button name="action_done" type="object" string="Mark Completed" invisible="state != 'draft'"/>
+                    <button name="action_draft" type="object" string="Re-open" invisible="state != 'done'"/>
+                    <button name="action_reload_template" type="object" string="Reload Template Fields"
+                            invisible="state != 'draft' or not id"
+                            confirm="This clears all findings entered on this exam and reloads the template's fields. Continue?"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="patient_name" readonly="state == 'done'"/>
+                            <field name="owner_id" readonly="state == 'done'"/>
+                            <field name="species" readonly="state == 'done'"/>
+                        </group>
+                        <group>
+                            <field name="template_id" readonly="state == 'done' or id" options="{'no_create': True}"/>
+                            <field name="date" readonly="state == 'done'"/>
+                            <field name="vet_id" readonly="state == 'done'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Findings" name="findings">
+                            <field name="line_ids" readonly="state == 'done'">
+                                <list editable="bottom" create="false">
+                                    <field name="sequence" column_invisible="1"/>
+                                    <field name="node_id" column_invisible="1"/>
+                                    <field name="field_type" column_invisible="1"/>
+                                    <field name="include_note" column_invisible="1"/>
+                                    <field name="has_value" column_invisible="1"/>
+                                    <field name="has_status" column_invisible="1"/>
+                                    <field name="has_unit_choice" column_invisible="1"/>
+                                    <field name="section_name" readonly="1"/>
+                                    <field name="group_path" readonly="1" optional="show"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="value" invisible="not has_value" placeholder="Value"/>
+                                    <field name="unit" readonly="1" invisible="not has_value or has_unit_choice"/>
+                                    <field name="unit_option_id" invisible="not has_unit_choice"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="status_id" invisible="not has_status"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="note" invisible="not include_note" placeholder="Notes…"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Output Preview" name="preview">
+                            <div class="p-2">
+                                <h3><field name="patient_name" readonly="1"/></h3>
+                                <field name="summary_html" readonly="1"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="vet_exam_view_search" model="ir.ui.view">
+        <field name="name">vet.exam.search</field>
+        <field name="model">vet.exam</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="patient_name"/>
+                <field name="owner_id"/>
+                <field name="template_id"/>
+                <filter name="my" string="My Exams" domain="[('vet_id', '=', uid)]"/>
+                <filter name="draft" string="In Progress" domain="[('state', '=', 'draft')]"/>
+                <filter name="done" string="Completed" domain="[('state', '=', 'done')]"/>
+                <group>
+                    <filter name="group_template" string="Template" context="{'group_by': 'template_id'}"/>
+                    <filter name="group_vet" string="Veterinarian" context="{'group_by': 'vet_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vet_exam" model="ir.actions.act_window">
+        <field name="name">Exams</field>
+        <field name="res_model">vet.exam</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Start an exam</p>
+            <p>Pick a template — only its fields appear. Blank fields are skipped on the printout.</p>
+        </field>
+    </record>
+</odoo>

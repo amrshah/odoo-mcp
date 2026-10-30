@@ -16,8 +16,7 @@ Zelix AI Clinical Copilot for Odoo 19 & VetCairn:
 * Prescription Assistant with deterministic clinical safety checks (W09)
 * Action Card approval dialogs and verified persistence write-back
     """,
-    "author": "Zelix AI / VetCairn Team",
-    "website": "https://ai.alamiaconnect.com",
+    "author": "Ali Raza VexterSoft.com",
     "license": "LGPL-3",
     "depends": [
         "base",

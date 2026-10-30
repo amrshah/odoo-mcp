@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_vet_exam_document_vetcairn" inherit_id="stratos_vet_exam.report_vet_exam_document">
+        <xpath expr="//span[@t-field='o.species']" position="replace">
+            <span t-out="o.species_id.name or ''"/>
+        </xpath>
+        <xpath expr="//h2" position="after">
+            <div t-if="o.patient_id" class="small">
+                ID <span t-out="o.patient_id.identifier"/>
+                <t t-if="o.patient_id.breed_id"> · <span t-out="o.patient_id.breed_id.name"/></t>
+                · <span t-field="o.patient_id.sex"/>
+                <t t-if="o.clinic_id"> · <span t-out="o.clinic_id.name"/></t>
+                <t t-if="o.encounter_id"> · Encounter <span t-out="o.encounter_id.name"/></t>
+            </div>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vet_exam_view_form_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.form.vetcairn</field>
+        <field name="model">vet.exam</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_view_form"/>
+        <field name="arch" type="xml">
+            <button name="action_print" position="after">
+                <button name="action_send_to_encounter" type="object" string="Send to Encounter Notes"
+                        invisible="not encounter_id or encounter_state == 'locked'"
+                        groups="vet_base.group_vet_technician"
+                        confirm="Add these findings to the encounter's Subjective / Objective / Assessment / Plan notes?"/>
+            </button>
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_encounter" type="object" class="oe_stat_button"
+                            icon="fa-user-md" invisible="not encounter_id">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Encounter</span>
+                            <span class="o_stat_value"><field name="encounter_state"/></span>
+                        </div>
+                    </button>
+                </div>
+            </xpath>
+            <field name="patient_name" position="before">
+                <field name="patient_id" readonly="state == 'done'" options="{'no_create': True}"/>
+                <field name="patient_identifier" invisible="not patient_id"/>
+            </field>
+            <field name="patient_name" position="attributes">
+                <attribute name="readonly">state == 'done' or patient_id</attribute>
+                <attribute name="invisible">patient_id</attribute>
+            </field>
+            <field name="species" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="species" position="after">
+                <field name="species_id" readonly="state == 'done' or patient_id" options="{'no_create': True}"/>
+            </field>
+            <field name="template_id" position="before">
+                <field name="encounter_id" readonly="state == 'done'" options="{'no_create': True}"/>
+                <field name="allowed_template_ids" invisible="1"/>
+            </field>
+            <field name="template_id" position="attributes">
+                <attribute name="domain">[('id', 'in', allowed_template_ids)]</attribute>
+            </field>
+            <field name="vet_id" position="after">
+                <field name="clinic_id" readonly="state == 'done'" options="{'no_create': True}"/>
+                <field name="sent_to_encounter_at" invisible="not sent_to_encounter_at"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="vet_exam_view_list_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.list.vetcairn</field>
+        <field name="model">vet.exam</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_view_list"/>
+        <field name="arch" type="xml">
+            <field name="patient_name" position="before">
+                <field name="patient_id"/>
+                <field name="species_id" optional="show"/>
+            </field>
+            <field name="patient_name" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="template_id" position="before">
+                <field name="encounter_id" optional="show"/>
+            </field>
+            <field name="vet_id" position="after">
+                <field name="clinic_id" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="vet_exam_view_search_vetcairn" model="ir.ui.view">
+        <field name="name">vet.exam.search.vetcairn</field>
+        <field name="model">vet.exam</field>
+        <field name="inherit_id" ref="stratos_vet_exam.vet_exam_view_search"/>
+        <field name="arch" type="xml">
+            <field name="patient_name" position="before">
+                <field name="patient_id"/>
+                <field name="encounter_id"/>
+                <field name="species_id"/>
+            </field>
+            <filter name="group_template" position="before">
+                <filter name="group_patient" string="Patient" context="{'group_by': 'patient_id'}"/>
+                <filter name="group_clinic" string="Clinic" context="{'group_by': 'clinic_id'}"/>
+            </filter>
+        </field>
+    </record>
+</odoo>
