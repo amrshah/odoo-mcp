@@ -26,8 +26,10 @@
 - **`zelix_ai` (v19.0.1.0.0):** Native Odoo 19 OWL 2 Copilot UI, In-Odoo Provider Settings (`res.config.settings`), Learned Prescribing Rules (`zelix.ai.rule`), Institutional Case Memory (`zelix.case.memory`), Systray launcher, Slide-out Drawer, Action Cards, Audit Ledger.
 - **`stratos_vet_case_memory` (v19.0.1.0.0):** Veterinary Clinical Suggestions & Case Memory suite with similarity-based case matching, self-learning patterns (`vet.cm.pattern`), voice dictation (`vet.cm.voice.note`), and automated approval queues.
 - **`stratos_vet_exam` & `stratos_vet_exam_vetcairn` (v19.0.1.0.0):** Structured Veterinary Exam Template builder (SOAP), vitals capture, and direct two-way sync with VetCairn encounters (`vet.encounter`) and patients (`vet.patient`). Connector modules `stratos_vet_case_memory_soap` and `stratos_vet_case_memory_vetcairn` bridge exam findings into case memory.
+- **`stratos_crm_rfp` (v20.0.1.1.0, Odoo 19 compatible):** International RFP lifecycle tracking on CRM leads (`crm.lead`) with questionnaire and proposal deadlines, attachment management, automated reminder activities, and dedicated OWL 2 RFP Dashboard.
+- **`stratos_social` (v20.0.1.2.0, Odoo 19 compatible):** Stratos Social Marketing suite for scheduling and publishing posts across Facebook Pages, Instagram Business, YouTube channels, and TikTok with multi-company isolation and token authentication wizards.
 - **Alamia AI Gateway & Edge Workers:** Native serverless edge inference layer leveraging Cloudflare Workers AI free tier (10,000 neurons/day) with `@cf/meta/llama-3.1-8b-instruct-fp8`, `@cf/meta/llama-3.2-3b-instruct`, and `@cf/deepseek-ai/deepseek-r1-distill-qwen-32b`.
-- **95+ Total Healthcare Models Exposed:** 38 `vet.*` models + 39 `hms.*` models + 11 `vet.cm.*` models + 2 `zelix.*` memory models + 5 core models registered in `mcp.enabled.model` with full CRUD access.
+- **100+ Total Models Exposed:** VetCairn + HMS + Zelix + Stratos Social (`stratos.social.*`) + CRM (`crm.lead`) + Core models registered in `mcp.enabled.model` with full CRUD access.
 
 ---
 

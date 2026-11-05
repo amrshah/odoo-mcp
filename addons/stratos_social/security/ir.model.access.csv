@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_social_account_user,social.account.user,model_stratos_social_account,stratos_social.group_social_user,1,0,0,0
+access_social_account_manager,social.account.manager,model_stratos_social_account,stratos_social.group_social_manager,1,1,1,1
+access_social_post_user,social.post.user,model_stratos_social_post,stratos_social.group_social_user,1,1,1,1
+access_social_live_post_user,social.live.post.user,model_stratos_social_live_post,stratos_social.group_social_user,1,1,1,0
+access_social_live_post_manager,social.live.post.manager,model_stratos_social_live_post,stratos_social.group_social_manager,1,1,1,1
+access_social_token_wizard_manager,social.token.wizard.manager,model_stratos_social_token_wizard,stratos_social.group_social_manager,1,1,1,1

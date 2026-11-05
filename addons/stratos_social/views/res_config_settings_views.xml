@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.stratos.social</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Social Marketing" string="Social Marketing" name="stratos_social"
+                     groups="stratos_social.group_social_manager">
+                    <block title="Meta (Facebook &amp; Instagram)" name="stratos_social_meta">
+                        <setting string="Meta App" help="Create an app at developers.facebook.com, then copy its App ID and App Secret here.">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="stratos_social_meta_app_id" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_meta_app_id"/>
+                                </div>
+                                <div class="row">
+                                    <label for="stratos_social_meta_app_secret" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_meta_app_secret" password="True"/>
+                                </div>
+                                <div class="row">
+                                    <label for="stratos_social_meta_graph_version" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_meta_graph_version" placeholder="v25.0"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Redirect URI" help="Paste this in your Meta app: Facebook Login > Settings > Valid OAuth Redirect URIs.">
+                            <field name="stratos_social_redirect_uri" readonly="1" widget="CopyClipboardChar"/>
+                        </setting>
+                    </block>
+                    <block title="YouTube (Google)" name="stratos_social_youtube">
+                        <setting string="Google OAuth Client" help="Google Cloud Console: enable YouTube Data API v3, then create an OAuth client (Web application).">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="stratos_social_google_client_id" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_google_client_id"/>
+                                </div>
+                                <div class="row">
+                                    <label for="stratos_social_google_client_secret" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_google_client_secret" password="True"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Authorized Redirect URI" help="Paste this in the Google OAuth client: Authorized redirect URIs.">
+                            <field name="stratos_social_google_redirect_uri" readonly="1" widget="CopyClipboardChar"/>
+                        </setting>
+                    </block>
+                    <block title="TikTok" name="stratos_social_tiktok">
+                        <setting string="TikTok App" help="developers.tiktok.com: create an app, add Login Kit and Content Posting API (Direct Post), scopes user.info.basic and video.publish.">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="stratos_social_tiktok_client_key" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_tiktok_client_key"/>
+                                </div>
+                                <div class="row">
+                                    <label for="stratos_social_tiktok_client_secret" class="col-lg-4 o_light_label"/>
+                                    <field name="stratos_social_tiktok_client_secret" password="True"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Redirect URI" help="Paste this in the TikTok app: Login Kit > Redirect URI.">
+                            <field name="stratos_social_tiktok_redirect_uri" readonly="1" widget="CopyClipboardChar"/>
+                        </setting>
+                        <setting help="Tick only after TikTok approves your app. Until then TikTok accepts 'Only me' posts from private accounts, for up to 5 accounts a day.">
+                            <field name="stratos_social_tiktok_audited"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_social_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'stratos_social', 'bin_size': False}</field>
+    </record>
+</odoo>

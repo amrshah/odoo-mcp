@@ -1,0 +1,27 @@
+.o_rfp_dashboard {
+    .o_rfp_kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 12px;
+    }
+
+    .o_rfp_kpi {
+        border-left-width: 4px !important;
+        transition: box-shadow 0.15s;
+
+        &:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+    }
+
+    .o_rfp_kpi_count {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .o_rfp_kpi_primary { border-left-color: $primary !important; }
+    .o_rfp_kpi_info { border-left-color: $info !important; }
+    .o_rfp_kpi_warning { border-left-color: $warning !important; }
+    .o_rfp_kpi_danger { border-left-color: $danger !important; }
+    .o_rfp_kpi_success { border-left-color: $success !important; }
+}

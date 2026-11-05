@@ -39,6 +39,9 @@ target_modules = [
     'stratos_vet_case_memory_soap',
     'stratos_vet_case_memory_vetcairn',
     'stratos_hms',
+    'crm',
+    'stratos_crm_rfp',
+    'stratos_social',
     'zelix_ai',
     'mcp_server',
 ]
@@ -122,14 +125,16 @@ try:
     if 'mcp.enabled.model' in env.registry or 'mcp.enabled.model' in env:
         core_models = [
             'res.partner', 'res.users', 'res.company',
-            'product.product', 'product.template', 'stock.quant', 'account.move'
+            'product.product', 'product.template', 'stock.quant', 'account.move',
+            'crm.lead'
         ]
         vet_models = env['ir.model'].sudo().search([('model', '=like', 'vet.%')]).mapped('model')
         hms_models = env['ir.model'].sudo().search([('model', '=like', 'hms.%')]).mapped('model')
         zelix_models = env['ir.model'].sudo().search([('model', '=like', 'zelix.%')]).mapped('model')
+        stratos_models = env['ir.model'].sudo().search([('model', '=like', 'stratos.social.%')]).mapped('model')
 
-        all_models = list(dict.fromkeys(core_models + list(vet_models) + list(hms_models) + list(zelix_models)))
-        print(f"[*] Registering {len(all_models)} models (VetCairn + HMS + Zelix + Core) for AI Copilot MCP access...")
+        all_models = list(dict.fromkeys(core_models + list(vet_models) + list(hms_models) + list(zelix_models) + list(stratos_models)))
+        print(f"[*] Registering {len(all_models)} models (VetCairn + HMS + Zelix + Stratos + Core) for AI Copilot MCP access...")
 
         McpModel = env['mcp.enabled.model'].sudo()
         IrModel = env['ir.model'].sudo()

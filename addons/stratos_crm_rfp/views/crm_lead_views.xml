@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================= Form: checkbox + RFP tab ================= -->
+    <record id="crm_lead_view_form_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.form.international.rfp</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="is_international_rfp"/>
+            </xpath>
+            <xpath expr="//notebook/page[@name='internal_notes']" position="before">
+                <page string="International RFP" name="international_rfp" invisible="not is_international_rfp">
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="rfp_status == 'submitted' or not rfp_submission_date or rfp_days_left &gt; 7">
+                        <span invisible="rfp_days_left &lt; 0">Submission due in <field name="rfp_days_left" class="d-inline fw-bold"/> day(s).</span>
+                        <span invisible="rfp_days_left &gt;= 0">The last submission date has passed.</span>
+                    </div>
+                    <group>
+                        <group string="Key Dates">
+                            <field name="rfp_questionnaire_date"/>
+                            <field name="rfp_submission_date"/>
+                        </group>
+                        <group string="Status">
+                            <field name="rfp_questionnaire_status" widget="radio" options="{'horizontal': true}"/>
+                            <field name="rfp_questionnaire_sent_on" invisible="rfp_questionnaire_status != 'sent'"/>
+                            <field name="rfp_status" widget="radio" options="{'horizontal': true}"/>
+                            <field name="rfp_submitted_on" invisible="rfp_status != 'submitted'"/>
+                        </group>
+                    </group>
+                    <group string="Reminders">
+                        <group>
+                            <field name="rfp_questionnaire_user_id" widget="many2one_avatar_user"
+                                   placeholder="Who sends the questionnaire"/>
+                            <field name="rfp_proposal_user_id" widget="many2one_avatar_user"
+                                   placeholder="Who submits the proposal"/>
+                        </group>
+                        <group>
+                            <field name="rfp_notify_user_ids" widget="many2many_avatar_user"
+                                   placeholder="e.g. manager (optional)"/>
+                            <div colspan="2" class="text-muted small">
+                                Reminders go out before each deadline (days set in CRM Settings), on the due date and the day after,
+                                until the questionnaire is marked Sent / the proposal is marked Submitted.
+                                Each responsible also gets a To-Do activity.
+                            </div>
+                        </group>
+                    </group>
+                    <group string="1. RFP Documents">
+                        <field name="rfp_document_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                    </group>
+                    <group string="2. Questionnaire">
+                        <field name="rfp_questionnaire_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                        <div colspan="2" class="text-muted small">Attach the questionnaire before marking it as Sent.</div>
+                    </group>
+                    <group string="3. Proposal">
+                        <field name="rfp_proposal_ids" widget="many2many_binary" nolabel="1" colspan="2"/>
+                        <div colspan="2" class="text-muted small">Attach the proposal before marking the RFP as Submitted.</div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================= Kanban: badge on the card ================= -->
+    <record id="crm_case_kanban_view_leads_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.international.rfp</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//t[@t-name='card']//field[@name='tag_ids']" position="before">
+                <field name="is_international_rfp" invisible="1"/>
+                <div invisible="not is_international_rfp" class="d-flex flex-wrap gap-1 small">
+                    <span class="badge text-bg-info">International RFP</span>
+                    <field name="rfp_status" widget="badge" decoration-success="rfp_status == 'submitted'"
+                           decoration-warning="rfp_status == 'not_submitted'"/>
+                    <span invisible="not rfp_submission_date or rfp_status == 'submitted'" class="text-muted">
+                        Due <field name="rfp_submission_date" class="d-inline"/>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================= List: optional columns ================= -->
+    <record id="crm_case_tree_view_oppor_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.list.opportunity.international.rfp</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="is_international_rfp" optional="hide"/>
+                <field name="rfp_questionnaire_date" optional="hide"/>
+                <field name="rfp_submission_date" optional="hide"/>
+                <field name="rfp_status" optional="hide" widget="badge"
+                       decoration-success="rfp_status == 'submitted'" decoration-warning="rfp_status == 'not_submitted'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_case_tree_view_leads_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.list.lead.international.rfp</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="is_international_rfp" optional="hide"/>
+                <field name="rfp_submission_date" optional="hide"/>
+                <field name="rfp_status" optional="hide" widget="badge"
+                       decoration-success="rfp_status == 'submitted'" decoration-warning="rfp_status == 'not_submitted'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================= Search: filters and group by ================= -->
+    <record id="view_crm_case_opportunities_filter_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.search.opportunity.international.rfp</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="international_rfp" string="International RFPs" domain="[('is_international_rfp', '=', True)]"/>
+                <filter name="rfp_not_submitted" string="RFP Not Submitted"
+                        domain="[('is_international_rfp', '=', True), ('rfp_status', '=', 'not_submitted')]"/>
+                <filter name="rfp_questionnaire_not_sent" string="Questionnaire Not Sent"
+                        domain="[('is_international_rfp', '=', True), ('rfp_questionnaire_status', '=', 'not_sent')]"/>
+                <filter name="rfp_submitted" string="RFP Submitted"
+                        domain="[('is_international_rfp', '=', True), ('rfp_status', '=', 'submitted')]"/>
+                <filter name="rfp_submission_date_filter" string="Last Submission Date" date="rfp_submission_date"/>
+                <group>
+                    <filter name="group_rfp_status" string="RFP Submission Status" context="{'group_by': 'rfp_status'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_case_leads_filter_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.search.lead.international.rfp</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="international_rfp" string="International RFPs" domain="[('is_international_rfp', '=', True)]"/>
+                <filter name="rfp_not_submitted" string="RFP Not Submitted"
+                        domain="[('is_international_rfp', '=', True), ('rfp_status', '=', 'not_submitted')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================= Menu: CRM > Sales > International RFPs ================= -->
+    <record id="action_crm_international_rfp" model="ir.actions.act_window">
+        <field name="name">International RFPs</field>
+        <field name="res_model">crm.lead</field>
+        <field name="path">international-rfps</field>
+        <field name="view_mode">list,kanban,form,calendar,activity</field>
+        <field name="domain">[('is_international_rfp', '=', True)]</field>
+        <field name="context">{'default_is_international_rfp': True, 'default_type': 'opportunity'}</field>
+        <field name="search_view_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No international RFPs yet</p>
+            <p>Create an opportunity here, or tick <b>International RFP</b> on any existing lead or opportunity.</p>
+        </field>
+    </record>
+
+    <record id="crm_lead_view_list_rfp" model="ir.ui.view">
+        <field name="name">crm.lead.list.international.rfp.menu</field>
+        <field name="model">crm.lead</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list decoration-success="rfp_status == 'submitted'"
+                  decoration-danger="rfp_status == 'not_submitted' and rfp_submission_date and rfp_submission_date &lt; current_date">
+                <field name="name" string="Opportunity"/>
+                <field name="partner_id" string="Client"/>
+                <field name="rfp_questionnaire_date"/>
+                <field name="rfp_questionnaire_status" widget="badge" optional="show"
+                       decoration-success="rfp_questionnaire_status == 'sent'" decoration-warning="rfp_questionnaire_status == 'not_sent'"/>
+                <field name="rfp_submission_date"/>
+                <field name="rfp_status" widget="badge"
+                       decoration-success="rfp_status == 'submitted'" decoration-warning="rfp_status == 'not_submitted'"/>
+                <field name="rfp_submitted_on" optional="show"/>
+                <field name="rfp_proposal_user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="hide"/>
+                <field name="stage_id" optional="show"/>
+                <field name="expected_revenue" optional="hide" sum="Expected Revenue"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_crm_international_rfp_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="crm_lead_view_list_rfp"/>
+        <field name="act_window_id" ref="action_crm_international_rfp"/>
+    </record>
+
+    <!-- ================= Dashboard ================= -->
+    <record id="action_rfp_dashboard" model="ir.actions.client">
+        <field name="name">RFP Dashboard</field>
+        <field name="tag">stratos_crm_rfp.dashboard</field>
+        <field name="path">rfp-dashboard</field>
+    </record>
+
+    <!-- ================= Menus: CRM > RFPs ================= -->
+    <menuitem id="menu_crm_rfp_root" name="RFPs" parent="crm.crm_menu_root" sequence="7"/>
+    <menuitem id="menu_crm_rfp_dashboard" name="Dashboard" parent="menu_crm_rfp_root"
+              action="action_rfp_dashboard" sequence="1"/>
+    <menuitem id="menu_crm_international_rfp" name="All RFPs" parent="menu_crm_rfp_root"
+              action="action_crm_international_rfp" sequence="2"/>
+</odoo>

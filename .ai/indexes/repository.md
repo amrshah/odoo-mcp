@@ -19,6 +19,8 @@ This document maps high-level concepts and system domains to physical source cod
 | **VetCairn Suite Installer** | [`addons/VetCairn/vet_installer/`](file:///e:/myapps/odoo-mcp/addons/VetCairn/vet_installer) | Master installer module declaring dependencies for all 22 vet modules |
 | **Stratos Vet Case Memory Suite** | [`addons/stratos_vet_case_memory_suite/`](file:///e:/myapps/odoo-mcp/addons/stratos_vet_case_memory_suite) | Veterinary case memory, clinical suggestions, self-learning patterns, voice dictation, and SOAP/VetCairn bridges |
 | **Stratos HMS Suite** | [`addons/stratos_hms/`](file:///e:/myapps/odoo-mcp/addons/stratos_hms) | Human hospital EMR suite with AI scribe, hospital memory, learned rules, lab, pharmacy, OT, wards |
+| **Stratos Social Marketing** | [`addons/stratos_social/`](file:///e:/myapps/odoo-mcp/addons/stratos_social) | Multi-platform social marketing suite (Meta, YouTube, TikTok) with scheduled publishing & multi-company tokens |
+| **Stratos CRM International RFP** | [`addons/stratos_crm_rfp/`](file:///e:/myapps/odoo-mcp/addons/stratos_crm_rfp) | CRM International RFP tracking, deadline milestones, reminder cron, and OWL 2 RFP Dashboard |
 | **Automation & Verification** | [`scripts/test_mcp.py`](file:///e:/myapps/odoo-mcp/scripts/test_mcp.py), [`scripts/setup_odoo_mcp.py`](file:///e:/myapps/odoo-mcp/scripts/setup_odoo_mcp.py) | Verification tests and MCP model registration automation |
 
 ---

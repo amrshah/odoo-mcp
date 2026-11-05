@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_activity_type_rfp_questionnaire" model="mail.activity.type">
+        <field name="name">RFP Questionnaire</field>
+        <field name="summary">RFP: Send the questionnaire</field>
+        <field name="res_model">crm.lead</field>
+        <field name="icon">help</field>
+        <field name="decoration_type">warning</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="mail_activity_type_rfp_proposal" model="mail.activity.type">
+        <field name="name">RFP Proposal</field>
+        <field name="summary">RFP: Submit the proposal</field>
+        <field name="res_model">crm.lead</field>
+        <field name="icon">upload_file</field>
+        <field name="decoration_type">warning</field>
+        <field name="sequence">31</field>
+    </record>
+</odoo>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="stratos_crm_rfp.RfpDashboard">
+        <div class="o_action o_rfp_dashboard h-100 overflow-auto bg-view">
+            <div class="container-fluid py-3 px-3 px-lg-4">
+                <!-- Header -->
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <h2 class="mb-0 me-auto">International RFP Dashboard</h2>
+                    <span t-if="this.state.data" class="text-muted small me-2">
+                        First reminder <t t-out="this.state.data.reminder_days"/> day(s) before each deadline
+                    </span>
+                    <button class="btn btn-secondary" t-on-click="() => this.load()" title="Refresh">
+                        <i class="oi" data-icon="refresh"/> Refresh
+                    </button>
+                    <button class="btn btn-primary" t-on-click="() => this.newRfp()">
+                        <i class="oi" data-icon="add"/> New RFP
+                    </button>
+                </div>
+
+                <div t-if="!this.state.data" class="text-muted p-4">Loading...</div>
+                <t t-else="">
+                    <!-- KPI tiles -->
+                    <div class="o_rfp_kpis mb-4">
+                        <button t-foreach="this.state.data.kpis" t-as="kpi" t-key="kpi.key" type="button"
+                                class="o_rfp_kpi btn text-start border rounded-3 p-3 bg-view"
+                                t-att-class="'o_rfp_kpi_' + kpi.tone"
+                                t-att-data-kpi="kpi.key"
+                                t-on-click="() => this.openKpi(kpi)">
+                            <div class="d-flex align-items-center gap-2 text-muted small text-uppercase fw-bold">
+                                <i class="oi" t-att-data-icon="kpi.icon"/>
+                                <span t-out="kpi.label"/>
+                            </div>
+                            <div class="o_rfp_kpi_count fw-bold mt-1" t-out="kpi.count"/>
+                            <div class="small text-muted">
+                                <t t-out="kpi.hint"/>
+                                <span t-if="kpi.count"> · <t t-out="kpi.amount"/></span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Deadlines -->
+                        <div class="col-xl-8">
+                            <div class="border rounded-3 bg-view">
+                                <div class="px-3 py-2 border-bottom fw-bold">Upcoming Deadlines (not yet submitted)</div>
+                                <div t-if="!this.state.data.upcoming.length" class="p-3 text-muted">
+                                    Nothing in the queue. Click <b>New RFP</b> to add one.
+                                </div>
+                                <div t-else="" class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr class="small text-muted">
+                                                <th>RFP</th>
+                                                <th>Next Step</th>
+                                                <th>Deadline</th>
+                                                <th>Responsible</th>
+                                                <th class="text-end">Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="this.state.data.upcoming" t-as="row" t-key="row.id"
+                                                class="o_rfp_row" style="cursor: pointer"
+                                                t-on-click="() => this.openLead(row.id)">
+                                                <td>
+                                                    <div class="fw-bold" t-out="row.name"/>
+                                                    <div class="small text-muted" t-out="row.client"/>
+                                                </td>
+                                                <td>
+                                                    <span t-out="row.task"/>
+                                                    <div t-if="row.task_key === 'proposal' and row.questionnaire === 'not_sent'"
+                                                         class="small text-muted">questionnaire not sent</div>
+                                                </td>
+                                                <td>
+                                                    <div t-out="row.date"/>
+                                                    <span class="badge" t-att-class="this.daysClass(row.days_left)"
+                                                          t-out="this.daysLabel(row.days_left)"/>
+                                                </td>
+                                                <td t-out="row.responsible"/>
+                                                <td class="text-end text-nowrap" t-out="row.amount"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Side panels -->
+                        <div class="col-xl-4 d-flex flex-column gap-4">
+                            <div class="border rounded-3 bg-view">
+                                <div class="px-3 py-2 border-bottom fw-bold">Pending by Person</div>
+                                <div t-if="!this.state.data.workload.length" class="p-3 text-muted">No pending tasks.</div>
+                                <table t-else="" class="table table-hover mb-0">
+                                    <thead>
+                                        <tr class="small text-muted">
+                                            <th>Responsible</th>
+                                            <th class="text-center">Questionnaires</th>
+                                            <th class="text-center">Proposals</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="this.state.data.workload" t-as="row" t-key="row_index"
+                                            style="cursor: pointer" t-on-click="() => this.openWorkload(row)">
+                                            <td t-out="row.name"/>
+                                            <td class="text-center" t-out="row.questionnaire"/>
+                                            <td class="text-center" t-out="row.proposal"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="border rounded-3 bg-view">
+                                <div class="px-3 py-2 border-bottom fw-bold">Recently Submitted</div>
+                                <div t-if="!this.state.data.submitted.length" class="p-3 text-muted">None yet.</div>
+                                <ul t-else="" class="list-unstyled mb-0">
+                                    <li t-foreach="this.state.data.submitted" t-as="row" t-key="row.id"
+                                        class="px-3 py-2 border-bottom d-flex gap-2" style="cursor: pointer"
+                                        t-on-click="() => this.openLead(row.id)">
+                                        <i class="oi text-success" data-icon="task_alt"/>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold" t-out="row.name"/>
+                                            <div class="small text-muted" t-out="row.client"/>
+                                        </div>
+                                        <div class="small text-muted text-nowrap" t-out="row.date"/>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

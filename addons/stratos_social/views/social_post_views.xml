@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============ Post ============ -->
+    <record id="view_social_post_form" model="ir.ui.view">
+        <field name="name">stratos.social.post.form</field>
+        <field name="model">stratos.social.post</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_post_now" type="object" string="Post Now" class="btn-primary"
+                            invisible="state not in ('draft', 'scheduled') or post_method != 'now'"
+                            confirm="Publish this post now on the selected accounts?"/>
+                    <button name="action_schedule" type="object" string="Schedule" class="btn-primary"
+                            invisible="state != 'draft' or post_method != 'scheduled'"/>
+                    <button name="action_post_now" type="object" string="Publish Now Instead"
+                            invisible="state != 'scheduled'"
+                            confirm="Publish this post now instead of waiting for the scheduled time?"/>
+                    <button name="action_retry_failed" type="object" string="Retry Failed" class="btn-primary"
+                            invisible="state not in ('failed', 'partial')"/>
+                    <button name="action_set_draft" type="object" string="Back to Draft"
+                            invisible="state not in ('scheduled', 'failed', 'cancel')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('draft', 'scheduled', 'failed')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_results" type="object" class="oe_stat_button" icon="fact_check"
+                                invisible="live_post_count == 0">
+                            <field name="live_post_count" widget="statinfo" string="Results"/>
+                        </button>
+                    </div>
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="not warning_message or state not in ('draft', 'scheduled', 'failed')">
+                        <strong>Before publishing:</strong>
+                        <field name="warning_message" nolabel="1" class="d-block" style="white-space: pre-line"/>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <group>
+                                <field name="account_ids" widget="many2many_tags" options="{'no_create': True}"
+                                       readonly="state not in ('draft', 'failed')"
+                                       placeholder="Choose Facebook, Instagram, YouTube or TikTok accounts"/>
+                            </group>
+                            <label for="message" string="Message"/>
+                            <field name="message" placeholder="Write your post... #hashtags work too"
+                                   readonly="state not in ('draft', 'failed')" class="border p-2" style="min-height: 140px"/>
+                            <div class="text-muted small mb-3">
+                                <field name="message_length" class="d-inline"/> characters
+                                · <field name="hashtag_count" class="d-inline"/> hashtags
+                                <span invisible="not has_instagram"> · Instagram limit: 2,200 characters, 30 hashtags</span>
+                            </div>
+                            <group>
+                                <field name="attachment_ids" widget="many2many_binary" string="Images"
+                                       readonly="state not in ('draft', 'failed')"/>
+                                <field name="link_url" widget="url" readonly="state not in ('draft', 'failed')"/>
+                            </group>
+                            <group string="Video" invisible="not has_youtube and not has_tiktok">
+                                <field name="video_ids" widget="many2many_binary" string="Video"
+                                       readonly="state not in ('draft', 'failed')"/>
+                            </group>
+                            <group string="YouTube" invisible="not has_youtube">
+                                <field name="youtube_title" readonly="state not in ('draft', 'failed')"
+                                       placeholder="Title shown on YouTube (max 100 characters)"/>
+                                <field name="youtube_privacy" widget="radio" options="{'horizontal': true}"
+                                       readonly="state not in ('draft', 'failed')"/>
+                                <field name="youtube_category" readonly="state not in ('draft', 'failed')"/>
+                                <field name="youtube_made_for_kids" readonly="state not in ('draft', 'failed')"/>
+                                <div colspan="2" class="text-muted small">The message above becomes the video description; its #hashtags become tags.</div>
+                            </group>
+                            <div invisible="not has_tiktok" class="mt-3">
+                                <div class="o_horizontal_separator text-uppercase fw-bolder small mb-2">TikTok</div>
+                                <field name="tiktok_account_info" nolabel="1" readonly="1" class="small mb-2"/>
+                                <group>
+                                    <field name="tiktok_privacy" readonly="state not in ('draft', 'failed')"
+                                           placeholder="Select..." options="{'no_open': True}"/>
+                                    <label for="tiktok_allow_comment" string="Allow users to"/>
+                                    <div class="d-flex gap-3">
+                                        <div><field name="tiktok_allow_comment" nolabel="1" readonly="state not in ('draft', 'failed') or tiktok_comment_locked"/><field name="tiktok_comment_locked" invisible="1"/> Comment</div>
+                                        <div><field name="tiktok_allow_duet" nolabel="1" readonly="state not in ('draft', 'failed') or tiktok_duet_locked"/><field name="tiktok_duet_locked" invisible="1"/> Duet</div>
+                                        <div><field name="tiktok_allow_stitch" nolabel="1" readonly="state not in ('draft', 'failed') or tiktok_stitch_locked"/><field name="tiktok_stitch_locked" invisible="1"/> Stitch</div>
+                                    </div>
+                                    <field name="tiktok_is_aigc" readonly="state not in ('draft', 'failed')"/>
+                                    <field name="tiktok_commercial" widget="boolean_toggle" readonly="state not in ('draft', 'failed')"/>
+                                    <field name="tiktok_brand_organic" invisible="not tiktok_commercial" readonly="state not in ('draft', 'failed')"/>
+                                    <div colspan="2" class="text-muted small ps-3" invisible="not tiktok_commercial or not tiktok_brand_organic">
+                                        Your video will be labelled "Promotional content".</div>
+                                    <field name="tiktok_brand_content" invisible="not tiktok_commercial" readonly="state not in ('draft', 'failed')"/>
+                                    <div colspan="2" class="text-muted small ps-3" invisible="not tiktok_commercial or not tiktok_brand_content">
+                                        Your video will be labelled "Paid partnership". Branded content cannot be posted as "Only me".</div>
+                                </group>
+                                <div class="text-muted small border-top pt-2">
+                                    <span invisible="tiktok_commercial and tiktok_brand_content">
+                                        By posting, you agree to TikTok's
+                                        <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank">Music Usage Confirmation</a>.
+                                    </span>
+                                    <span invisible="not tiktok_commercial or not tiktok_brand_content">
+                                        By posting, you agree to TikTok's
+                                        <a href="https://www.tiktok.com/legal/page/global/bc-policy/en" target="_blank">Branded Content Policy</a>
+                                        and <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank">Music Usage Confirmation</a>.
+                                    </span>
+                                    The message above is the TikTok caption. After posting, TikTok may take a few minutes to process the video.
+                                </div>
+                            </div>
+                            <group string="When">
+                                <field name="post_method" widget="radio" options="{'horizontal': true}"
+                                       readonly="state != 'draft'"/>
+                                <field name="scheduled_date" invisible="post_method != 'scheduled'"
+                                       required="post_method == 'scheduled'" readonly="state not in ('draft', 'failed')"/>
+                                <field name="published_date" invisible="not published_date"/>
+                            </group>
+                            <group string="Organise">
+                                <field name="user_id"/>
+                                <field name="utm_campaign_id" options="{'no_quick_create': False}"/>
+                                <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                                <field name="has_instagram" invisible="1"/>
+                                <field name="has_facebook" invisible="1"/>
+                                <field name="has_youtube" invisible="1"/>
+                                <field name="has_tiktok" invisible="1"/>
+                            </group>
+                        </div>
+                        <div class="col-lg-5">
+                            <h5 class="text-muted">Preview</h5>
+                            <field name="preview_html" nolabel="1" readonly="1"/>
+                        </div>
+                    </div>
+                    <notebook invisible="live_post_count == 0">
+                        <page string="Results" name="results">
+                            <field name="live_post_ids" readonly="1">
+                                <list decoration-success="state == 'posted'" decoration-danger="state == 'failed'">
+                                    <field name="account_id"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'posted'" decoration-info="state == 'processing'" decoration-danger="state == 'failed'"/>
+                                    <field name="published_date"/>
+                                    <field name="permalink" widget="url" text="Open"/>
+                                    <field name="error_message"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_social_post_list" model="ir.ui.view">
+        <field name="name">stratos.social.post.list</field>
+        <field name="model">stratos.social.post</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'cancel'" decoration-danger="state == 'failed'" decoration-warning="state == 'partial'">
+                <field name="name"/>
+                <field name="account_ids" widget="many2many_tags"/>
+                <field name="calendar_date" string="Date"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="utm_campaign_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'scheduled'" decoration-success="state == 'posted'"
+                       decoration-warning="state == 'partial'" decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_social_post_kanban" model="ir.ui.view">
+        <field name="name">stratos.social.post.kanban</field>
+        <field name="model">stratos.social.post</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="0" group_create="0" group_delete="0" group_edit="0" records_draggable="0">
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold"/>
+                        <field name="account_ids" widget="many2many_tags"/>
+                        <footer class="pt-1">
+                            <field name="calendar_date" class="small text-muted"/>
+                            <field name="user_id" widget="many2one_avatar_user" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_social_post_calendar" model="ir.ui.view">
+        <field name="name">stratos.social.post.calendar</field>
+        <field name="model">stratos.social.post</field>
+        <field name="arch" type="xml">
+            <calendar date_start="calendar_date" mode="month" color="state" quick_create="0" event_open_popup="0">
+                <field name="account_ids" widget="many2many_tags"/>
+                <field name="state"/>
+                <field name="user_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_social_post_search" model="ir.ui.view">
+        <field name="name">stratos.social.post.search</field>
+        <field name="model">stratos.social.post</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="message" string="Text"/>
+                <field name="account_ids"/>
+                <field name="utm_campaign_id"/>
+                <field name="user_id"/>
+                <filter name="my_posts" string="My Posts" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="draft" string="Drafts" domain="[('state', '=', 'draft')]"/>
+                <filter name="scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter name="posted" string="Posted" domain="[('state', 'in', ('posted', 'partial'))]"/>
+                <filter name="failed" string="Failed" domain="[('state', 'in', ('failed', 'partial'))]"/>
+                <separator/>
+                <filter name="filter_date" string="Date" date="calendar_date"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_campaign" string="Campaign" context="{'group_by': 'utm_campaign_id'}"/>
+                    <filter name="group_user" string="Responsible" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_social_post" model="ir.actions.act_window">
+        <field name="name">Posts</field>
+        <field name="res_model">stratos.social.post</field>
+        <field name="path">social-posts</field>
+        <field name="view_mode">kanban,list,calendar,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Write your first social media post</p>
+            <p>Compose once, publish to all your Facebook Pages and Instagram accounts, now or later.</p>
+        </field>
+    </record>
+
+    <record id="action_social_post_calendar" model="ir.actions.act_window">
+        <field name="name">Content Calendar</field>
+        <field name="res_model">stratos.social.post</field>
+        <field name="view_mode">calendar,list,form</field>
+        <field name="domain">[('state', '!=', 'cancel')]</field>
+    </record>
+
+    <!-- ============ Results ============ -->
+    <record id="view_social_live_post_list" model="ir.ui.view">
+        <field name="name">stratos.social.live.post.list</field>
+        <field name="model">stratos.social.live.post</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" decoration-success="state == 'posted'" decoration-danger="state == 'failed'">
+                <field name="post_id"/>
+                <field name="account_id"/>
+                <field name="platform" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'posted'" decoration-info="state == 'processing'" decoration-danger="state == 'failed'"/>
+                <field name="published_date"/>
+                <field name="permalink" widget="url" text="Open"/>
+                <field name="error_message" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_social_live_post_form" model="ir.ui.view">
+        <field name="name">stratos.social.live.post.form</field>
+        <field name="model">stratos.social.live.post</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="post_id"/>
+                            <field name="account_id"/>
+                            <field name="platform"/>
+                        </group>
+                        <group>
+                            <field name="published_date"/>
+                            <field name="external_post_id"/>
+                            <field name="permalink" widget="url"/>
+                        </group>
+                    </group>
+                    <field name="error_message" invisible="not error_message" class="text-danger"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_social_live_post" model="ir.actions.act_window">
+        <field name="name">Publishing Results</field>
+        <field name="res_model">stratos.social.live.post</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

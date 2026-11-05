@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_social_account_kanban" model="ir.ui.view">
+        <field name="name">stratos.social.account.kanban</field>
+        <field name="model">stratos.social.account</field>
+        <field name="arch" type="xml">
+            <kanban create="0">
+                <header>
+                    <button name="action_connect_meta" type="object" string="Meta" icon="add" title="Connect Facebook Pages and Instagram"
+                            class="btn-primary" display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_youtube" type="object" string="YouTube" icon="add" title="Connect YouTube channels"
+                            class="btn-primary" display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_tiktok" type="object" string="TikTok" icon="add" title="Connect TikTok accounts"
+                            class="btn-primary" display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_open_token_wizard" type="object" string="Token" icon="key" title="Add Facebook / Instagram with an access token"
+                            display="always" groups="stratos_social.group_social_manager"/>
+                </header>
+                <field name="state"/>
+                <field name="platform"/>
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <aside class="me-3">
+                            <field name="image_128" widget="image" options="{'size': [56, 56]}" class="rounded-circle overflow-hidden"/>
+                        </aside>
+                        <main>
+                            <field name="name" class="fw-bold fs-5"/>
+                            <div>
+                                <span t-if="record.platform.raw_value == 'facebook'" class="badge text-bg-primary">Facebook Page</span>
+                                <span t-elif="record.platform.raw_value == 'youtube'" class="badge" style="background:#ff0000;color:#fff">YouTube Channel</span>
+                                <span t-elif="record.platform.raw_value == 'tiktok'" class="badge" style="background:#000;color:#fff">TikTok</span>
+                                <span t-else="" class="badge" style="background:#c13584;color:#fff">Instagram Business</span>
+                                <span t-if="record.state.raw_value == 'error'" class="badge text-bg-danger ms-1">Needs Attention</span>
+                            </div>
+                            <div t-if="record.username.raw_value" class="text-muted">@<field name="username"/></div>
+                            <div class="text-muted small"><field name="post_count"/> posts published</div>
+                            <field name="company_id" groups="base.group_multi_company" class="small text-muted"/>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_social_account_list" model="ir.ui.view">
+        <field name="name">stratos.social.account.list</field>
+        <field name="model">stratos.social.account</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-danger="state == 'error'">
+                <header>
+                    <button name="action_connect_meta" type="object" string="Meta" icon="add" title="Connect Facebook Pages and Instagram"
+                            class="btn-primary" display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_youtube" type="object" string="YouTube" icon="add" title="Connect YouTube channels"
+                            class="btn-primary" display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_tiktok" type="object" string="TikTok" icon="add" title="Connect TikTok accounts"
+                            class="btn-primary" display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_open_token_wizard" type="object" string="Token" icon="key" title="Add Facebook / Instagram with an access token"
+                            display="always" groups="stratos_social.group_social_manager"/>
+                    <button name="action_test_connection" type="object" string="Check Connection"
+                            groups="stratos_social.group_social_manager"/>
+                </header>
+                <field name="name"/>
+                <field name="platform"/>
+                <field name="username" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="state" widget="badge" decoration-success="state == 'connected'" decoration-danger="state == 'error'"/>
+                <field name="connected_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_social_account_form" model="ir.ui.view">
+        <field name="name">stratos.social.account.form</field>
+        <field name="model">stratos.social.account</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_test_connection" type="object" string="Check Connection"
+                            groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_meta" type="object" string="Reconnect"
+                            invisible="state != 'error' or platform in ('youtube', 'tiktok')" class="btn-primary"
+                            groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_youtube" type="object" string="Reconnect"
+                            invisible="state != 'error' or platform != 'youtube'" class="btn-primary"
+                            groups="stratos_social.group_social_manager"/>
+                    <button name="action_connect_tiktok" type="object" string="Reconnect"
+                            invisible="state != 'error' or platform != 'tiktok'" class="btn-primary"
+                            groups="stratos_social.group_social_manager"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_posts" type="object" class="oe_stat_button" icon="campaign">
+                            <field name="post_count" widget="statinfo" string="Posts"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="image_128" widget="image" class="oe_avatar" readonly="1"/>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="state != 'error'">
+                        <field name="last_error" nolabel="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="platform" readonly="1"/>
+                            <field name="username" invisible="not username"/>
+                            <field name="account_url" widget="url" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="external_id"/>
+                            <field name="facebook_page_id" invisible="platform != 'instagram'"/>
+                            <field name="connected_by_id"/>
+                            <field name="connected_date"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="TikTok Settings" invisible="platform != 'tiktok'">
+                        <field name="tiktok_privacy_options"/>
+                        <field name="tiktok_max_duration"/>
+                        <field name="tiktok_comment_disabled"/>
+                        <field name="tiktok_duet_disabled"/>
+                        <field name="tiktok_stitch_disabled"/>
+                    </group>
+                    <group groups="stratos_social.group_social_manager" string="Technical">
+                        <field name="access_token" password="True"/>
+                        <field name="refresh_token" password="True" invisible="platform not in ('youtube', 'tiktok')"/>
+                        <field name="token_expiry" invisible="platform not in ('youtube', 'tiktok')"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_social_account_search" model="ir.ui.view">
+        <field name="name">stratos.social.account.search</field>
+        <field name="model">stratos.social.account</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <filter name="facebook" string="Facebook" domain="[('platform', '=', 'facebook')]"/>
+                <filter name="instagram" string="Instagram" domain="[('platform', '=', 'instagram')]"/>
+                <filter name="youtube" string="YouTube" domain="[('platform', '=', 'youtube')]"/>
+                <filter name="tiktok" string="TikTok" domain="[('platform', '=', 'tiktok')]"/>
+                <separator/>
+                <filter name="needs_attention" string="Needs Attention" domain="[('state', '=', 'error')]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_platform" string="Platform" context="{'group_by': 'platform'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_social_account" model="ir.actions.act_window">
+        <field name="name">Social Accounts</field>
+        <field name="res_model">stratos.social.account</field>
+        <field name="path">social-accounts</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Connect your first social account</p>
+            <p>Use <b>+ Meta</b> for Facebook Pages and Instagram, <b>+ YouTube</b> / <b>+ TikTok</b> for videos
+               (each needs app keys in Settings), or <b>Token</b> for a quick Facebook test.</p>
+        </field>
+    </record>
+</odoo>
