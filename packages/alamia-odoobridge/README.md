@@ -23,19 +23,28 @@ Alamia OdooBridge connects AI assistants, autonomous agent swarms, and clinical 
 
 ## Quickstart
 
-### 1. Run with `stdio` (Claude Desktop / Cursor)
+### 1. Run with `stdio` (Claude Desktop / Cursor / Windsurf)
+See the full [Client Integration Guide](../../docs/Alamia-Odoo-Bridge/client-integrations.md) for step-by-step setup for Claude Desktop, ChatGPT, Cursor, and Claude Code.
+
+Example Claude Desktop config (`%APPDATA%\Claude\claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
-    "odoo": {
-      "command": "uvx",
+    "alamia-odoobridge": {
+      "command": "python",
       "args": [
-        "alamia-odoobridge",
-        "--url", "https://your-odoo.com",
-        "--db", "your_db",
-        "--user", "ai_service",
-        "--password", "your_secret_password"
-      ]
+        "-m",
+        "alamia_odoobridge.cli",
+        "--transport",
+        "stdio"
+      ],
+      "cwd": "E:\\myapps\\odoo-mcp\\packages\\alamia-odoobridge",
+      "env": {
+        "ODOO_URL": "http://localhost:8069",
+        "ODOO_DB": "odoo_hospital",
+        "ODOO_USERNAME": "zelix_service",
+        "ODOO_PASSWORD": "zelix_service_secret_key_2026"
+      }
     }
   }
 }
