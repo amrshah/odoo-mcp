@@ -77,9 +77,15 @@
    - Installed `stratos_vet_case_memory_suite` without manual VPS SSH/bash commands.
    - Portainer Stack environment variables (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_GATEWAY_ID`, `CLOUDFLARE_MODEL`) auto-provision both Zelix AI and Vet Case Memory on container start via `setup_odoo_mcp_orm.py` and direct `os.getenv` fallback in `VetCmAiClient`.
 
+7. **Phase 7: Alamia OdooBridge Hardening & ZelixVet Controlled Integration Pilot**:
+   - Hardened lamia-odoobridge v0.1.2: Odoo 19 JSON-2 named-parameter adapter, explicit 401/403 auth separation, role-based model discovery, strict company boundary isolation, and ASGI streaming middleware.
+   - Froze bridge feature scope and recorded [ADR 002](file:///e:/myapps/odoo-mcp/.ai/permanent/adr/002-bridge-scope-freeze-and-zelixvet-pilot.md).
+   - Implemented dual-mode shadow pilot adapter (ZelixOdooAdapter) with DirectOdooBackend, BridgeOdooBackend, and thread-safe ParityComparator.
+   - Verified 100% data parity and zero discrepancies across 5 dimensions with sub-2ms latency delta.
+
 ---
 
-### ⏳ PENDING & NEXT PRIORITIES (Phase 6)
+### PENDING & NEXT PRIORITIES (Phase 8)
 
 1. **Production VPS Deployment Automation**:
    - Configure Ollama / vLLM runtime configurations for the tiered models with optimized context limits and thread allocations.

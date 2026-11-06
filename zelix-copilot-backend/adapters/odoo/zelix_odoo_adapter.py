@@ -1,36 +1,26 @@
 """
 adapters/odoo/zelix_odoo_adapter.py
-Bridges Alamia Copilot Starter Engine to Odoo 19 (VetCairn & Stratos HMS) via XML-RPC.
-Strictly implements ApplicationAdapter with an explicit MODEL_MAP allowlist.
+Dual-mode ApplicationAdapter supporting controlled side-by-side pilot testing
+between the legacy direct XML-RPC backend and the canonical Alamia OdooBridge backend.
 """
 
 import os
+import time
 import logging
-import xmlrpc.client
 from typing import Any, Dict, List, Optional
+
 from adapters.application.base.adapter import ApplicationAdapter
+from .direct_backend import DirectOdooBackend
+from .bridge_backend import BridgeOdooBackend
+from .comparator import ParityComparator
 
 logger = logging.getLogger("zelix.adapters.odoo")
 
 
 class ZelixOdooAdapter(ApplicationAdapter):
-    """Bridges Copilot Engine to Odoo 19 (VetCairn & Stratos HMS) via XML-RPC with strict model allowlisting."""
+    """Unified application adapter with dual-mode shadow execution for the Odoo Bridge pilot."""
 
-    MODEL_MAP = {
-        "patient": "vet.patient",
-        "hms_patient": "hms.patient",
-        "vaccination": "vet.vaccination",
-        "encounter": "vet.encounter",
-        "appointment": "vet.appointment",
-        "hms_visit": "hms.visit",
-        "prescription": "vet.prescription",
-        "hms_prescription": "hms.prescription",
-        "product": "product.product",
-        "inventory": "product.product",
-        "user": "res.users",
-        "clinic": "vet.clinic",
-        "company": "res.company",
-    }
+    MODEL_MAP = DirectOdooBackend.MODEL_MAP
 
     def __init__(
         self,
@@ -38,66 +28,92 @@ class ZelixOdooAdapter(ApplicationAdapter):
         db: Optional[str] = None,
         user_id: Optional[int] = None,
         api_key: Optional[str] = None,
+        mode: Optional[str] = None,
+        comparator: Optional[ParityComparator] = None,
+        shadow_writes: bool = False,
     ) -> None:
-        default_url = os.getenv("ODOO_LOCAL_URL") or os.getenv("ODOO_URL", "http://localhost:8069")
-        if "web:" in default_url and not os.path.exists("/.dockerenv"):
-            default_url = "http://localhost:8069"
-        self.url = (url or default_url).rstrip("/")
-        self.db = db or os.getenv("ODOO_DB", "odoo_hospital")
-        self.user_id = user_id or (int(os.getenv("ODOO_USER_ID")) if os.getenv("ODOO_USER_ID") else None)
-        self.api_key = api_key or os.getenv("ODOO_PASSWORD", "zelix_service_secret_key_2026")
-        self.username = os.getenv("ODOO_USERNAME", "zelix_service")
+        raw_mode = (mode or os.getenv("ZELIX_ODOO_PILOT_MODE", "dual")).strip().lower()
+        if raw_mode not in ["direct", "bridge", "dual"]:
+            logger.warning(f"Invalid ZELIX_ODOO_PILOT_MODE='{raw_mode}'; falling back to 'dual'")
+            raw_mode = "dual"
+        self.mode = raw_mode
+        self.shadow_writes = shadow_writes or (os.getenv("ZELIX_ODOO_SHADOW_WRITES", "false").lower() == "true")
 
-        self.common_endpoint = f"{self.url}/xmlrpc/2/common"
-        self.object_endpoint = f"{self.url}/xmlrpc/2/object"
-        self._models_proxy: Optional[xmlrpc.client.ServerProxy] = None
-        self._authenticated_uid: Optional[int] = self.user_id
+        self.direct = DirectOdooBackend(
+            url=url,
+            db=db,
+            user_id=user_id,
+            api_key=api_key,
+        )
+        self.bridge = BridgeOdooBackend(
+            url=url,
+            db=db,
+            username=self.direct.username,
+            password=self.direct.api_key,
+        )
+        self.comparator = comparator or ParityComparator()
+        logger.info(f"Initialized ZelixOdooAdapter in '{self.mode}' mode (shadow_writes={self.shadow_writes})")
 
     @property
-    def models(self) -> xmlrpc.client.ServerProxy:
-        if self._models_proxy is None:
-            self._models_proxy = xmlrpc.client.ServerProxy(self.object_endpoint, allow_none=True)
-        return self._models_proxy
+    def models(self):
+        """Legacy direct ServerProxy accessor for backward compatibility."""
+        return self.direct.models
 
     def _get_model(self, entity_type: str) -> str:
-        model = self.MODEL_MAP.get(entity_type.lower())
-        if not model:
-            if entity_type in self.MODEL_MAP.values():
-                return entity_type
-            raise ValueError(f"Entity type '{entity_type}' is not allowlisted in ZelixOdooAdapter.")
-        return model
+        """Enforces MODEL_MAP allowlist lookup (backward compatibility)."""
+        return self.direct.get_model(entity_type)
 
-    def _ensure_authenticated(self) -> int:
-        if self._authenticated_uid is None:
-            try:
-                common = xmlrpc.client.ServerProxy(self.common_endpoint, allow_none=True)
-                uid = common.authenticate(self.db, self.username, self.api_key, {})
-                if uid:
-                    self._authenticated_uid = uid
-                    self.user_id = uid
-                else:
-                    self._authenticated_uid = 2
-            except Exception as e:
-                logger.warning(f"Could not authenticate with Odoo: {e}")
-                self._authenticated_uid = 2
-        return self._authenticated_uid
+    def get_model(self, entity_type: str) -> str:
+        """Enforces MODEL_MAP allowlist lookup."""
+        return self.direct.get_model(entity_type)
+
+    def set_mode(self, mode: str) -> None:
+        """Switch active adapter routing mode."""
+        m = mode.strip().lower()
+        if m in ["direct", "bridge", "dual"]:
+            self.mode = m
+            logger.info(f"ZelixOdooAdapter mode switched to '{self.mode}'")
+        else:
+            raise ValueError(f"Invalid mode '{mode}'. Choose from 'direct', 'bridge', 'dual'.")
+
+    def get_parity_telemetry(self) -> Dict[str, Any]:
+        """Expose current parity match rate and latency metrics."""
+        return self.comparator.get_summary()
+
+    def reset_parity_telemetry(self) -> None:
+        """Reset parity telemetry counters."""
+        self.comparator.reset()
+
+    # -------------------------------------------------------------------------
+    # ApplicationAdapter API Implementation
+    # -------------------------------------------------------------------------
 
     def identity(self, user_id: str) -> Optional[Dict[str, Any]]:
-        uid = self._ensure_authenticated()
-        try:
-            target_uid = int(user_id) if str(user_id).isdigit() else uid
-            rec = self.models.execute_kw(self.db, uid, self.api_key, "res.users", "read", [[target_uid], ["id", "name", "login", "email"]])
-            return rec[0] if rec else {"id": target_uid, "name": "Clinician"}
-        except Exception:
-            return {"id": user_id, "name": "Clinician", "role": "veterinarian"}
+        if self.mode == "direct":
+            return self.direct.identity(user_id)
+        elif self.mode == "bridge":
+            return self.bridge.identity(user_id)
+        else:
+            # Dual shadow mode
+            t0 = time.perf_counter()
+            direct_res = self.direct.identity(user_id)
+            d_ms = (time.perf_counter() - t0) * 1000.0
+
+            t1 = time.perf_counter()
+            try:
+                bridge_res = self.bridge.identity(user_id)
+            except Exception as e:
+                bridge_res = None
+                logger.debug(f"Shadow bridge.identity failed: {e}")
+            b_ms = (time.perf_counter() - t1) * 1000.0
+
+            self.comparator.record_metrics("identity", "res.users", direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def permissions(self, user_id: str) -> List[str]:
-        return [
-            "patients.read", "patients.write",
-            "medical_records.read", "medical_records.write",
-            "prescriptions.read", "prescriptions.write",
-            "inventory.read", "clinic_operations.read",
-        ]
+        if self.mode == "bridge":
+            return self.bridge.permissions(user_id)
+        return self.direct.permissions(user_id)
 
     def search(
         self,
@@ -105,156 +121,116 @@ class ZelixOdooAdapter(ApplicationAdapter):
         query: Optional[Dict[str, Any]] = None,
         limit: int = 100,
     ) -> List[Dict[str, Any]]:
-        model = self._get_model(entity_type)
-        uid = self._ensure_authenticated()
-        domain = []
-        if query:
-            for k, v in query.items():
-                if isinstance(v, (list, tuple)):
-                    if len(v) == 3:
-                        domain.append(list(v))
-                    elif len(v) == 2:
-                        domain.append([k, v[0], v[1]])
-                else:
-                    domain.append([k, "=", v])
-        try:
-            return self.models.execute_kw(
-                self.db, uid, self.api_key,
-                model, "search_read", [domain], {"limit": limit}
-            )
-        except Exception as e:
-            logger.error(f"Error searching {model}: {e}")
-            return []
+        if self.mode == "direct":
+            return self.direct.search(entity_type, query, limit)
+        elif self.mode == "bridge":
+            return self.bridge.search(entity_type, query, limit)
+        else:
+            # Dual shadow mode
+            t0 = time.perf_counter()
+            direct_res = self.direct.search(entity_type, query, limit)
+            d_ms = (time.perf_counter() - t0) * 1000.0
+
+            t1 = time.perf_counter()
+            try:
+                bridge_res = self.bridge.search(entity_type, query, limit)
+            except Exception as e:
+                bridge_res = []
+                logger.debug(f"Shadow bridge.search failed on {entity_type}: {e}")
+            b_ms = (time.perf_counter() - t1) * 1000.0
+
+            self.comparator.record_metrics("search", entity_type, direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def find_patient(self, search_term: str) -> Optional[Dict[str, Any]]:
-        """Look up patient across domain models (vet.patient and hms.patient) by name or identifier."""
-        q = search_term.strip()
-        if not q:
-            return None
-        uid = self._ensure_authenticated()
+        if self.mode == "direct":
+            return self.direct.find_patient(search_term)
+        elif self.mode == "bridge":
+            return self.bridge.find_patient(search_term)
+        else:
+            # Dual shadow mode
+            t0 = time.perf_counter()
+            direct_res = self.direct.find_patient(search_term)
+            d_ms = (time.perf_counter() - t0) * 1000.0
 
-        words = [w.strip(".,;:?!'\"").removesuffix("'s").removesuffix("’s") for w in q.split() if len(w.strip(".,;:?!'\"")) > 2]
-        stop_words = {"summarize", "patient", "history", "details", "brief", "about", "for", "named", "show", "give", "tell", "record", "notes", "status", "what", "is", "the", "find", "looking", "check"}
-        candidate_names = [w for w in words if w.lower() not in stop_words] or [q]
-
-        for candidate in candidate_names:
-            # 1. Search VetCairn patients
+            t1 = time.perf_counter()
             try:
-                vet_records = self.models.execute_kw(
-                    self.db, uid, self.api_key,
-                    "vet.patient", "search_read",
-                    [[["name", "ilike", candidate]]],
-                    {"limit": 1}
-                )
-                if not vet_records:
-                    vet_records = self.models.execute_kw(
-                        self.db, uid, self.api_key,
-                        "vet.patient", "search_read",
-                        [[["identifier", "ilike", candidate]]],
-                        {"limit": 1}
-                    )
-                if vet_records:
-                    rec = vet_records[0]
-                    species_name = rec.get("species_id", [False, "Canine"])[1] if isinstance(rec.get("species_id"), (list, tuple)) else "Canine"
-                    breed_name = rec.get("breed_id", [False, ""])[1] if isinstance(rec.get("breed_id"), (list, tuple)) else ""
-                    clinic_id = rec.get("clinic_id", [3, ""])[0] if isinstance(rec.get("clinic_id"), (list, tuple)) else 3
-                    return {
-                        "id": rec.get("id"),
-                        "name": rec.get("name"),
-                        "identifier": rec.get("identifier"),
-                        "model": "vet.patient",
-                        "species": species_name,
-                        "breed": breed_name,
-                        "notes": rec.get("notes") or "",
-                        "clinic_id": clinic_id,
-                        "raw": rec,
-                    }
+                bridge_res = self.bridge.find_patient(search_term)
             except Exception as e:
-                logger.debug(f"Error searching vet.patient: {e}")
+                bridge_res = None
+                logger.debug(f"Shadow bridge.find_patient failed for '{search_term}': {e}")
+            b_ms = (time.perf_counter() - t1) * 1000.0
 
-            # 2. Search Stratos HMS patients
-            try:
-                hms_records = self.models.execute_kw(
-                    self.db, uid, self.api_key,
-                    "hms.patient", "search_read",
-                    [[["name", "ilike", candidate]]],
-                    {"limit": 1}
-                )
-                if not hms_records:
-                    hms_records = self.models.execute_kw(
-                        self.db, uid, self.api_key,
-                        "hms.patient", "search_read",
-                        [[["mrn", "ilike", candidate]]],
-                        {"limit": 1}
-                    )
-                if hms_records:
-                    rec = hms_records[0]
-                    return {
-                        "id": rec.get("id"),
-                        "name": rec.get("name"),
-                        "identifier": rec.get("mrn") or f"HMS-{rec.get('id')}",
-                        "model": "hms.patient",
-                        "species": "Human",
-                        "notes": rec.get("notes") or rec.get("chronic_conditions") or "",
-                        "raw": rec,
-                    }
-            except Exception as e:
-                logger.debug(f"Error searching hms.patient: {e}")
-
-        return None
+            self.comparator.record_metrics("find_patient", "patient", direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def get(self, entity_type: str, entity_id: str) -> Optional[Dict[str, Any]]:
-        model = self._get_model(entity_type)
-        uid = self._ensure_authenticated()
-        try:
-            records = self.models.execute_kw(
-                self.db, uid, self.api_key,
-                model, "read", [[int(entity_id)]]
-            )
-            return records[0] if records else None
-        except Exception as e:
-            logger.error(f"Error fetching {model} ID {entity_id}: {e}")
-            return None
+        if self.mode == "direct":
+            return self.direct.get(entity_type, entity_id)
+        elif self.mode == "bridge":
+            return self.bridge.get(entity_type, entity_id)
+        else:
+            # Dual shadow mode
+            t0 = time.perf_counter()
+            direct_res = self.direct.get(entity_type, entity_id)
+            d_ms = (time.perf_counter() - t0) * 1000.0
+
+            t1 = time.perf_counter()
+            try:
+                bridge_res = self.bridge.get(entity_type, entity_id)
+            except Exception as e:
+                bridge_res = None
+                logger.debug(f"Shadow bridge.get failed on {entity_type} ID {entity_id}: {e}")
+            b_ms = (time.perf_counter() - t1) * 1000.0
+
+            self.comparator.record_metrics("get", entity_type, direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def create(self, entity_type: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        model = self._get_model(entity_type)
-        uid = self._ensure_authenticated()
-        try:
-            rec_id = self.models.execute_kw(
-                self.db, uid, self.api_key,
-                model, "create", [data]
-            )
-            return {"id": rec_id, "status": "created", "model": model}
-        except Exception as e:
-            logger.error(f"Error creating in {model}: {e}")
-            raise
+        if self.mode == "bridge":
+            return self.bridge.create(entity_type, data)
+        elif self.mode == "direct" or not self.shadow_writes:
+            return self.direct.create(entity_type, data)
+        else:
+            # Dual mode with shadow writes enabled (e.g. test environment)
+            t0 = time.perf_counter()
+            direct_res = self.direct.create(entity_type, data)
+            d_ms = (time.perf_counter() - t0) * 1000.0
+
+            t1 = time.perf_counter()
+            try:
+                bridge_res = self.bridge.create(entity_type, data)
+            except Exception as e:
+                bridge_res = {"error": str(e)}
+            b_ms = (time.perf_counter() - t1) * 1000.0
+
+            self.comparator.record_metrics("create", entity_type, direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def update(self, entity_type: str, entity_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        model = self._get_model(entity_type)
-        uid = self._ensure_authenticated()
-        try:
-            self.models.execute_kw(
-                self.db, uid, self.api_key,
-                model, "write", [[int(entity_id)], data]
-            )
-            return {"id": int(entity_id), "status": "updated", "model": model}
-        except Exception as e:
-            logger.error(f"Error updating {model} ID {entity_id}: {e}")
-            raise
+        if self.mode == "bridge":
+            return self.bridge.update(entity_type, entity_id, data)
+        elif self.mode == "direct" or not self.shadow_writes:
+            return self.direct.update(entity_type, entity_id, data)
+        else:
+            t0 = time.perf_counter()
+            direct_res = self.direct.update(entity_type, entity_id, data)
+            d_ms = (time.perf_counter() - t0) * 1000.0
+
+            t1 = time.perf_counter()
+            try:
+                bridge_res = self.bridge.update(entity_type, entity_id, data)
+            except Exception as e:
+                bridge_res = {"error": str(e)}
+            b_ms = (time.perf_counter() - t1) * 1000.0
+
+            self.comparator.record_metrics("update", entity_type, direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def delete(self, entity_type: str, entity_id: str) -> bool:
-        model = self._get_model(entity_type)
-        uid = self._ensure_authenticated()
-        try:
-            return bool(
-                self.models.execute_kw(
-                    self.db, uid, self.api_key,
-                    model, "unlink", [[int(entity_id)]]
-                )
-            )
-        except Exception as e:
-            logger.error(f"Error deleting from {model}: {e}")
-            return False
+        if self.mode == "bridge":
+            return self.bridge.delete(entity_type, entity_id)
+        return self.direct.delete(entity_type, entity_id)
 
     def execute(
         self,
@@ -263,98 +239,9 @@ class ZelixOdooAdapter(ApplicationAdapter):
         proposed_changes: Dict[str, Any],
         metadata: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        entity_type = target.get("type", "patient")
-        target_id = target.get("id")
-
-        if action_type in ["create_soap_encounter", "create_encounter"]:
-            data = dict(proposed_changes)
-            patient_id = int(data.get("patient_id") or target_id or 1)
-            pt = self.get("patient", str(patient_id))
-            if not pt:
-                active_pts = self.search("patient", limit=1)
-                if active_pts:
-                    pt = active_pts[0]
-                    patient_id = pt["id"]
-
-            # Find an active appointment for the patient without an encounter attached
-            appts = self.search("appointment", {"patient_id": patient_id})
-            available_appts = [a for a in appts if not a.get("encounter_id")]
-            appt_id = available_appts[0]["id"] if available_appts else False
-            if not appt_id:
-                from datetime import datetime, timedelta, timezone
-                clinic_id = pt.get("clinic_id")[0] if pt and isinstance(pt.get("clinic_id"), (list, tuple)) else 3
-                now = datetime.now(timezone.utc)
-                # Find latest appointment for provider to avoid overlap constraint
-                provider_id = 2
-                latest_end = now
-                try:
-                    all_appts = self.search("appointment", {"provider_id": provider_id}, limit=50)
-                    for a in all_appts:
-                        if a.get("end_datetime"):
-                            try:
-                                a_end = datetime.strptime(str(a["end_datetime"]), "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-                                if a_end > latest_end:
-                                    latest_end = a_end
-                            except Exception:
-                                pass
-                except Exception:
-                    pass
-                start_dt = latest_end + timedelta(minutes=5)
-                end_dt = start_dt + timedelta(minutes=30)
-                new_appt = self.create("appointment", {
-                    "patient_id": patient_id,
-                    "clinic_id": clinic_id,
-                    "provider_id": provider_id,
-                    "appointment_type_id": 7,
-                    "start_datetime": start_dt.strftime("%Y-%m-%d %H:%M:%S"),
-                    "end_datetime": end_dt.strftime("%Y-%m-%d %H:%M:%S"),
-                    "reason": data.get("assessment", "Clinical Consultation"),
-                })
-                appt_id = new_appt.get("id")
-
-            clean_data = {
-                "appointment_id": appt_id,
-                "chief_complaint": data.get("chief_complaint") or data.get("assessment") or "Clinical Consultation",
-                "assessment": data.get("assessment") or "",
-                "subjective": data.get("notes") or data.get("subjective") or "",
-                "diagnosis_summary": str(data.get("assessment") or data.get("summary") or "Acute Gastroenteritis")[:64],
-            }
-            return self.create("encounter", clean_data)
-
-        elif action_type in ["create_prescription", "issue_prescription"]:
-            data = dict(proposed_changes)
-            patient_id = int(data.get("patient_id") or target_id or 1)
-            pt = self.get("patient", str(patient_id))
-            clinic_id = pt.get("clinic_id")[0] if pt and isinstance(pt.get("clinic_id"), (list, tuple)) else 1
-            
-            med_id = 1
-            try:
-                med_list = self.models.execute_kw(
-                    self.db, self._ensure_authenticated(), self.api_key,
-                    "vet.medication", "search", [[["name", "ilike", "Maropitant"]]], {"limit": 1}
-                )
-                if med_list:
-                    med_id = med_list[0]
-            except Exception:
-                pass
-
-            clean_data = {
-                "patient_id": patient_id,
-                "clinic_id": clinic_id,
-                "medication_id": med_id,
-                "dose": data.get("dosage", "16 mg"),
-                "route": "oral",
-                "frequency": data.get("frequency", "SID (Once Daily)"),
-                "duration": data.get("duration", "3 Days"),
-                "instructions": data.get("instructions", "Give once daily with food."),
-                "clinical_indication": "Dietary gastroenteritis & acute emesis",
-            }
-            return self.create("prescription", clean_data)
-
-        elif target_id:
-            return self.update(entity_type, str(target_id), proposed_changes)
-        else:
-            return self.create(entity_type, proposed_changes)
+        if self.mode == "bridge":
+            return self.bridge.execute(action_type, target, proposed_changes, metadata)
+        return self.direct.execute(action_type, target, proposed_changes, metadata)
 
     def relationships(
         self,
@@ -362,19 +249,28 @@ class ZelixOdooAdapter(ApplicationAdapter):
         entity_id: str,
         relation_name: str,
     ) -> List[Dict[str, Any]]:
-        if entity_type == "patient":
-            if relation_name == "vaccinations":
-                return self.search("vaccination", {"patient_id": int(entity_id)})
-            elif relation_name == "encounters":
-                return self.search("encounter", {"patient_id": int(entity_id)})
-            elif relation_name == "prescriptions":
-                return self.search("prescription", {"patient_id": int(entity_id)})
-        return []
+        if self.mode == "direct":
+            return self.direct.relationships(entity_type, entity_id, relation_name)
+        elif self.mode == "bridge":
+            return self.bridge.relationships(entity_type, entity_id, relation_name)
+        else:
+            t0 = time.perf_counter()
+            direct_res = self.direct.relationships(entity_type, entity_id, relation_name)
+            d_ms = (time.perf_counter() - t0) * 1000.0
+
+            t1 = time.perf_counter()
+            try:
+                bridge_res = self.bridge.relationships(entity_type, entity_id, relation_name)
+            except Exception as e:
+                bridge_res = []
+                logger.debug(f"Shadow bridge.relationships failed on {entity_type} {relation_name}: {e}")
+            b_ms = (time.perf_counter() - t1) * 1000.0
+
+            self.comparator.record_metrics("relationships", f"{entity_type}.{relation_name}", direct_res, bridge_res, d_ms, b_ms)
+            return direct_res
 
     def audit(self, entry: Dict[str, Any]) -> None:
-        try:
-            self._ensure_authenticated()
-            if "zelix.copilot.audit" in self.MODEL_MAP.values():
-                pass
-        except Exception:
-            pass
+        if self.mode == "bridge":
+            self.bridge.audit(entry)
+        else:
+            self.direct.audit(entry)
