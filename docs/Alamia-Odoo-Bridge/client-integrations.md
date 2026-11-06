@@ -15,7 +15,7 @@ This guide documents how to connect **Alamia OdooBridge** to various AI frontend
 By default, the Claude Desktop Windows installer does not generate `claude_desktop_config.json` until the user configures their first MCP server. 
 
 You can create it automatically by:
-1. Clicking **Settings** (`Ctrl + ,`) in Claude Desktop ➔ **Developer** ➔ **Edit Config**. Claude will initialize the directory and open the file.
+1. Clicking **Settings** (`Ctrl + ,`) in Claude Desktop -> **Developer** -> **Edit Config**. Claude will initialize the directory and open the file.
 2. Or running the following PowerShell one-liner:
    ```powershell
    New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"; New-Item -ItemType File -Force -Path "$env:APPDATA\Claude\claude_desktop_config.json"
@@ -76,7 +76,7 @@ OpenAI's ChatGPT (Custom GPTs / Actions) does not use the raw MCP JSON-RPC proto
 ### Option A: ChatGPT Custom GPT (GPT Action via Reverse Proxy / Tunnel)
 1. Expose `alamia-odoobridge` or Odoo using a secure tunnel (e.g. Cloudflare Tunnel, ngrok, or Tailscale Funnel) if running locally.
 2. In the Custom GPT Builder:
-   - Go to **Configure** ➔ **Create new action**.
+   - Go to **Configure** -> **Create new action**.
    - Import the OpenAPI schema generated from Alamia OdooBridge (or map the endpoints):
    ```yaml
    openapi: 3.1.0
@@ -218,7 +218,7 @@ mcpServers:
 ## 6. Verification Checklist
 
 When any client is connected, ask the assistant:
-1. *"What is the status of the Odoo ERP connection?"* ➔ Calls `odoo_status`.
-2. *"List all veterinary patient models available in the system."* ➔ Calls `odoo_list_models(filter_term="vet.patient")`.
-3. *"Search the database for the first 3 registered partners or clients."* ➔ Calls `odoo_search_read(model="res.partner", limit=3)`.
-4. *"Delete record ID 1 from res.partner."* ➔ Must return an execution error explaining that unlinking is disabled by policy.
+1. *"What is the status of the Odoo ERP connection?"* -> Calls `odoo_status`.
+2. *"List all veterinary patient models available in the system."* -> Calls `odoo_list_models(filter_term="vet.patient")`.
+3. *"Search the database for the first 3 registered partners or clients."* -> Calls `odoo_search_read(model="res.partner", limit=3)`.
+4. *"Delete record ID 1 from res.partner."* -> Must return an execution error explaining that unlinking is disabled by policy.
