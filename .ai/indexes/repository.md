@@ -20,6 +20,8 @@ This document maps high-level concepts and system domains to physical source cod
 | **Stratos Vet Case Memory Suite** | [`addons/stratos_vet_case_memory_suite/`](file:///e:/myapps/odoo-mcp/addons/stratos_vet_case_memory_suite) | Veterinary case memory, clinical suggestions, self-learning patterns, voice dictation, and SOAP/VetCairn bridges |
 | **Stratos HMS Suite** | [`addons/stratos_hms/`](file:///e:/myapps/odoo-mcp/addons/stratos_hms) | Human hospital EMR suite with AI scribe, hospital memory, learned rules, lab, pharmacy, OT, wards |
 | **Automation & Verification** | [`scripts/test_mcp.py`](file:///e:/myapps/odoo-mcp/scripts/test_mcp.py), [`scripts/setup_odoo_mcp.py`](file:///e:/myapps/odoo-mcp/scripts/setup_odoo_mcp.py) | Verification tests and MCP model registration automation |
+| **Alamia Odoo Bridge Package** | [`packages/alamia-odoobridge/`](file:///e:/myapps/odoo-mcp/packages/alamia-odoobridge) | Hardened Odoo connectivity layer (XML-RPC & JSON-2), FastMCP server, and auth gateway |
+| **Alamia Skills System** | [`Alamia-Skills-System/`](file:///e:/myapps/odoo-mcp/Alamia-Skills-System), [`.alamia/`](file:///e:/myapps/odoo-mcp/.alamia) | Universal, lifecycle-aware orchestration of development skills (`bootstrap`, `implement`, `qa`, `architecture-review`, `session-end`) |
 
 ---
 
