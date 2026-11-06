@@ -225,7 +225,7 @@ async def run_full_benchmark():
             endpoint_type="alamia",
             base_url="https://ai.alamiaconnect.com",
             model_id="/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf",
-            api_key="51129693340",
+            api_key=os.getenv("BITNET_API_KEY", ""),
         ),
         ModelCandidate(
             name="Gemma-3-1B-it (Local Ollama)",

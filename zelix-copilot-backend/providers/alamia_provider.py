@@ -40,7 +40,7 @@ class AlamiaAIProvider:
         timeout_seconds: float = 120.0,
     ):
         self.base_url = (base_url or os.getenv("ALAMIA_AI_URL", "https://ai.alamiaconnect.com")).rstrip("/")
-        self.api_key = api_key or os.getenv("BITNET_API_KEY", "51129693340")
+        self.api_key = api_key or os.getenv("BITNET_API_KEY", "")
         self.default_model = default_model or os.getenv(
             "BITNET_DEFAULT_MODEL", "/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf"
         )

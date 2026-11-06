@@ -80,7 +80,7 @@ services:
       - ODOO_USERNAME=${ODOO_USERNAME:-zelix_service}
       - ODOO_PASSWORD=${ODOO_PASSWORD:-zelix_service_secret_key_2026}
       - ALAMIA_AI_URL=${ALAMIA_AI_URL:-https://ai.alamiaconnect.com}
-      - BITNET_API_KEY=${BITNET_API_KEY:-51129693340}
+      - BITNET_API_KEY=${BITNET_API_KEY:-}
       - BITNET_DEFAULT_MODEL=${BITNET_DEFAULT_MODEL:-/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf}
       - GEMMA_MODEL=${GEMMA_MODEL:-}
       - OLLAMA_HOST=${OLLAMA_HOST:-}

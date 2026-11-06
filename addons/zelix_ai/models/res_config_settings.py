@@ -60,7 +60,7 @@ class ResConfigSettings(models.TransientModel):
     )
     zelix_bitnet_api_key = fields.Char(
         string="BitNet API Key",
-        default="51129693340",
+        default="",
         config_parameter="zelix_ai.bitnet_api_key",
     )
     zelix_bitnet_model = fields.Char(
