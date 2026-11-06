@@ -1,8 +1,11 @@
 """
 Integration and contract tests for the FastMCP tool registry in Alamia OdooBridge.
+Verifies proper ToolError propagation and exact successful response contracts.
 """
 
 import pytest
+from unittest.mock import MagicMock
+from fastmcp.exceptions import ToolError
 from alamia_odoobridge.config import BridgeSettings, ExecutionPolicy
 from alamia_odoobridge.mcp.server import create_bridge_server
 
@@ -17,6 +20,8 @@ def mock_settings():
         ODOO_PASSWORD="test_password",
         BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
         BRIDGE_ALLOW_UNLINK=False,
+        BRIDGE_ALLOWED_METHODS=["sale.order:action_confirm", "account.move:action_post"],
+        BRIDGE_DISALLOWED_MODELS=["ir.model", "ir.model.fields", "ir.rule"],
     )
 
 
@@ -41,31 +46,53 @@ async def test_tool_registration(mock_settings):
     assert len(tools) == 10
 
 
-async def test_odoo_unlink_record_policy_denial(mock_settings):
+async def test_odoo_unlink_record_raises_tool_error(mock_settings):
     server = create_bridge_server(mock_settings)
     tool = await server.get_tool("odoo_unlink_record")
 
-    # Unlink is disabled in mock_settings
-    res = tool.fn(model="res.partner", ids=[1, 2])
-    assert res["success"] is False
-    assert "disabled by default" in res["error"]
+    # Unlink is disabled in mock_settings; must raise ToolError (MCP isError: True)
+    with pytest.raises(ToolError) as exc_info:
+        tool.fn(model="res.partner", ids=[1, 2])
+    assert "Destructive record deletion" in str(exc_info.value)
+    assert "unlink_disabled" in str(exc_info.value) or "disabled by default" in str(exc_info.value)
 
 
-async def test_odoo_execute_method_unvetted_denial(mock_settings):
+async def test_odoo_execute_method_unlisted_pair_raises_tool_error(mock_settings):
     server = create_bridge_server(mock_settings)
     tool = await server.get_tool("odoo_execute_method")
 
-    # Call arbitrary unvetted method
-    res = tool.fn(model="sale.order", method="drop_all_tables")
-    assert res["success"] is False
-    assert "not in the permitted business methods allowlist" in res["error"]
+    # Unlisted model:method pair must raise ToolError
+    with pytest.raises(ToolError) as exc_info:
+        tool.fn(model="res.partner", method="dangerous_method")
+    assert "not in the permitted model:method allowlist" in str(exc_info.value)
 
 
-async def test_odoo_write_disallowed_model_denial(mock_settings):
+async def test_odoo_search_read_disallowed_model_raises_tool_error(mock_settings):
     server = create_bridge_server(mock_settings)
-    tool = await server.get_tool("odoo_write_record")
+    tool = await server.get_tool("odoo_search_read")
 
-    # Call write on administrative model
-    res = tool.fn(model="ir.model.access", ids=[1], values={"perm_write": True})
-    assert res["success"] is False
-    assert "prohibited by security policy" in res["error"]
+    # Administrative model access must raise ToolError
+    with pytest.raises(ToolError) as exc_info:
+        tool.fn(model="ir.rule")
+    assert "prohibited by security policy" in str(exc_info.value)
+
+
+async def test_odoo_list_models_filters_disallowed_models(mock_settings, monkeypatch):
+    mock_adapter = MagicMock()
+    mock_adapter.list_models.return_value = [
+        {"model": "res.partner", "name": "Contact"},
+        {"model": "ir.rule", "name": "Access Rule"},
+        {"model": "vet.patient", "name": "Patient"},
+    ]
+
+    monkeypatch.setattr("alamia_odoobridge.mcp.server.get_adapter", lambda s: mock_adapter)
+    server = create_bridge_server(mock_settings)
+
+    tool = await server.get_tool("odoo_list_models")
+    res = tool.fn(filter_term="")
+
+    # ir.rule is in disallowed_models and must be filtered out
+    models = [m["model"] for m in res]
+    assert "res.partner" in models
+    assert "vet.patient" in models
+    assert "ir.rule" not in models

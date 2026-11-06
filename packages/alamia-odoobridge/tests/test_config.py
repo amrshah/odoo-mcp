@@ -13,7 +13,7 @@ def test_default_settings():
     assert settings.odoo_password == "secret_password"
     assert settings.execution_policy == ExecutionPolicy.CONTROLLED_WRITES
     assert settings.allow_unlink is False
-    assert "action_confirm" in settings.allowed_methods
+    assert "sale.order:action_confirm" in settings.allowed_methods
     assert "ir.model.access" in settings.disallowed_models
 
 

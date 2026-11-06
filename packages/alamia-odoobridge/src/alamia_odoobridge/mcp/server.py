@@ -1,17 +1,20 @@
 """
 FastMCP Server implementation for Alamia OdooBridge.
-Exposes guarded Odoo ERP tools to AI assistants with 100% backward-compatible contracts.
+Exposes guarded Odoo ERP tools to AI assistants with 100% backward-compatible contracts
+and strict MCP ToolError propagation on policy or adapter failures.
 """
 
 import time
 import logging
 from typing import Any, Dict, List, Optional
 from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 
 from ..config import BridgeSettings, get_settings
 from ..core.policies import PolicyEngine
 from ..core.audit import AuditLogger
 from ..core.cache import SchemaCache
+from ..core.context import current_principal
 from ..adapters.odoo import get_adapter
 
 logger = logging.getLogger("alamia_odoobridge.mcp")
@@ -40,6 +43,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
         try:
             version_info = adapter.get_version()
             uid = adapter.authenticate()
+            principal = current_principal.get()
             res = {
                 "status": "connected",
                 "url": cfg.odoo_url,
@@ -52,23 +56,19 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
                 "execution_policy": cfg.execution_policy.value,
                 "allow_unlink": cfg.allow_unlink,
                 "schema_cache": cache.stats,
+                "caller": principal.to_dict() if principal else {"sub": "service_account", "is_service_only": True},
             }
             audit.log_event("odoo_status", status="success", duration_ms=(time.time() - start) * 1000)
             return res
         except Exception as e:
             audit.log_event("odoo_status", status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return {
-                "status": "error",
-                "url": cfg.odoo_url,
-                "database": cfg.odoo_db,
-                "user": cfg.odoo_username,
-                "error": str(e),
-            }
+            raise ToolError(f"Connection check failed: {e}")
 
     @mcp.tool()
     def odoo_list_models(filter_term: str = "") -> List[Dict[str, Any]]:
         """
         List available models in Odoo (e.g. res.partner, res.users, vet.patient, hms.patient).
+        Filters out restricted administrative models according to security policy.
         :param filter_term: Optional keyword to filter models by name or technical identifier.
         """
         start = time.time()
@@ -83,17 +83,22 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
                 )
                 return cached
 
-            res = adapter.list_models(filter_term=filter_term)
-            cache.set(cache_key, res)
+            raw_models = adapter.list_models(filter_term=filter_term)
+            # Enforce authorization: sanitize and omit disallowed administrative models
+            filtered_models = [
+                m for m in raw_models
+                if m.get("model") not in cfg.disallowed_models
+            ]
+            cache.set(cache_key, filtered_models)
             audit.log_event(
                 "odoo_list_models",
-                details={"filter_term": filter_term, "cached": False},
+                details={"filter_term": filter_term, "cached": False, "count": len(filtered_models)},
                 duration_ms=(time.time() - start) * 1000,
             )
-            return res
+            return filtered_models
         except Exception as e:
             audit.log_event("odoo_list_models", status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return [{"error": f"Failed to list models: {str(e)}"}]
+            raise ToolError(f"Failed to list models: {e}")
 
     @mcp.tool()
     def odoo_get_model_fields(model: str, attributes: Optional[List[str]] = None) -> Dict[str, Any]:
@@ -129,7 +134,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
             return res
         except Exception as e:
             audit.log_event("odoo_get_model_fields", model=model, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return {"error": f"Failed to get fields for {model}: {str(e)}"}
+            raise ToolError(f"Failed to get fields for model '{model}': {e}")
 
     @mcp.tool()
     def odoo_search_read(
@@ -159,7 +164,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
             return res
         except Exception as e:
             audit.log_event("odoo_search_read", model=model, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return [{"error": f"Failed to search_read on {model}: {str(e)}"}]
+            raise ToolError(f"Failed to search_read on model '{model}': {e}")
 
     @mcp.tool()
     def odoo_read_records(model: str, ids: List[int], fields: Optional[List[str]] = None) -> List[Dict[str, Any]]:
@@ -177,7 +182,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
             return res
         except Exception as e:
             audit.log_event("odoo_read_records", model=model, target_ids=ids, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return [{"error": f"Failed to read {model} IDs {ids}: {str(e)}"}]
+            raise ToolError(f"Failed to read {model} IDs {ids}: {e}")
 
     @mcp.tool()
     def odoo_create_record(model: str, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -194,7 +199,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
             return {"success": True, "model": model, "id": record_id}
         except Exception as e:
             audit.log_event("odoo_create_record", model=model, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return {"success": False, "model": model, "error": str(e)}
+            raise ToolError(f"Failed to create record in '{model}': {e}")
 
     @mcp.tool()
     def odoo_write_record(model: str, ids: List[int], values: Dict[str, Any]) -> Dict[str, Any]:
@@ -212,7 +217,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
             return {"success": bool(result), "model": model, "ids": ids}
         except Exception as e:
             audit.log_event("odoo_write_record", model=model, target_ids=ids, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return {"success": False, "model": model, "ids": ids, "error": str(e)}
+            raise ToolError(f"Failed to write to '{model}' IDs {ids}: {e}")
 
     @mcp.tool()
     def odoo_unlink_record(model: str, ids: List[int]) -> Dict[str, Any]:
@@ -230,7 +235,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
             return {"success": bool(result), "model": model, "ids": ids}
         except Exception as e:
             audit.log_event("odoo_unlink_record", model=model, target_ids=ids, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return {"success": False, "model": model, "ids": ids, "error": str(e)}
+            raise ToolError(f"Failed to unlink '{model}' IDs {ids}: {e}")
 
     @mcp.tool()
     def odoo_execute_method(
@@ -240,35 +245,37 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
         kwargs: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
-        Execute an allowlisted business logic method on an Odoo model (e.g. action_confirm, button_validate).
-        :param model: Technical model name (e.g., 'sale.order', 'vet.appointment').
-        :param method: Python method name on the model.
-        :param args: Positional arguments list.
-        :param kwargs: Keyword arguments dictionary.
+        Execute an allowlisted business logic method on an Odoo model.
+        Restricted to explicit model:method pairs in BRIDGE_ALLOWED_METHODS.
+        :param model: Technical model name (e.g., 'account.move', 'sale.order').
+        :param method: Business method name (e.g., 'action_post', 'action_confirm').
+        :param args: Optional positional arguments list.
+        :param kwargs: Optional keyword arguments dictionary.
         """
         start = time.time()
         try:
             policy.check_method_execution(model=model, method=method)
-            result = adapter.execute_method(model=model, method=method, args=args, kwargs=kwargs)
+            res = adapter.execute_method(model=model, method=method, args=args, kwargs=kwargs)
             audit.log_event("odoo_execute_method", model=model, details={"method": method}, duration_ms=(time.time() - start) * 1000)
-            return {"success": True, "result": result}
+            return {"success": True, "model": model, "method": method, "result": res}
         except Exception as e:
             audit.log_event("odoo_execute_method", model=model, details={"method": method}, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return {"success": False, "model": model, "method": method, "error": str(e)}
+            raise ToolError(f"Failed to execute method '{model}:{method}': {e}")
 
     @mcp.tool()
     def odoo_list_modules(state: str = "installed") -> List[Dict[str, Any]]:
         """
         List Odoo modules to inspect installed capabilities and verify extensions.
-        :param state: Module status filter ('installed', 'uninstalled', or empty string for all).
+        :param state: Module state filter ('installed', 'uninstalled', or '' for all).
         """
         start = time.time()
         try:
+            policy.check_module_inspection()
             res = adapter.list_modules(state=state)
-            audit.log_event("odoo_list_modules", details={"state": state}, duration_ms=(time.time() - start) * 1000)
+            audit.log_event("odoo_list_modules", details={"state": state, "count": len(res)}, duration_ms=(time.time() - start) * 1000)
             return res
         except Exception as e:
             audit.log_event("odoo_list_modules", status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
-            return [{"error": f"Failed to list modules: {str(e)}"}]
+            raise ToolError(f"Failed to list modules: {e}")
 
     return mcp

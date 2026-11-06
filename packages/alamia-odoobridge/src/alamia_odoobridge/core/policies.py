@@ -1,11 +1,13 @@
 """
 Policy Engine and Security Guardrails for Alamia OdooBridge.
-Enforces execution modes, delete protection, and business method allowlists.
+Enforces execution modes, delete protection, model-method pair allowlists,
+and verified human principal role constraints.
 """
 
 from typing import List, Optional
 from ..config import BridgeSettings, ExecutionPolicy
-from .exceptions import PolicyViolationError
+from .context import current_principal
+from .exceptions import PolicyViolationError, PermissionDeniedError
 
 
 class PolicyEngine:
@@ -27,7 +29,7 @@ class PolicyEngine:
         if self.settings.execution_policy == ExecutionPolicy.READ_ONLY:
             raise PolicyViolationError(
                 f"Write operation on '{model}' rejected: Bridge is running in READ_ONLY mode",
-                details={"model": model, "policy": self.settings.execution_policy},
+                details={"model": model, "policy": self.settings.execution_policy.value},
             )
 
         if model in self.settings.disallowed_models:
@@ -36,12 +38,21 @@ class PolicyEngine:
                 details={"model": model, "reason": "model_disallowed"},
             )
 
+        # Enforce human principal role checks if bound
+        principal = current_principal.get()
+        if principal and not principal.is_service_only:
+            # Example role restriction: read-only roles cannot execute writes
+            if principal.role in ("viewer", "guest", "auditor"):
+                raise PermissionDeniedError(
+                    f"Principal '{principal.sub}' with role '{principal.role}' is not authorized to write to '{model}'"
+                )
+
     def check_unlink(self, model: str, ids: List[int]) -> None:
         """Verify that record deletion is explicitly allowed."""
         if self.settings.execution_policy == ExecutionPolicy.READ_ONLY:
             raise PolicyViolationError(
                 "Delete operation rejected: Bridge is running in READ_ONLY mode",
-                details={"model": model, "policy": self.settings.execution_policy},
+                details={"model": model, "policy": self.settings.execution_policy.value},
             )
 
         if not self.settings.allow_unlink:
@@ -58,10 +69,10 @@ class PolicyEngine:
             )
 
     def check_method_execution(self, model: str, method: str) -> None:
-        """Verify that business method execution is vetted and permitted."""
+        """Verify that business method execution is vetted and explicitly allowlisted by model:method."""
         if self.settings.execution_policy == ExecutionPolicy.READ_ONLY:
             raise PolicyViolationError(
-                f"Method execution '{model}.{method}()' rejected: Bridge is running in READ_ONLY mode",
+                f"Method execution '{model}:{method}' rejected: Bridge is running in READ_ONLY mode",
                 details={"model": model, "method": method},
             )
 
@@ -71,10 +82,26 @@ class PolicyEngine:
                 details={"model": model, "method": method},
             )
 
-        # In WORKFLOW_EXECUTION or CONTROLLED_WRITES, methods must be allowlisted
-        if method not in self.settings.allowed_methods:
+        # Enforce explicit model:method pair allowlisting
+        pair = f"{model}:{method}"
+        if pair not in self.settings.allowed_methods:
             raise PolicyViolationError(
-                f"Method '{model}.{method}()' is not in the permitted business methods allowlist. "
-                f"Allowed methods: {self.settings.allowed_methods}",
+                f"Method '{pair}' is not in the permitted model:method allowlist. "
+                f"Allowed pairs: {self.settings.allowed_methods}",
                 details={"model": model, "method": method, "allowed": self.settings.allowed_methods},
+            )
+
+        # Enforce human principal role checks if bound
+        principal = current_principal.get()
+        if principal and not principal.is_service_only:
+            if principal.role in ("viewer", "guest", "auditor"):
+                raise PermissionDeniedError(
+                    f"Principal '{principal.sub}' with role '{principal.role}' cannot execute business method '{pair}'"
+                )
+
+    def check_module_inspection(self) -> None:
+        """Verify that module inspection is permitted."""
+        if "ir.module.module" in self.settings.disallowed_models:
+            raise PolicyViolationError(
+                "Module inspection is prohibited because 'ir.module.module' is restricted by security policy"
             )

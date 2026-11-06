@@ -50,19 +50,24 @@ class BridgeSettings(BaseSettings):
 
     # Security & Guardrails
     bridge_api_key: Optional[str] = Field(default=None, alias="BRIDGE_API_KEY")
+    bridge_secret_key: Optional[str] = Field(default=None, alias="BRIDGE_SECRET_KEY")
+    enforce_remote_auth: bool = Field(default=True, alias="BRIDGE_ENFORCE_REMOTE_AUTH")
     execution_policy: ExecutionPolicy = Field(
         default=ExecutionPolicy.CONTROLLED_WRITES, alias="BRIDGE_EXECUTION_POLICY"
     )
     allow_unlink: bool = Field(default=False, alias="BRIDGE_ALLOW_UNLINK")
     allowed_methods: List[str] = Field(
         default=[
-            "action_confirm",
-            "button_validate",
-            "action_post",
-            "action_done",
-            "action_cancel",
-            "get_dashboard_data",
-            "get_rfp_dashboard_data",
+            "account.move:action_post",
+            "sale.order:action_confirm",
+            "stock.picking:button_validate",
+            "crm.lead:action_set_won",
+            "crm.lead:action_set_lost",
+            "vet.appointment:action_confirm",
+            "vet.appointment:action_done",
+            "vet.appointment:action_cancel",
+            "vet.cm.case:get_dashboard_data",
+            "vet.cm.case:get_rfp_dashboard_data",
         ],
         alias="BRIDGE_ALLOWED_METHODS",
     )

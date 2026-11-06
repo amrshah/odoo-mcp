@@ -1,6 +1,7 @@
 """
 External JSON-2 Adapter for Odoo 19+ and 20.x.
-Communicates with Odoo's modern HTTP JSON-2 API using HTTP client and API keys.
+Communicates with Odoo's modern HTTP JSON-2 API using HTTP client, Bearer API keys,
+and explicit named-parameter payload contracts (not positional execute_kw translation).
 """
 
 import logging
@@ -20,7 +21,10 @@ logger = logging.getLogger("alamia_odoobridge.adapter.json2")
 
 
 class Json2Adapter(BaseOdooAdapter):
-    """Modern Odoo External JSON-2 HTTP API adapter."""
+    """
+    Modern Odoo External JSON-2 HTTP API adapter.
+    Operates strictly via named parameter contracts.
+    """
 
     def __init__(self, url: str, db: str, api_key: str, timeout: float = 30.0):
         self.url = url.rstrip("/")
@@ -39,46 +43,63 @@ class Json2Adapter(BaseOdooAdapter):
 
     def authenticate(self) -> int:
         """Verify API key validity via context probe."""
+        if not self.api_key:
+            raise AuthenticationError("Odoo JSON-2 credentials missing: API key is required")
+
         try:
             res = self.client.get("/json/2/context")
             if res.status_code in (401, 403):
-                raise AuthenticationError("JSON-2 API key refused by Odoo")
+                raise AuthenticationError(f"JSON-2 API key refused by Odoo (HTTP {res.status_code})")
             res.raise_for_status()
             data = res.json()
-            return data.get("uid", 1)
+            return int(data.get("uid", 1))
         except AuthenticationError:
             raise
+        except httpx.TimeoutException:
+            raise ConnectionError(f"Connection to Odoo JSON-2 endpoint at {self.url} timed out after {self.timeout}s")
         except Exception as e:
             raise ConnectionError(f"Could not connect to Odoo JSON-2 endpoint at {self.url}: {e}")
 
     def get_version(self) -> Dict[str, Any]:
+        """Fetch Odoo version information."""
         try:
             res = self.client.get("/web/webclient/version_info")
             if res.status_code == 200:
                 return res.json().get("result", {})
             return {"server_version": "19.0+", "protocol": "json-2"}
+        except httpx.TimeoutException:
+            raise ConnectionError(f"JSON-2 version check timed out after {self.timeout}s")
         except Exception as e:
             raise ConnectionError(f"Failed to query Odoo version via JSON-2: {e}")
 
     def _call(self, endpoint: str, payload: Dict[str, Any]) -> Any:
+        """Execute a named-parameter POST call to a JSON-2 endpoint."""
         try:
             res = self.client.post(endpoint, json=payload)
+            if res.status_code == 401:
+                raise AuthenticationError(f"Unauthorized: JSON-2 key rejected at {endpoint}")
             if res.status_code == 403:
                 raise PermissionDeniedError(f"Forbidden: {res.text}")
             if res.status_code == 404:
-                raise ModelNotFoundError(endpoint)
+                raise ModelNotFoundError(f"Model or endpoint not found: {endpoint}")
             res.raise_for_status()
+
             data = res.json()
-            if "error" in data:
-                raise OdooBridgeError(f"JSON-2 API error: {data['error']}")
-            return data.get("result", data)
-        except (PermissionDeniedError, ModelNotFoundError, OdooBridgeError):
+            if isinstance(data, dict) and "error" in data:
+                err_info = data["error"]
+                msg = err_info.get("message", str(err_info)) if isinstance(err_info, dict) else str(err_info)
+                raise OdooBridgeError(f"JSON-2 API error: {msg}", details={"endpoint": endpoint, "error": err_info})
+
+            return data.get("result", data) if isinstance(data, dict) else data
+        except (AuthenticationError, PermissionDeniedError, ModelNotFoundError, OdooBridgeError):
             raise
+        except httpx.TimeoutException:
+            raise ConnectionError(f"HTTP call to {endpoint} timed out after {self.timeout}s")
         except Exception as e:
             raise OdooBridgeError(f"HTTP call to {endpoint} failed: {e}")
 
     def list_models(self, filter_term: str = "") -> List[Dict[str, Any]]:
-        domain = [("transient", "=", False)]
+        domain: List[Any] = [("transient", "=", False)]
         if filter_term:
             domain = ["&", ("transient", "=", False), "|", ("name", "ilike", filter_term), ("model", "ilike", filter_term)]
         return self.search_read("ir.model", domain=domain, fields=["id", "name", "model", "info"], limit=100)
@@ -144,7 +165,8 @@ class Json2Adapter(BaseOdooAdapter):
         args: Optional[List[Any]] = None,
         kwargs: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        return self._call(f"/json/2/{model}/{method}", kwargs or {})
+        payload: Dict[str, Any] = {"args": args or [], "kwargs": kwargs or {}}
+        return self._call(f"/json/2/{model}/{method}", payload)
 
     def list_modules(self, state: str = "installed") -> List[Dict[str, Any]]:
         domain = [("state", "=", state)] if state else []

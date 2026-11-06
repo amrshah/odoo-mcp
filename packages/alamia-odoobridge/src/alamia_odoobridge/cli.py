@@ -1,12 +1,16 @@
 """
 CLI Entrypoint for Alamia OdooBridge.
-Supports local execution (stdio) for IDEs and remote execution (SSE / Streamable HTTP) for container deployments.
+Supports local execution (stdio) for IDEs and remote execution (SSE / Streamable HTTP)
+with mandatory API Key enforcement and caller principal propagation.
 """
 
 import argparse
 import logging
 import sys
+from starlette.middleware import Middleware
+
 from .config import BridgeSettings, ExecutionPolicy, TransportType, get_settings
+from .core.auth import BridgeAuthMiddleware
 from .mcp.server import create_bridge_server
 
 logger = logging.getLogger("alamia_odoobridge.cli")
@@ -42,6 +46,7 @@ def parse_args():
         action="store_true",
         help="Explicitly enable record deletion (disabled by default)",
     )
+    parser.add_argument("--api-key", dest="bridge_api_key", help="Gateway access token (required for remote endpoints)")
     return parser.parse_args()
 
 
@@ -68,6 +73,8 @@ def main():
         cfg.execution_policy = ExecutionPolicy(args.execution_policy)
     if args.allow_unlink:
         cfg.allow_unlink = True
+    if args.bridge_api_key:
+        cfg.bridge_api_key = args.bridge_api_key
 
     # Setup logging
     logging.basicConfig(
@@ -75,18 +82,51 @@ def main():
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
-    logger.info("Initializing Alamia OdooBridge (Transport: %s, Policy: %s)", cfg.mcp_transport.value, cfg.execution_policy.value)
+    logger.info(
+        "Initializing Alamia OdooBridge (Transport: %s, Policy: %s)",
+        cfg.mcp_transport.value,
+        cfg.execution_policy.value,
+    )
 
     server = create_bridge_server(cfg)
 
     if cfg.mcp_transport == TransportType.STDIO:
         server.run(transport="stdio")
-    elif cfg.mcp_transport == TransportType.SSE:
-        logger.info("Serving SSE on http://%s:%s/sse", cfg.mcp_server_host, cfg.mcp_server_port)
-        server.run(transport="sse", host=cfg.mcp_server_host, port=cfg.mcp_server_port)
-    elif cfg.mcp_transport == TransportType.STREAMABLE_HTTP:
-        logger.info("Serving Streamable HTTP on http://%s:%s/mcp", cfg.mcp_server_host, cfg.mcp_server_port)
-        server.run(transport="sse", host=cfg.mcp_server_host, port=cfg.mcp_server_port)
+    else:
+        # Remote network transports (SSE or Streamable HTTP)
+        if cfg.enforce_remote_auth and not cfg.bridge_api_key:
+            logger.error(
+                "Security Policy Error: Remote transport '%s' requires BRIDGE_API_KEY. "
+                "Set BRIDGE_API_KEY in environment or pass --api-key.",
+                cfg.mcp_transport.value,
+            )
+            sys.exit(1)
+
+        middleware = [
+            Middleware(
+                BridgeAuthMiddleware,
+                api_key=cfg.bridge_api_key,
+                secret_key=cfg.bridge_secret_key,
+                enforce_api_key=cfg.enforce_remote_auth,
+            )
+        ]
+
+        if cfg.mcp_transport == TransportType.SSE:
+            logger.info("Serving SSE on http://%s:%s/sse", cfg.mcp_server_host, cfg.mcp_server_port)
+            server.run(
+                transport="sse",
+                host=cfg.mcp_server_host,
+                port=cfg.mcp_server_port,
+                middleware=middleware,
+            )
+        elif cfg.mcp_transport == TransportType.STREAMABLE_HTTP:
+            logger.info("Serving Streamable HTTP on http://%s:%s/mcp", cfg.mcp_server_host, cfg.mcp_server_port)
+            server.run(
+                transport="streamable-http",
+                host=cfg.mcp_server_host,
+                port=cfg.mcp_server_port,
+                middleware=middleware,
+            )
 
 
 if __name__ == "__main__":

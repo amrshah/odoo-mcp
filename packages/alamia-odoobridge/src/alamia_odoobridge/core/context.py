@@ -1,14 +1,23 @@
 """
 Caller principal and verifiable claims management for Alamia OdooBridge.
-Prevents header spoofing by requiring cryptographic HMAC verification of caller claims.
+Prevents header spoofing by requiring cryptographic HMAC verification of caller claims,
+with token expiration, issuer/audience validation, and replay protection.
 """
 
+import time
+import uuid
 import hmac
 import hashlib
 import json
 import base64
-from typing import Optional, Dict, Any
+import contextvars
+from typing import Optional, Dict, Any, Set
 from .exceptions import AuthenticationError
+
+# Context variable tracking verified principal for the active request / thread
+current_principal: contextvars.ContextVar[Optional["PrincipalClaims"]] = contextvars.ContextVar(
+    "current_principal", default=None
+)
 
 
 class PrincipalClaims:
@@ -16,42 +25,90 @@ class PrincipalClaims:
 
     def __init__(
         self,
+        sub: str,
         user_id: Optional[int] = None,
         username: Optional[str] = None,
         role: Optional[str] = None,
         company_id: Optional[int] = None,
-        is_verified: bool = False,
+        iss: str = "alamia-copilot",
+        aud: str = "alamia-odoobridge",
+        exp: Optional[float] = None,
+        iat: Optional[float] = None,
+        jti: Optional[str] = None,
+        is_service_only: bool = False,
     ):
+        self.sub = sub
         self.user_id = user_id
-        self.username = username
+        self.username = username or sub
         self.role = role
         self.company_id = company_id
-        self.is_verified = is_verified
+        self.iss = iss
+        self.aud = aud
+        self.exp = exp
+        self.iat = iat or time.time()
+        self.jti = jti or str(uuid.uuid4())
+        self.is_service_only = is_service_only
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "sub": self.sub,
             "user_id": self.user_id,
             "username": self.username,
             "role": self.role,
             "company_id": self.company_id,
-            "is_verified": self.is_verified,
+            "iss": self.iss,
+            "aud": self.aud,
+            "iat": self.iat,
+            "exp": self.exp,
+            "jti": self.jti,
+            "is_service_only": self.is_service_only,
         }
+
+    def __repr__(self) -> str:
+        return f"<PrincipalClaims sub={self.sub} role={self.role} service_only={self.is_service_only}>"
 
 
 class PrincipalVerifier:
-    """Verifies service-to-service claims using HMAC-SHA256."""
+    """Verifies service-to-service claims using HMAC-SHA256 with replay & expiry checks."""
 
-    def __init__(self, secret_key: Optional[str] = None):
+    def __init__(
+        self,
+        secret_key: Optional[str] = None,
+        expected_iss: str = "alamia-copilot",
+        expected_aud: str = "alamia-odoobridge",
+    ):
         self.secret_key = secret_key.encode("utf-8") if secret_key else None
+        self.expected_iss = expected_iss
+        self.expected_aud = expected_aud
+        # Replay cache: stores seen jti identifiers alongside their expiration timestamps
+        self._seen_jtis: Dict[str, float] = {}
 
-    def sign_claims(self, claims: Dict[str, Any]) -> str:
+    def _purge_expired_jtis(self, now: float) -> None:
+        """Remove expired token IDs from the replay cache."""
+        expired = [jti for jti, exp in self._seen_jtis.items() if exp < now]
+        for jti in expired:
+            del self._seen_jtis[jti]
+
+    def sign_claims(
+        self,
+        claims: Dict[str, Any],
+        ttl_seconds: float = 3600.0,
+    ) -> str:
         """Create a verifiable base64 HMAC token for service-to-service communication."""
         if not self.secret_key:
             raise AuthenticationError("Bridge secret key not configured; cannot sign claims")
 
-        payload_bytes = json.dumps(claims, sort_keys=True).encode("utf-8")
+        now = time.time()
+        payload = dict(claims)
+        payload.setdefault("iss", self.expected_iss)
+        payload.setdefault("aud", self.expected_aud)
+        payload.setdefault("iat", now)
+        payload.setdefault("exp", now + ttl_seconds)
+        payload.setdefault("jti", str(uuid.uuid4()))
+
+        payload_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
         signature = hmac.new(self.secret_key, payload_bytes, hashlib.sha256).digest()
-        
+
         token_data = {
             "payload": base64.b64encode(payload_bytes).decode("ascii"),
             "sig": base64.b64encode(signature).decode("ascii"),
@@ -61,16 +118,31 @@ class PrincipalVerifier:
     def verify_token(self, token_str: Optional[str]) -> PrincipalClaims:
         """
         Verify that claims were signed with the shared service secret.
-        Never trust raw unverified headers.
+        Rejects missing tokens, missing signing secrets, invalid signatures,
+        expired tokens, issuer/audience mismatches, and replayed token IDs.
         """
-        if not token_str or not self.secret_key:
-            # Fall back to unverified default service principal
-            return PrincipalClaims(is_verified=False)
+        if not self.secret_key:
+            raise AuthenticationError(
+                "Bridge signing secret (BRIDGE_SECRET_KEY) is not configured; cannot verify principal tokens"
+            )
+
+        if not token_str or not token_str.strip():
+            raise AuthenticationError("Principal token is missing or empty; cannot authenticate caller")
+
+        now = time.time()
+        self._purge_expired_jtis(now)
 
         try:
-            token_json = json.loads(base64.b64decode(token_str.encode("ascii")).decode("utf-8"))
-            payload_bytes = base64.b64decode(token_json["payload"].encode("ascii"))
-            expected_sig = base64.b64decode(token_json["sig"].encode("ascii"))
+            raw_json = base64.b64decode(token_str.strip().encode("ascii")).decode("utf-8")
+            token_data = json.loads(raw_json)
+            payload_b64 = token_data.get("payload")
+            sig_b64 = token_data.get("sig")
+
+            if not payload_b64 or not sig_b64:
+                raise AuthenticationError("Malformed principal token structure (missing payload or signature)")
+
+            payload_bytes = base64.b64decode(payload_b64.encode("ascii"))
+            expected_sig = base64.b64decode(sig_b64.encode("ascii"))
 
             computed_sig = hmac.new(self.secret_key, payload_bytes, hashlib.sha256).digest()
 
@@ -78,14 +150,60 @@ class PrincipalVerifier:
                 raise AuthenticationError("Principal token signature verification failed (spoofing detected)")
 
             claims_data = json.loads(payload_bytes.decode("utf-8"))
+
+            # Expiration validation
+            exp = claims_data.get("exp")
+            if exp is None:
+                raise AuthenticationError("Principal token missing required expiration (exp) claim")
+            if now > exp:
+                raise AuthenticationError(f"Principal token has expired (exp: {exp}, now: {now})")
+
+            # Issued-at / Not-before validation
+            iat = claims_data.get("iat", 0)
+            if iat > now + 60:  # Allow 60s clock skew
+                raise AuthenticationError("Principal token issued in the future (clock skew detected)")
+
+            # Issuer and Audience validation
+            iss = claims_data.get("iss")
+            if iss != self.expected_iss:
+                raise AuthenticationError(
+                    f"Principal token issuer mismatch (expected: {self.expected_iss}, got: {iss})"
+                )
+
+            aud = claims_data.get("aud")
+            if aud != self.expected_aud:
+                raise AuthenticationError(
+                    f"Principal token audience mismatch (expected: {self.expected_aud}, got: {aud})"
+                )
+
+            # Replay protection check
+            jti = claims_data.get("jti")
+            if not jti:
+                raise AuthenticationError("Principal token missing unique token identifier (jti)")
+            if jti in self._seen_jtis:
+                raise AuthenticationError(f"Token replay detected: jti '{jti}' has already been processed")
+
+            # Record token in replay cache until its expiration
+            self._seen_jtis[jti] = float(exp)
+
+            sub = claims_data.get("sub") or claims_data.get("username")
+            if not sub:
+                raise AuthenticationError("Principal token missing subject identifier (sub)")
+
             return PrincipalClaims(
+                sub=sub,
                 user_id=claims_data.get("user_id"),
-                username=claims_data.get("username"),
+                username=claims_data.get("username") or sub,
                 role=claims_data.get("role"),
                 company_id=claims_data.get("company_id"),
-                is_verified=True,
+                iss=iss,
+                aud=aud,
+                exp=exp,
+                iat=iat,
+                jti=jti,
+                is_service_only=claims_data.get("is_service_only", False),
             )
         except AuthenticationError:
             raise
         except Exception as e:
-            raise AuthenticationError(f"Invalid principal token format: {e}")
+            raise AuthenticationError(f"Invalid principal token: {e}")
