@@ -282,3 +282,36 @@ class PolicyEngine:
                     raise PermissionDeniedError(
                         f"Principal '{principal.sub}' with role '{principal.role}' is not authorized to inspect modules"
                     )
+
+    def check_model_discovery(self) -> None:
+        """Verify that the caller has permissions to discover models."""
+        principal = self._get_principal()
+        if principal:
+            if principal.is_service_only:
+                if "read" not in self.settings.service_scopes and "admin" not in self.settings.service_scopes:
+                    raise PermissionDeniedError(
+                        f"Service account lacks 'read' scope for model discovery. Current scopes: {self.settings.service_scopes}"
+                    )
+            else:
+                role_info = self._get_role_config(principal.role)
+                if "read" not in role_info["allowed_actions"]:
+                    raise PermissionDeniedError(
+                        f"Principal '{principal.sub}' with role '{principal.role}' is not authorized to list models"
+                    )
+
+    def filter_models_for_principal(self, models: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Filter a list of models according to the current principal's role allowlists and system exclusions."""
+        principal = self._get_principal()
+        allowed_patterns: List[str] = ["*"]
+        if principal and not principal.is_service_only:
+            role_info = self._get_role_config(principal.role)
+            allowed_patterns = role_info.get("allowed_read_models", [])
+
+        filtered = []
+        for m in models:
+            m_name = m.get("model", "")
+            if m_name in self.settings.disallowed_models:
+                continue
+            if matches_any_pattern(m_name, allowed_patterns):
+                filtered.append(m)
+        return filtered

@@ -37,7 +37,8 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
     def odoo_status() -> Dict[str, Any]:
         """
         Check connection status and server info for the connected Odoo instance.
-        Returns server version, database name, and authenticated user ID.
+        Returns server version, database name, authenticated user ID (for XML-RPC sessions),
+        or auth_mechanism indication (for modern JSON-2 Bearer key authentication).
         """
         start = time.time()
         try:
@@ -50,6 +51,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
                 "database": cfg.odoo_db,
                 "user": cfg.odoo_username,
                 "uid": uid,
+                "auth_mechanism": "bearer_api_key" if uid is None else "session_uid",
                 "server_version": version_info.get("server_version"),
                 "server_version_info": version_info.get("server_version_info"),
                 "protocol_version": version_info.get("protocol_version"),
@@ -67,32 +69,32 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
     @mcp.tool()
     def odoo_list_models(filter_term: str = "") -> List[Dict[str, Any]]:
         """
-        List available models in Odoo (e.g. res.partner, res.users, vet.patient, hms.patient).
-        Filters out restricted administrative models according to security policy.
+        List available models in Odoo (e.g. res.partner, vet.patient, crm.lead).
+        Enforces caller discovery permissions and filters results according to the active
+        principal's role-based allowed_read_models allowlist and system guardrails.
         :param filter_term: Optional keyword to filter models by name or technical identifier.
         """
         start = time.time()
         try:
-            cache_key = f"models:list:{filter_term}"
-            cached = cache.get(cache_key)
-            if cached is not None:
-                audit.log_event(
-                    "odoo_list_models",
-                    details={"filter_term": filter_term, "cached": True},
-                    duration_ms=(time.time() - start) * 1000,
-                )
-                return cached
+            policy.check_model_discovery()
 
-            raw_models = adapter.list_models(filter_term=filter_term)
-            # Enforce authorization: sanitize and omit disallowed administrative models
-            filtered_models = [
-                m for m in raw_models
-                if m.get("model") not in cfg.disallowed_models
-            ]
-            cache.set(cache_key, filtered_models)
+            cache_key = f"raw_models:list:{filter_term}"
+            raw_models = cache.get(cache_key)
+            cached = True
+            if raw_models is None:
+                cached = False
+                raw_models = adapter.list_models(filter_term=filter_term)
+                cache.set(cache_key, raw_models)
+
+            filtered_models = policy.filter_models_for_principal(raw_models)
+
             audit.log_event(
                 "odoo_list_models",
-                details={"filter_term": filter_term, "cached": False, "count": len(filtered_models)},
+                details={
+                    "filter_term": filter_term,
+                    "cached": cached,
+                    "count": len(filtered_models),
+                },
                 duration_ms=(time.time() - start) * 1000,
             )
             return filtered_models

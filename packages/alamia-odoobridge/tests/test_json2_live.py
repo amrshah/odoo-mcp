@@ -2,19 +2,23 @@
 Live Integration Tests for Json2Adapter against real Odoo 19 instance.
 Exercises real HTTP JSON-2 endpoints, named parameters, Bearer authentication,
 and full lifecycle (create, read, write, unlink, fields_get, version_info).
+Credentials must be provided strictly via environment variables (never hardcoded in source).
 """
 
+import os
 import pytest
 import httpx
 from alamia_odoobridge.adapters.odoo.json2 import Json2Adapter
 from alamia_odoobridge.core.exceptions import OdooBridgeError
 
-LIVE_ODOO_URL = "http://localhost:8069"
-LIVE_ODOO_DB = "odoo_hospital"
-LIVE_ODOO_API_KEY = "c4f6ce9cbf49849cc832a377fbd96c6c8d4cd39c"
+LIVE_ODOO_URL = os.getenv("ODOO_LIVE_TEST_URL", "http://localhost:8069")
+LIVE_ODOO_DB = os.getenv("ODOO_LIVE_TEST_DB", "odoo_hospital")
+LIVE_ODOO_API_KEY = os.getenv("ODOO_LIVE_TEST_API_KEY") or os.getenv("ODOO_PASSWORD", "")
 
 
 def is_live_odoo_available() -> bool:
+    if not LIVE_ODOO_API_KEY:
+        return False
     try:
         r = httpx.post(f"{LIVE_ODOO_URL}/web/webclient/version_info", json={}, timeout=1.5)
         return r.status_code == 200
@@ -24,7 +28,7 @@ def is_live_odoo_available() -> bool:
 
 live_odoo_required = pytest.mark.skipif(
     not is_live_odoo_available(),
-    reason="Live Odoo 19 container is not reachable on localhost:8069",
+    reason="Live Odoo 19 instance or credentials not available in environment (set ODOO_LIVE_TEST_API_KEY)",
 )
 
 

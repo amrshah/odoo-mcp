@@ -173,3 +173,61 @@ def test_json2_http_error_translations(json2_adapter, monkeypatch):
     monkeypatch.setattr(json2_adapter.client, "post", mock_timeout)
     with pytest.raises(ConnectionError):
         json2_adapter.create("res.partner", {})
+
+
+def test_json2_cross_company_isolation_enforced(json2_adapter, monkeypatch):
+    """Enforces that a caller cannot escape their verified principal company context."""
+    from alamia_odoobridge.core.context import PrincipalClaims, current_principal
+
+    captured_payloads = []
+
+    def mock_post(endpoint, json):
+        captured_payloads.append(json)
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json.return_value = {"status": "ok"}
+        return resp
+
+    monkeypatch.setattr(json2_adapter.client, "post", mock_post)
+
+    # Principal is authenticated strictly for Company ID 1
+    principal = PrincipalClaims(sub="dr_tenant1", role="doctor", company_id=1)
+    token = current_principal.set(principal)
+    try:
+        # Case 1: Caller passes matching company context -> succeeds and executes with company 1
+        json2_adapter.execute_method(
+            model="crm.lead",
+            method="action_set_won",
+            kwargs={"context": {"allowed_company_ids": [1]}},
+        )
+        assert captured_payloads[0]["context"]["allowed_company_ids"] == [1]
+
+        # Case 2: Caller passes no context -> automatically injected with company 1
+        json2_adapter.execute_method(
+            model="crm.lead",
+            method="action_set_won",
+            kwargs={"status": "won"},
+        )
+        assert captured_payloads[1]["context"]["allowed_company_ids"] == [1]
+
+        # Case 3: Caller attempts to override context to escape to Company 2 -> REJECTED
+        with pytest.raises(PermissionDeniedError) as exc_info:
+            json2_adapter.execute_method(
+                model="crm.lead",
+                method="action_set_won",
+                kwargs={"context": {"allowed_company_ids": [2]}},
+            )
+        assert "Company context violation" in str(exc_info.value)
+        assert "violates verified principal company_id=1" in str(exc_info.value)
+
+        # Case 4: Caller attempts to expand to multiple companies [1, 2] -> REJECTED
+        with pytest.raises(PermissionDeniedError) as exc_info2:
+            json2_adapter.execute_method(
+                model="crm.lead",
+                method="action_set_won",
+                kwargs={"context": {"allowed_company_ids": [1, 2]}},
+            )
+        assert "Company context violation" in str(exc_info2.value)
+    finally:
+        current_principal.reset(token)
+

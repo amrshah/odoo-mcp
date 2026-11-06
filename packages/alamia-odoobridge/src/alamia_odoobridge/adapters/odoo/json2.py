@@ -45,15 +45,15 @@ class Json2Adapter(BaseOdooAdapter):
     def authenticate(self) -> Optional[int]:
         """
         Verify API key validity against Odoo JSON-2 endpoint.
-        Under Odoo 19+ Bearer key authentication, access rights are verified
-        directly via check_access_rights. Numeric UID is server-managed and not exposed
-        as an artificial user ID; returns None to explicitly indicate verified Bearer identity.
+        Under Odoo 19+ Bearer key authentication, credential validity is verified
+        directly via res.users check_access_rights. Numeric UID is server-managed and not
+        exposed as an artificial user ID; returns None to indicate verified Bearer credentials.
         """
         if not self.api_key:
             raise AuthenticationError("Odoo JSON-2 credentials missing: API key is required")
 
         try:
-            self._call("/json/2/res.partner/check_access_rights", {"operation": "read"})
+            self._call("/json/2/res.users/check_access_rights", {"operation": "read"})
             return None
         except AuthenticationError:
             raise
@@ -83,10 +83,19 @@ class Json2Adapter(BaseOdooAdapter):
         """
         body = dict(payload)
 
-        # Propagate verified company context if not explicitly overridden
+        # Strictly enforce verified company context against caller overrides
         principal = current_principal.get()
-        if principal and principal.company_id and "context" not in body:
-            body["context"] = {"allowed_company_ids": [principal.company_id]}
+        if principal and principal.company_id:
+            ctx = dict(body.get("context", {})) if isinstance(body.get("context"), dict) else {}
+            caller_companies = ctx.get("allowed_company_ids")
+            if caller_companies:
+                if not all(cid == principal.company_id for cid in caller_companies):
+                    raise PermissionDeniedError(
+                        f"Company context violation: Caller attempted to specify allowed_company_ids={caller_companies}, "
+                        f"which violates verified principal company_id={principal.company_id}"
+                    )
+            ctx["allowed_company_ids"] = [principal.company_id]
+            body["context"] = ctx
 
         try:
             res = self.client.post(endpoint, json=body)

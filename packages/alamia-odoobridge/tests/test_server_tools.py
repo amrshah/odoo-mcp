@@ -96,3 +96,45 @@ async def test_odoo_list_models_filters_disallowed_models(mock_settings, monkeyp
     assert "res.partner" in models
     assert "vet.patient" in models
     assert "ir.rule" not in models
+
+
+async def test_odoo_list_models_role_based_filtering(mock_settings, monkeypatch):
+    from alamia_odoobridge.core.context import PrincipalClaims, current_principal
+
+    mock_adapter = MagicMock()
+    mock_adapter.list_models.return_value = [
+        {"model": "res.partner", "name": "Contact"},
+        {"model": "vet.patient", "name": "Patient"},
+        {"model": "account.move", "name": "Journal Entry"},
+        {"model": "res.company", "name": "Company"},
+    ]
+    monkeypatch.setattr("alamia_odoobridge.mcp.server.get_adapter", lambda s: mock_adapter)
+    server = create_bridge_server(mock_settings)
+    tool = await server.get_tool("odoo_list_models")
+
+    # Viewer caller: should only see viewer's permitted models
+    viewer = PrincipalClaims(sub="auditor_jane", role="viewer", is_service_only=False)
+    token = current_principal.set(viewer)
+    try:
+        res = tool.fn(filter_term="")
+        models = [m["model"] for m in res]
+        assert "res.partner" in models
+        assert "vet.patient" in models
+        # account.move and res.company must be filtered out for viewer!
+        assert "account.move" not in models
+        assert "res.company" not in models
+    finally:
+        current_principal.reset(token)
+
+    # Service account lacking read scope must be rejected
+    svc_no_read = mock_settings.model_copy(update={"service_scopes": []})
+    server_no_read = create_bridge_server(svc_no_read)
+    tool_no_read = await server_no_read.get_tool("odoo_list_models")
+    svc_token = current_principal.set(PrincipalClaims(sub="svc", is_service_only=True))
+    try:
+        with pytest.raises(ToolError) as exc_info:
+            tool_no_read.fn(filter_term="")
+        assert "lacks 'read' scope" in str(exc_info.value)
+    finally:
+        current_principal.reset(svc_token)
+

@@ -99,11 +99,18 @@ class XmlRpcAdapter(BaseOdooAdapter):
         args = args or []
         kwargs = dict(kwargs) if kwargs else {}
 
-        # Propagate verified multi-company context
+        # Strictly enforce verified company context against caller overrides
         principal = current_principal.get()
         if principal and principal.company_id:
-            context = dict(kwargs.get("context", {}))
-            context.setdefault("allowed_company_ids", [principal.company_id])
+            context = dict(kwargs.get("context", {})) if isinstance(kwargs.get("context"), dict) else {}
+            caller_companies = context.get("allowed_company_ids")
+            if caller_companies:
+                if not all(cid == principal.company_id for cid in caller_companies):
+                    raise PermissionDeniedError(
+                        f"Company context violation: Caller attempted to specify allowed_company_ids={caller_companies}, "
+                        f"which violates verified principal company_id={principal.company_id}"
+                    )
+            context["allowed_company_ids"] = [principal.company_id]
             kwargs["context"] = context
 
         try:

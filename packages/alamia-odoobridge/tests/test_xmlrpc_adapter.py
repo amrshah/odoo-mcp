@@ -97,3 +97,36 @@ def test_xmlrpc_permission_denied_handling(monkeypatch):
     with pytest.raises(PermissionDeniedError) as exc:
         adapter.execute_kw("account.move", "unlink", [[1]])
     assert "permission denied" in str(exc.value).lower()
+
+
+def test_xmlrpc_cross_company_isolation_enforced(monkeypatch):
+    """Enforces that an XML-RPC caller cannot escape their verified company context."""
+    from alamia_odoobridge.core.context import PrincipalClaims, current_principal
+
+    adapter = XmlRpcAdapter(
+        url="http://localhost:8069",
+        db="odoo_test",
+        username="test_user",
+        password="password",
+    )
+    adapter.uid = 10
+
+    captured_kwargs = []
+    mock_object = MagicMock()
+    mock_object.execute_kw.side_effect = lambda db, uid, pwd, model, method, args, kw: captured_kwargs.append(kw)
+    monkeypatch.setattr(adapter, "_get_object_proxy", lambda: mock_object)
+
+    principal = PrincipalClaims(sub="dr_tenant1", role="doctor", company_id=1)
+    token = current_principal.set(principal)
+    try:
+        # Case 1: Valid company context -> allowed
+        adapter.execute_kw("vet.patient", "read", [[1]], kwargs={"context": {"allowed_company_ids": [1]}})
+        assert captured_kwargs[0]["context"]["allowed_company_ids"] == [1]
+
+        # Case 2: Attempting to escape to Company 2 -> REJECTED
+        with pytest.raises(PermissionDeniedError) as exc:
+            adapter.execute_kw("vet.patient", "read", [[1]], kwargs={"context": {"allowed_company_ids": [2]}})
+        assert "Company context violation" in str(exc.value)
+    finally:
+        current_principal.reset(token)
+
