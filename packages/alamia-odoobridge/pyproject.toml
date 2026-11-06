@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "alamia-odoobridge"
-version = "0.1.0"
+version = "0.1.2"
 description = "The Independent Integration Gateway for Odoo & AI Agents"
 readme = "README.md"
 license = "Apache-2.0"
