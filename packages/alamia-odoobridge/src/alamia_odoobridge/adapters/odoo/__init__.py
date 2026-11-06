@@ -24,15 +24,16 @@ def probe_json2_capability(url: str, api_key: str, timeout: float = 2.0) -> bool
     try:
         clean_url = url.rstrip("/")
         resp = httpx.post(
-            f"{clean_url}/json/2/res.users/search_read",
+            f"{clean_url}/json/2/res.users/check_access_rights",
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
-            json={"domain": [], "fields": ["id"], "limit": 1},
+            json={"operation": "read"},
             timeout=timeout,
         )
-        return resp.status_code == 200
+        # HTTP 200 or 403 confirms JSON-2 is active and credentials were authenticated by Odoo (401 is rejected)
+        return resp.status_code in (200, 403)
     except Exception as e:
         logger.debug("JSON-2 capability probe error: %s", e)
         return False

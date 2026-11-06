@@ -43,6 +43,42 @@ def test_json2_headers_and_auth_probe(json2_adapter, monkeypatch):
     assert auth_result is None
 
 
+def test_json2_authenticate_invalid_api_key_raises_authentication_error(json2_adapter, monkeypatch):
+    """HTTP 401 must raise AuthenticationError, indicating invalid/revoked credentials."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 401
+    monkeypatch.setattr(json2_adapter.client, "post", lambda endpoint, json: mock_resp)
+
+    with pytest.raises(AuthenticationError) as exc:
+        json2_adapter.authenticate()
+    assert "Invalid API key" in str(exc.value)
+
+
+def test_json2_authenticate_insufficient_permissions_raises_permission_denied(json2_adapter, monkeypatch):
+    """HTTP 403 must raise PermissionDeniedError (NOT ConnectionError)."""
+    mock_resp = MagicMock()
+    mock_resp.status_code = 403
+    mock_resp.text = "User lacks read permission on res.users"
+    monkeypatch.setattr(json2_adapter.client, "post", lambda endpoint, json: mock_resp)
+
+    with pytest.raises(PermissionDeniedError) as exc:
+        json2_adapter.authenticate()
+    assert "lacks model permissions" in str(exc.value)
+
+
+def test_json2_authenticate_network_failure_raises_connection_error(json2_adapter, monkeypatch):
+    """Network/timeout failure must raise ConnectionError."""
+    def mock_net_fail(*args, **kwargs):
+        raise httpx.ConnectError("Connection refused by host")
+
+    monkeypatch.setattr(json2_adapter.client, "post", mock_net_fail)
+
+    with pytest.raises(ConnectionError) as exc:
+        json2_adapter.authenticate()
+    assert "timed out or failed" in str(exc.value)
+
+
+
 def test_json2_named_parameters_search_read(json2_adapter, monkeypatch):
     captured_call = {}
 

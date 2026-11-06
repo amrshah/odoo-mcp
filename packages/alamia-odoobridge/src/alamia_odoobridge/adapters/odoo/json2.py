@@ -45,20 +45,29 @@ class Json2Adapter(BaseOdooAdapter):
     def authenticate(self) -> Optional[int]:
         """
         Verify API key validity against Odoo JSON-2 endpoint.
-        Under Odoo 19+ Bearer key authentication, credential validity is verified
-        directly via res.users check_access_rights. Numeric UID is server-managed and not
-        exposed as an artificial user ID; returns None to indicate verified Bearer credentials.
+        Under Odoo 19+ Bearer key authentication:
+        - 401 Unauthorized: Invalid API key -> raises AuthenticationError.
+        - 403 Forbidden: Valid API key, but insufficient Odoo permissions -> raises PermissionDeniedError.
+        - Network/HTTP transport errors -> raises ConnectionError.
+        - Success -> returns None (numeric UID is server-managed and not exposed).
         """
         if not self.api_key:
             raise AuthenticationError("Odoo JSON-2 credentials missing: API key is required")
 
         try:
-            self._call("/json/2/res.users/check_access_rights", {"operation": "read"})
+            res = self.client.post("/json/2/res.users/check_access_rights", json={"operation": "read"})
+            if res.status_code == 401:
+                raise AuthenticationError(f"JSON-2 API key refused by Odoo (HTTP 401 Unauthorized): Invalid API key")
+            if res.status_code == 403:
+                raise PermissionDeniedError(
+                    f"JSON-2 API key is authenticated, but the associated Odoo user lacks model permissions (HTTP 403 Forbidden)"
+                )
+            res.raise_for_status()
             return None
-        except AuthenticationError:
+        except (AuthenticationError, PermissionDeniedError):
             raise
-        except httpx.TimeoutException:
-            raise ConnectionError(f"Connection to Odoo JSON-2 endpoint at {self.url} timed out after {self.timeout}s")
+        except (httpx.TimeoutException, httpx.ConnectError, httpx.NetworkError) as e:
+            raise ConnectionError(f"Connection to Odoo JSON-2 endpoint at {self.url} timed out or failed: {e}")
         except Exception as e:
             raise ConnectionError(f"Could not connect to Odoo JSON-2 endpoint at {self.url}: {e}")
 
