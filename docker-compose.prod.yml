@@ -44,9 +44,9 @@ services:
 
   mcp:
     build:
-      context: ./mcp-server
+      context: ./packages/alamia-odoobridge
       dockerfile: Dockerfile
-    image: odoo-mcp-server:latest
+    image: alamia-odoobridge:latest
     container_name: odoo_mcp
     depends_on:
       - web

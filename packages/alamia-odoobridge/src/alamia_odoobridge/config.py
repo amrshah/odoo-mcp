@@ -32,6 +32,7 @@ class BridgeSettings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        populate_by_name=True,
     )
 
     # Odoo Connection
@@ -81,6 +82,10 @@ class BridgeSettings(BaseSettings):
     # Logging & Audit
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     enable_audit_log: bool = Field(default=True, alias="BRIDGE_ENABLE_AUDIT_LOG")
+
+    # Schema Caching
+    enable_schema_cache: bool = Field(default=True, alias="BRIDGE_ENABLE_SCHEMA_CACHE")
+    schema_cache_ttl_seconds: float = Field(default=3600.0, alias="BRIDGE_SCHEMA_CACHE_TTL_SECONDS")
 
 
 def get_settings() -> BridgeSettings:

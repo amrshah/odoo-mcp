@@ -11,6 +11,7 @@ from fastmcp import FastMCP
 from ..config import BridgeSettings, get_settings
 from ..core.policies import PolicyEngine
 from ..core.audit import AuditLogger
+from ..core.cache import SchemaCache
 from ..adapters.odoo import get_adapter
 
 logger = logging.getLogger("alamia_odoobridge.mcp")
@@ -22,6 +23,10 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
     adapter = get_adapter(cfg)
     policy = PolicyEngine(cfg)
     audit = AuditLogger(enabled=cfg.enable_audit_log)
+    cache = SchemaCache(
+        default_ttl=cfg.schema_cache_ttl_seconds,
+        enabled=cfg.enable_schema_cache,
+    )
 
     mcp = FastMCP("alamia-odoobridge")
 
@@ -46,6 +51,7 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
                 "protocol_version": version_info.get("protocol_version"),
                 "execution_policy": cfg.execution_policy.value,
                 "allow_unlink": cfg.allow_unlink,
+                "schema_cache": cache.stats,
             }
             audit.log_event("odoo_status", status="success", duration_ms=(time.time() - start) * 1000)
             return res
@@ -67,8 +73,23 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
         """
         start = time.time()
         try:
+            cache_key = f"models:list:{filter_term}"
+            cached = cache.get(cache_key)
+            if cached is not None:
+                audit.log_event(
+                    "odoo_list_models",
+                    details={"filter_term": filter_term, "cached": True},
+                    duration_ms=(time.time() - start) * 1000,
+                )
+                return cached
+
             res = adapter.list_models(filter_term=filter_term)
-            audit.log_event("odoo_list_models", details={"filter_term": filter_term}, duration_ms=(time.time() - start) * 1000)
+            cache.set(cache_key, res)
+            audit.log_event(
+                "odoo_list_models",
+                details={"filter_term": filter_term, "cached": False},
+                duration_ms=(time.time() - start) * 1000,
+            )
             return res
         except Exception as e:
             audit.log_event("odoo_list_models", status="error", duration_ms=(time.time() - start) * 1000, error=str(e))
@@ -85,8 +106,26 @@ def create_bridge_server(settings: Optional[BridgeSettings] = None) -> FastMCP:
         start = time.time()
         try:
             policy.check_read(model)
+            attrs_key = ",".join(sorted(attributes)) if attributes else "all"
+            cache_key = f"model:fields:{model}:{attrs_key}"
+            cached = cache.get(cache_key)
+            if cached is not None:
+                audit.log_event(
+                    "odoo_get_model_fields",
+                    model=model,
+                    details={"cached": True},
+                    duration_ms=(time.time() - start) * 1000,
+                )
+                return cached
+
             res = adapter.get_model_fields(model=model, attributes=attributes)
-            audit.log_event("odoo_get_model_fields", model=model, duration_ms=(time.time() - start) * 1000)
+            cache.set(cache_key, res)
+            audit.log_event(
+                "odoo_get_model_fields",
+                model=model,
+                details={"cached": False},
+                duration_ms=(time.time() - start) * 1000,
+            )
             return res
         except Exception as e:
             audit.log_event("odoo_get_model_fields", model=model, status="error", duration_ms=(time.time() - start) * 1000, error=str(e))

@@ -50,7 +50,7 @@ services:
 
   mcp:
     build:
-      context: ./mcp-server
+      context: ./packages/alamia-odoobridge
       dockerfile: Dockerfile
     container_name: odoo_mcp
     depends_on:
@@ -58,7 +58,7 @@ services:
     ports:
       - "${MCP_SERVER_PORT:-8008}:8008"
     volumes:
-      - ./mcp-server:/app
+      - ./packages/alamia-odoobridge:/app
     environment:
       - ODOO_URL=http://web:8069
       - ODOO_DB=${ODOO_DB:-odoo_hospital}

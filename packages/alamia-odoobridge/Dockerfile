@@ -12,7 +12,7 @@ COPY pyproject.toml README.md /app/
 COPY src/ /app/src/
 
 # Install package
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir -e .
 
 # Default environment
 ENV MCP_TRANSPORT=sse
