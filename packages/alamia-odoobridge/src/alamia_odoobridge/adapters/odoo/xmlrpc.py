@@ -10,6 +10,7 @@ import xmlrpc.client
 from typing import Any, Dict, List, Optional
 
 from ...core.interfaces import BaseOdooAdapter
+from ...core.context import current_principal
 from ...core.exceptions import (
     AuthenticationError,
     ConnectionError,
@@ -96,7 +97,14 @@ class XmlRpcAdapter(BaseOdooAdapter):
         """Low-level execution proxy with standardized exception handling."""
         uid = self._ensure_authenticated()
         args = args or []
-        kwargs = kwargs or {}
+        kwargs = dict(kwargs) if kwargs else {}
+
+        # Propagate verified multi-company context
+        principal = current_principal.get()
+        if principal and principal.company_id:
+            context = dict(kwargs.get("context", {}))
+            context.setdefault("allowed_company_ids", [principal.company_id])
+            kwargs["context"] = context
 
         try:
             proxy = self._get_object_proxy()

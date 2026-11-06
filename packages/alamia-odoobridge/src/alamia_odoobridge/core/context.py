@@ -85,7 +85,10 @@ class PrincipalVerifier:
 
     def _purge_expired_jtis(self, now: float) -> None:
         """Remove expired token IDs from the replay cache."""
-        expired = [jti for jti, exp in self._seen_jtis.items() if exp < now]
+        expired = [
+            jti for jti, info in self._seen_jtis.items()
+            if (info["exp"] if isinstance(info, dict) else info) < now
+        ]
         for jti in expired:
             del self._seen_jtis[jti]
 
@@ -115,11 +118,17 @@ class PrincipalVerifier:
         }
         return base64.b64encode(json.dumps(token_data).encode("utf-8")).decode("ascii")
 
-    def verify_token(self, token_str: Optional[str]) -> PrincipalClaims:
+    def verify_token(
+        self,
+        token_str: Optional[str],
+        session_id: Optional[str] = None,
+        is_handshake: bool = False,
+    ) -> PrincipalClaims:
         """
         Verify that claims were signed with the shared service secret.
         Rejects missing tokens, missing signing secrets, invalid signatures,
         expired tokens, issuer/audience mismatches, and replayed token IDs.
+        For streaming MCP sessions (SSE / Streamable HTTP), binds the token to the session.
         """
         if not self.secret_key:
             raise AuthenticationError(
@@ -176,15 +185,39 @@ class PrincipalVerifier:
                     f"Principal token audience mismatch (expected: {self.expected_aud}, got: {aud})"
                 )
 
-            # Replay protection check
+            # Replay protection and session-binding check
             jti = claims_data.get("jti")
             if not jti:
                 raise AuthenticationError("Principal token missing unique token identifier (jti)")
-            if jti in self._seen_jtis:
-                raise AuthenticationError(f"Token replay detected: jti '{jti}' has already been processed")
 
-            # Record token in replay cache until its expiration
-            self._seen_jtis[jti] = float(exp)
+            if jti in self._seen_jtis:
+                recorded = self._seen_jtis[jti]
+                # If token was used in an SSE/session handshake, verify session continuity
+                if isinstance(recorded, dict) and recorded.get("is_handshake"):
+                    bound_session = recorded.get("session_id")
+                    if session_id:
+                        if bound_session is None:
+                            # First message request in the session: bind session_id
+                            recorded["session_id"] = session_id
+                        elif bound_session != session_id:
+                            raise AuthenticationError(
+                                f"Token replay detected: token '{jti}' is already bound to session '{bound_session}'"
+                            )
+                        # Else: matches bound_session, session message allowed
+                    else:
+                        # Attempt to initiate a second handshake with same token
+                        raise AuthenticationError(
+                            f"Token replay detected: jti '{jti}' has already been used in another session handshake"
+                        )
+                else:
+                    # Non-session request or replay
+                    raise AuthenticationError(f"Token replay detected: jti '{jti}' has already been processed")
+            else:
+                self._seen_jtis[jti] = {
+                    "exp": float(exp),
+                    "session_id": session_id,
+                    "is_handshake": is_handshake,
+                }
 
             sub = claims_data.get("sub") or claims_data.get("username")
             if not sub:

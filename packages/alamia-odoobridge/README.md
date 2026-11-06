@@ -5,14 +5,14 @@
 ### The Independent Integration Gateway for Odoo ERP & AI Agents
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Python: 3.10+](https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12%20|%203.13-brightgreen.svg)](pyproject.toml)
+[![Python: 3.11+](https://img.shields.io/badge/Python-3.11%20|%203.12%20|%203.13-brightgreen.svg)](pyproject.toml)
 [![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-orange.svg)](https://modelcontextprotocol.io)
 [![FastMCP](https://img.shields.io/badge/FastMCP-4.1.6-purple.svg)](https://gofastmcp.com)
 [![Odoo Compatibility](https://img.shields.io/badge/Odoo-14%20--%2020-purple.svg)](docs/architecture.md)
 
 **Connect Claude Desktop, ChatGPT, Cursor, Windsurf, and Autonomous AI Agent Swarms to Odoo ERP instances through a secure, guarded, and version-agnostic Model Context Protocol (MCP) gateway.**
 
-[Quickstart](#quickstart) • [Claude Desktop](#claude-desktop-setup) • [Cursor / Windsurf](#cursor--windsurf-setup) • [Docker Deployment](#docker-deployment) • [Tools & Guardrails](#guarded-mcp-tools) • [Architecture](#architecture)
+[Quickstart](#quickstart) • [Claude Desktop](#claude-desktop-setup) • [Cursor / Windsurf](#cursor--windsurf-setup) • [Docker Deployment](#docker-deployment) • [Tools & Guardrails](#guarded-mcp-tools) • [Security & Authorization](#security--authorization-model) • [Architecture](#architecture)
 
 </div>
 
@@ -22,10 +22,11 @@
 
 Connecting large language models directly to enterprise ERP databases requires strict policy boundaries. **Alamia OdooBridge** provides:
 
-- **Guarded Operations by Default**: Destructive `unlink` (record deletion) is disabled by default. Business methods require explicit model:method allowlisting.
-- **Dual Odoo Adapters**: Modern native **External JSON-2 HTTP API** for Odoo 19+ and thread-safe **XML-RPC** for Odoo 14-18.
-- **In-Memory TTL Schema Cache**: Caches `ir.model` and `fields_get` introspection metadata to reduce redundant latency.
-- **Cryptographic Caller Verification**: HMAC-SHA256 signed caller principal verification with expiry and replay protection, paired with structured operational audit logging.
+- **Guarded Operations by Default**: Destructive `unlink` (record deletion) is disabled by default (`BRIDGE_ALLOW_UNLINK=False`). Business methods require explicit model:method allowlisting.
+- **Dual Odoo Adapters**: Modern native **External JSON-2 HTTP API** for Odoo 19+ (using named-parameter contracts) and robust, thread-safe **XML-RPC** for Odoo 14-18.
+- **Active Adapter Auto-Detection**: In `AUTO` mode, the gateway actively probes the endpoint for JSON-2 capability and Bearer token acceptance, automatically selecting JSON-2 or falling back cleanly to XML-RPC.
+- **In-Memory TTL Schema Cache**: Caches `ir.model` and `fields_get` introspection metadata to reduce redundant network roundtrips.
+- **Multi-Tenant Context & Cryptographic Verification**: Service-account scope enforcement, HMAC-SHA256 signed caller principal verification with replay protection and token expiry, and automatic propagation of multi-company context (`allowed_company_ids`).
 - **Multi-Transport**: Works over `stdio` (local IDEs), `streamable-http`, and `sse` (remote Docker / cloud agents).
 
 ---
@@ -49,14 +50,14 @@ alamia-odoobridge --transport stdio --url http://localhost:8069 --db odoo_hospit
 
 ### 3. Run Remote SSE Gateway (Port 8008)
 ```bash
-alamia-odoobridge --transport sse --port 8008
+alamia-odoobridge --transport sse --port 8008 --api-key your_gateway_secret_key
 ```
 
 ---
 
 ## Claude Desktop Setup
 
-Connect Claude Desktop to your local or remote Odoo ERP in under 2 minutes:
+Connect Claude Desktop to your local or remote Odoo ERP:
 
 1. Open `%APPDATA%\Claude\claude_desktop_config.json` (or **Settings** -> **Developer** -> **Edit Config** in Claude Desktop).
 2. Add the `alamia-odoobridge` server:
@@ -86,7 +87,7 @@ Connect Claude Desktop to your local or remote Odoo ERP in under 2 minutes:
 }
 ```
 
-3. Restart Claude Desktop. You will see 10 Odoo ERP tools available in your tool tray.
+3. Restart Claude Desktop. The 10 Odoo ERP tools will appear in your tool tray.
 
 ---
 
@@ -115,7 +116,7 @@ Create `.cursor/mcp.json` or `.codeium/windsurf/mcp_config.json` in your workspa
 
 ## Docker Deployment
 
-Run Alamia OdooBridge as a lightweight, independent microservice gateway:
+Run Alamia OdooBridge as an independent microservice gateway:
 
 ```bash
 docker run -d \
@@ -125,6 +126,8 @@ docker run -d \
   -e ODOO_DB="odoo_hospital" \
   -e ODOO_USERNAME="zelix_service" \
   -e ODOO_PASSWORD="your_secure_password" \
+  -e BRIDGE_API_KEY="your_remote_gateway_key" \
+  -e BRIDGE_SECRET_KEY="your_hmac_claims_signing_secret" \
   -e MCP_TRANSPORT="sse" \
   ghcr.io/alamiasoft/alamia-odoo-bridge:latest
 ```
@@ -143,15 +146,47 @@ Alamia OdooBridge provides 10 core tools with standardized JSON schemas and guar
 | Tool Name | Type | Description | Guardrail / Policy |
 |---|---|---|---|
 | `odoo_status` | Read | Checks connection status, ERP version, and schema cache metrics. | Always allowed |
-| `odoo_list_models` | Read | Lists available models with optional keyword filtering. | Cached with TTL |
+| `odoo_list_models` | Read | Lists available models with optional keyword filtering. | Filtered; cached with TTL |
 | `odoo_get_model_fields` | Read | Introspects model fields, types, and relational targets. | Cached with TTL |
 | `odoo_search_read` | Read | Queries records matching domain criteria with pagination. | Read policy check |
 | `odoo_read_records` | Read | Reads specific records by their integer IDs. | Read policy check |
-| `odoo_create_record` | Write | Creates a record in a target model. | Blocked in `read_only` |
-| `odoo_write_record` | Write | Updates existing records by ID. | Blocked in `read_only` |
+| `odoo_create_record` | Write | Creates a record in a target model. | Blocked in `read_only`; scope checked |
+| `odoo_write_record` | Write | Updates existing records by ID. | Blocked in `read_only`; scope checked |
 | `odoo_unlink_record` | Destructive | Deletes records by ID. | **Disabled by default** (`BRIDGE_ALLOW_UNLINK=False`) |
 | `odoo_execute_method` | Action | Executes business logic methods (e.g. `action_confirm`). | **Restricted to Allowlist** |
 | `odoo_list_modules` | Read | Inspects installed module capabilities. | Read policy check |
+
+---
+
+## Security & Authorization Model
+
+Alamia OdooBridge implements defense-in-depth authorization across service and human identities:
+
+### 1. Service Identity & Remote Endpoints
+- Remote deployments require `BRIDGE_API_KEY` for HTTP/SSE gateway access. Requests without a valid key are rejected (HTTP 401).
+- Unattributed service connections receive a service-only identity bounded by `BRIDGE_SERVICE_SCOPES` (default: `["read"]`).
+- Service accounts cannot create, write, delete, or execute methods unless explicit write/execute scopes are configured.
+
+### 2. Verified Human Principals & Role Matrix
+- Human user actions are cryptographically authenticated via `X-Bridge-Principal-Token` (HMAC-SHA256) signed with `BRIDGE_SECRET_KEY`.
+- Raw unverified identity headers (e.g., `X-Bridge-Principal`) are strictly rejected.
+- Tokens include `exp` expiry validation, `iss`/`aud` validation, and streaming session-binding replay protection.
+- The policy engine enforces a declarative role/action/model permission matrix:
+
+| Role | Allowed Actions | Permitted Models | Denied Models | Permitted Methods |
+|---|---|---|---|---|
+| `admin` | read, write, unlink, execute | `*` | none | `*` |
+| `doctor` | read, write, execute | `vet.*`, `res.partner`, `crm.lead`, `product.*`, `calendar.*`, `mail.*` | `account.move`, `account.payment`, `res.company`, `res.users` | Clinical appointment and case methods |
+| `technician` | read, write | `vet.*`, `product.*`, `stock.*` | `account.*`, `sale.*`, `res.users`, `res.company` | none |
+| `receptionist` | read, write, execute | `vet.appointment`, `res.partner`, `crm.lead` | `vet.cm.case`, `account.*`, `stock.*`, `res.company` | Appointment confirm and cancel |
+| `viewer` | read | `*` | `account.*`, `res.users` | none |
+
+*Unknown roles default to the least-privilege `viewer` policy.*
+
+### 3. Authoritative Odoo ACLs & Record Rules
+The bridge acts as an intelligent pre-flight gatekeeper. When calls are forwarded to Odoo:
+- Multi-company claims (`company_id`) are injected into the Odoo execution context (`allowed_company_ids`).
+- Odoo's internal Access Control Lists (`ir.model.access`) and security record rules (`ir.rule`) remain the final authoritative evaluation boundary.
 
 ---
 
@@ -194,33 +229,6 @@ graph TD
 
 ---
 
-## Canonical Python Client SDK
-
-Alamia OdooBridge also includes a unified, thread-safe Python client for direct copilot integration:
-
-```python
-from alamia_odoobridge.client import OdooClient
-
-client = OdooClient(
-    url="http://localhost:8069",
-    db="odoo_hospital",
-    username="zelix_service",
-    password="your_password"
-)
-
-# Check version
-print(client.get_version())
-
-# Search and read
-partners = client.search_read("res.partner", domain=[("is_company", "=", True)], fields=["name", "email"], limit=5)
-print(partners)
-
-# Call safe method
-client.execute_kw("account.move", "action_post", [[123]])
-```
-
----
-
 ## Configuration Reference
 
 All settings can be configured via environment variables or a `.env` file:
@@ -234,16 +242,14 @@ All settings can be configured via environment variables or a `.env` file:
 | `ODOO_ADAPTER` | `auto` | Adapter type: `auto`, `xmlrpc`, or `json2`. |
 | `MCP_TRANSPORT` | `sse` | Transport type: `stdio`, `sse`, or `streamable_http`. |
 | `MCP_SERVER_PORT` | `8008` | HTTP/SSE server port. |
+| `BRIDGE_API_KEY` | `None` | Gateway API key required for remote network requests. |
+| `BRIDGE_SECRET_KEY` | `None` | Shared HMAC secret for verifying human caller tokens. |
+| `BRIDGE_SERVICE_SCOPES` | `["read"]` | Allowed scopes for unattributed service identity. |
 | `BRIDGE_EXECUTION_POLICY` | `controlled_writes` | `read_only`, `controlled_writes`, or `workflow_execution`. |
 | `BRIDGE_ALLOW_UNLINK` | `false` | Master switch for destructive record deletion. |
+| `BRIDGE_ALLOWED_METHODS` | *Allowlist* | List of allowlisted `model:method` pairs for execution. |
 | `BRIDGE_ENABLE_SCHEMA_CACHE` | `true` | Enables in-memory schema metadata caching. |
 | `BRIDGE_SCHEMA_CACHE_TTL_SECONDS` | `3600.0` | Cache time-to-live in seconds. |
-
----
-
-## Contributing
-
-We welcome contributions from the community. Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for details on our code of conduct, development setup, and pull request process.
 
 ---
 

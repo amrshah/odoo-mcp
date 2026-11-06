@@ -52,6 +52,7 @@ class BridgeSettings(BaseSettings):
     bridge_api_key: Optional[str] = Field(default=None, alias="BRIDGE_API_KEY")
     bridge_secret_key: Optional[str] = Field(default=None, alias="BRIDGE_SECRET_KEY")
     enforce_remote_auth: bool = Field(default=True, alias="BRIDGE_ENFORCE_REMOTE_AUTH")
+    service_scopes: List[str] = Field(default=["read"], alias="BRIDGE_SERVICE_SCOPES")
     execution_policy: ExecutionPolicy = Field(
         default=ExecutionPolicy.CONTROLLED_WRITES, alias="BRIDGE_EXECUTION_POLICY"
     )

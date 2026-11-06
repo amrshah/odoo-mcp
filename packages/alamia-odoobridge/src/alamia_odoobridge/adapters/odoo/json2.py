@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 
 from ...core.interfaces import BaseOdooAdapter
+from ...core.context import current_principal
 from ...core.exceptions import (
     AuthenticationError,
     ConnectionError,
@@ -23,7 +24,7 @@ logger = logging.getLogger("alamia_odoobridge.adapter.json2")
 class Json2Adapter(BaseOdooAdapter):
     """
     Modern Odoo External JSON-2 HTTP API adapter.
-    Operates strictly via named parameter contracts.
+    Operates strictly via named parameter contracts matching Odoo 19 WebJson2Controller.
     """
 
     def __init__(self, url: str, db: str, api_key: str, timeout: float = 30.0):
@@ -42,17 +43,25 @@ class Json2Adapter(BaseOdooAdapter):
         )
 
     def authenticate(self) -> int:
-        """Verify API key validity via context probe."""
+        """
+        Verify API key validity against Odoo JSON-2 endpoint.
+        Calls /json/2/res.users/search_read with limit=1 to verify credentials.
+        """
         if not self.api_key:
             raise AuthenticationError("Odoo JSON-2 credentials missing: API key is required")
 
         try:
-            res = self.client.get("/json/2/context")
+            res = self.client.post(
+                "/json/2/res.users/search_read",
+                json={"domain": [], "fields": ["id"], "limit": 1},
+            )
             if res.status_code in (401, 403):
                 raise AuthenticationError(f"JSON-2 API key refused by Odoo (HTTP {res.status_code})")
             res.raise_for_status()
             data = res.json()
-            return int(data.get("uid", 1))
+            if isinstance(data, list) and len(data) > 0 and "id" in data[0]:
+                return int(data[0]["id"])
+            return 1
         except AuthenticationError:
             raise
         except httpx.TimeoutException:
@@ -61,11 +70,13 @@ class Json2Adapter(BaseOdooAdapter):
             raise ConnectionError(f"Could not connect to Odoo JSON-2 endpoint at {self.url}: {e}")
 
     def get_version(self) -> Dict[str, Any]:
-        """Fetch Odoo version information."""
+        """Fetch Odoo version information via webclient endpoint."""
         try:
-            res = self.client.get("/web/webclient/version_info")
+            res = self.client.post("/web/webclient/version_info", json={})
             if res.status_code == 200:
-                return res.json().get("result", {})
+                result = res.json().get("result", {})
+                if result:
+                    return result
             return {"server_version": "19.0+", "protocol": "json-2"}
         except httpx.TimeoutException:
             raise ConnectionError(f"JSON-2 version check timed out after {self.timeout}s")
@@ -73,15 +84,30 @@ class Json2Adapter(BaseOdooAdapter):
             raise ConnectionError(f"Failed to query Odoo version via JSON-2: {e}")
 
     def _call(self, endpoint: str, payload: Dict[str, Any]) -> Any:
-        """Execute a named-parameter POST call to a JSON-2 endpoint."""
+        """
+        Execute a named-parameter POST call to an Odoo JSON-2 endpoint.
+        Automatically injects caller context (allowed_company_ids) if available from principal.
+        """
+        body = dict(payload)
+
+        # Propagate verified company context if not explicitly overridden
+        principal = current_principal.get()
+        if principal and principal.company_id and "context" not in body:
+            body["context"] = {"allowed_company_ids": [principal.company_id]}
+
         try:
-            res = self.client.post(endpoint, json=payload)
+            res = self.client.post(endpoint, json=body)
             if res.status_code == 401:
                 raise AuthenticationError(f"Unauthorized: JSON-2 key rejected at {endpoint}")
             if res.status_code == 403:
                 raise PermissionDeniedError(f"Forbidden: {res.text}")
             if res.status_code == 404:
                 raise ModelNotFoundError(f"Model or endpoint not found: {endpoint}")
+            if res.status_code == 422:
+                raise OdooBridgeError(
+                    f"JSON-2 parameter binding error (HTTP 422): {res.text}",
+                    details={"endpoint": endpoint, "payload_keys": list(body.keys())},
+                )
             res.raise_for_status()
 
             data = res.json()
@@ -150,12 +176,28 @@ class Json2Adapter(BaseOdooAdapter):
         return self._call(f"/json/2/{model}/read", payload)
 
     def create(self, model: str, values: Dict[str, Any]) -> int:
-        return self._call(f"/json/2/{model}/create", {"values": values})
+        """
+        Create a new record in Odoo via JSON-2.
+        Odoo 19 WebJson2Controller maps create to BaseModel.create(vals_list).
+        Returns the integer ID of the created record.
+        """
+        result = self._call(f"/json/2/{model}/create", {"vals_list": [values]})
+        if isinstance(result, list) and len(result) > 0:
+            return int(result[0])
+        return int(result)
 
     def write(self, model: str, ids: List[int], values: Dict[str, Any]) -> bool:
-        return bool(self._call(f"/json/2/{model}/write", {"ids": ids, "values": values}))
+        """
+        Update records in Odoo via JSON-2.
+        Odoo 19 WebJson2Controller maps write to BaseModel.write(vals).
+        """
+        return bool(self._call(f"/json/2/{model}/write", {"ids": ids, "vals": values}))
 
     def unlink(self, model: str, ids: List[int]) -> bool:
+        """
+        Delete records in Odoo via JSON-2.
+        Odoo 19 WebJson2Controller maps unlink to BaseModel.unlink().
+        """
         return bool(self._call(f"/json/2/{model}/unlink", {"ids": ids}))
 
     def execute_method(
@@ -165,9 +207,25 @@ class Json2Adapter(BaseOdooAdapter):
         args: Optional[List[Any]] = None,
         kwargs: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        payload: Dict[str, Any] = {"args": args or [], "kwargs": kwargs or {}}
+        """
+        Execute a business method via Odoo JSON-2.
+        Odoo 19 WebJson2Controller binds named kwargs directly to the method signature.
+        Positional 'args' are not supported by the JSON-2 RPC protocol and must fail explicitly.
+        """
+        if args and len(args) > 0:
+            raise OdooBridgeError(
+                f"Odoo JSON-2 protocol does not support arbitrary positional arguments for '{model}:{method}'. "
+                "Provide named parameters via kwargs instead.",
+                details={"model": model, "method": method, "unsupported_args": args},
+            )
+        payload = dict(kwargs) if kwargs else {}
         return self._call(f"/json/2/{model}/{method}", payload)
 
     def list_modules(self, state: str = "installed") -> List[Dict[str, Any]]:
         domain = [("state", "=", state)] if state else []
-        return self.search_read("ir.module.module", domain=domain, fields=["id", "name", "shortdesc", "state", "installed_version"])
+        return self.search_read(
+            "ir.module.module",
+            domain=domain,
+            fields=["id", "name", "shortdesc", "state", "installed_version"],
+            limit=500,
+        )

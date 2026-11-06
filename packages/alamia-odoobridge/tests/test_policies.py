@@ -1,7 +1,7 @@
 """
 Unit tests for Alamia OdooBridge PolicyEngine and Guardrails,
-including explicit model:method allowlist pairs, disallowed models,
-read-only mode, and human principal role enforcement.
+including explicit model:method allowlist pairs, service-account scopes,
+and comprehensive role/action/model permission matrices.
 """
 
 import pytest
@@ -87,23 +87,139 @@ def test_model_method_pair_allowlist():
     assert "not in the permitted model:method allowlist" in str(exc_wrong_method.value)
 
 
-def test_human_principal_role_enforcement():
+def test_service_account_restricted_to_read_only_by_default():
+    """Default service account scopes are ['read'], rejecting writes and methods."""
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_SERVICE_SCOPES=["read"],
+        BRIDGE_DISALLOWED_MODELS=[],
+        BRIDGE_ALLOW_UNLINK=True,
+    )
+    engine = PolicyEngine(settings)
+
+    svc = PrincipalClaims(sub="service_account", is_service_only=True)
+    token = current_principal.set(svc)
+    try:
+        # Reads succeed
+        engine.check_read("res.partner")
+        engine.check_module_inspection()
+
+        # Writes fail
+        with pytest.raises(PermissionDeniedError) as exc_w:
+            engine.check_write("res.partner")
+        assert "restricted to read-only access" in str(exc_w.value)
+
+        # Methods fail
+        with pytest.raises(PermissionDeniedError) as exc_m:
+            engine.check_method_execution("sale.order", "action_confirm")
+        assert "not permitted to execute business methods" in str(exc_m.value)
+
+        # Unlink fails
+        with pytest.raises(PermissionDeniedError) as exc_u:
+            engine.check_unlink("res.partner", [1])
+        assert "not permitted to delete records" in str(exc_u.value)
+    finally:
+        current_principal.reset(token)
+
+
+def test_service_account_with_configured_write_scope():
+    """Configuring BRIDGE_SERVICE_SCOPES allows service writes."""
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_SERVICE_SCOPES=["read", "write", "execute"],
+        BRIDGE_ALLOWED_METHODS=["sale.order:action_confirm"],
+    )
+    engine = PolicyEngine(settings)
+
+    svc = PrincipalClaims(sub="service_account", is_service_only=True)
+    token = current_principal.set(svc)
+    try:
+        engine.check_read("res.partner")
+        engine.check_write("res.partner")
+        engine.check_method_execution("sale.order", "action_confirm")
+    finally:
+        current_principal.reset(token)
+
+
+def test_doctor_role_matrix_boundaries():
+    """Doctors can manage clinical models and methods, but not accounting or company settings."""
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_ALLOW_UNLINK=True,
+        BRIDGE_ALLOWED_METHODS=["vet.appointment:action_confirm", "account.move:action_post"],
+    )
+    engine = PolicyEngine(settings)
+
+    doctor = PrincipalClaims(sub="dr_smith", role="doctor", is_service_only=False)
+    token = current_principal.set(doctor)
+    try:
+        # Clinical access passes
+        engine.check_read("vet.patient")
+        engine.check_write("vet.patient")
+        engine.check_write("res.partner")
+        engine.check_method_execution("vet.appointment", "action_confirm")
+
+        # Accounting and administration are denied
+        with pytest.raises(PermissionDeniedError) as exc_acc:
+            engine.check_read("account.move")
+        assert "prohibited from reading 'account.move'" in str(exc_acc.value)
+
+        with pytest.raises(PermissionDeniedError) as exc_acc_w:
+            engine.check_write("account.move")
+        assert "prohibited from writing to 'account.move'" in str(exc_acc_w.value)
+
+        # Deletion is denied to doctors
+        with pytest.raises(PermissionDeniedError):
+            engine.check_unlink("vet.patient", [1])
+    finally:
+        current_principal.reset(token)
+
+
+def test_receptionist_role_matrix_boundaries():
+    """Receptionists can manage appointments and partners, but not clinical cases or inventory."""
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_ALLOWED_METHODS=["vet.appointment:action_confirm"],
+    )
+    engine = PolicyEngine(settings)
+
+    receptionist = PrincipalClaims(sub="frontdesk_amy", role="receptionist", is_service_only=False)
+    token = current_principal.set(receptionist)
+    try:
+        engine.check_read("vet.appointment")
+        engine.check_write("vet.appointment")
+        engine.check_write("res.partner")
+        engine.check_method_execution("vet.appointment", "action_confirm")
+
+        # Clinical case write is denied
+        with pytest.raises(PermissionDeniedError):
+            engine.check_write("vet.cm.case")
+
+        # Stock write is denied
+        with pytest.raises(PermissionDeniedError):
+            engine.check_write("stock.picking")
+    finally:
+        current_principal.reset(token)
+
+
+def test_viewer_role_is_strictly_read_only():
+    """Viewer role cannot write to any model or execute methods."""
     settings = BridgeSettings(_env_file=None, ODOO_PASSWORD="dummy")
     engine = PolicyEngine(settings)
 
-    # Human principal with read-only viewer role
     viewer = PrincipalClaims(sub="auditor_jane", role="viewer", is_service_only=False)
     token = current_principal.set(viewer)
     try:
-        # Read should succeed
         engine.check_read("res.partner")
 
-        # Write must be denied based on human role
-        with pytest.raises(PermissionDeniedError) as exc:
+        with pytest.raises(PermissionDeniedError) as exc_w:
             engine.check_write("res.partner")
-        assert "is not authorized to write" in str(exc.value)
+        assert "is not authorized to write" in str(exc_w.value)
 
-        # Method execution must be denied
         with pytest.raises(PermissionDeniedError) as exc_m:
             engine.check_method_execution("account.move", "action_post")
         assert "cannot execute business method" in str(exc_m.value)

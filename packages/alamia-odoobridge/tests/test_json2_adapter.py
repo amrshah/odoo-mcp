@@ -1,6 +1,7 @@
 """
 Contract and unit tests for Json2Adapter.
-Verifies named-parameter payload contracts, Bearer token headers, and typed error translations.
+Verifies named-parameter payload contracts, Bearer token headers, explicit args rejection,
+and typed error translations according to Odoo 19 WebJson2Controller.
 """
 
 import pytest
@@ -27,15 +28,15 @@ def json2_adapter():
     )
 
 
-def test_json2_headers_and_auth_context(json2_adapter, monkeypatch):
+def test_json2_headers_and_auth_probe(json2_adapter, monkeypatch):
     assert json2_adapter.client.headers["Authorization"] == "Bearer sec_token_json2_123"
     assert json2_adapter.client.headers["X-Odoo-Database"] == "odoo_test"
 
-    # Mock context probe
+    # Mock authenticate probe via /json/2/res.users/search_read
     mock_resp = MagicMock()
     mock_resp.status_code = 200
-    mock_resp.json.return_value = {"uid": 7, "user": "api_user"}
-    monkeypatch.setattr(json2_adapter.client, "get", lambda url: mock_resp)
+    mock_resp.json.return_value = [{"id": 7}]
+    monkeypatch.setattr(json2_adapter.client, "post", lambda endpoint, json: mock_resp)
 
     uid = json2_adapter.authenticate()
     assert uid == 7
@@ -65,8 +66,7 @@ def test_json2_named_parameters_search_read(json2_adapter, monkeypatch):
 
     assert records == [{"id": 10, "name": "Hospital Partner"}]
     assert captured_call["endpoint"] == "/json/2/res.partner/search_read"
-    
-    # Contract verification: payload must use named keys (not positional execute_kw tuple lists)
+
     payload = captured_call["payload"]
     assert payload["domain"] == [("is_company", "=", True)]
     assert payload["fields"] == ["id", "name"]
@@ -82,23 +82,35 @@ def test_json2_named_parameters_create_and_write(json2_adapter, monkeypatch):
         captured.append((endpoint, json))
         resp = MagicMock()
         resp.status_code = 200
-        resp.json.return_value = 99 if "create" in endpoint else True
+        resp.json.return_value = [99] if "create" in endpoint else True
         return resp
 
     monkeypatch.setattr(json2_adapter.client, "post", mock_post)
 
-    # Test create
+    # Test create: must use vals_list contract
     new_id = json2_adapter.create("vet.patient", {"name": "Buddy", "species": "canine"})
     assert new_id == 99
-    assert captured[0] == ("/json/2/vet.patient/create", {"values": {"name": "Buddy", "species": "canine"}})
+    assert captured[0] == ("/json/2/vet.patient/create", {"vals_list": [{"name": "Buddy", "species": "canine"}]})
 
-    # Test write
+    # Test write: must use ids and vals contract
     res_w = json2_adapter.write("vet.patient", [99], {"weight": 14.5})
     assert res_w is True
-    assert captured[1] == ("/json/2/vet.patient/write", {"ids": [99], "values": {"weight": 14.5}})
+    assert captured[1] == ("/json/2/vet.patient/write", {"ids": [99], "vals": {"weight": 14.5}})
 
 
-def test_json2_named_parameters_execute_method(json2_adapter, monkeypatch):
+def test_json2_explicit_positional_args_rejection(json2_adapter):
+    """Positional args must fail explicitly under JSON-2."""
+    with pytest.raises(OdooBridgeError) as exc_info:
+        json2_adapter.execute_method(
+            model="sale.order",
+            method="action_confirm",
+            args=[101],
+            kwargs={"validate": True},
+        )
+    assert "does not support arbitrary positional arguments" in str(exc_info.value)
+
+
+def test_json2_named_kwargs_execute_method(json2_adapter, monkeypatch):
     captured = {}
 
     def mock_post(endpoint, json):
@@ -114,13 +126,12 @@ def test_json2_named_parameters_execute_method(json2_adapter, monkeypatch):
     result = json2_adapter.execute_method(
         model="sale.order",
         method="action_confirm",
-        args=[101],
-        kwargs={"validate": True},
+        kwargs={"ids": [101], "validate": True},
     )
 
     assert result == {"status": "confirmed"}
     assert captured["endpoint"] == "/json/2/sale.order/action_confirm"
-    assert captured["payload"] == {"args": [101], "kwargs": {"validate": True}}
+    assert captured["payload"] == {"ids": [101], "validate": True}
 
 
 def test_json2_http_error_translations(json2_adapter, monkeypatch):
@@ -145,6 +156,15 @@ def test_json2_http_error_translations(json2_adapter, monkeypatch):
     monkeypatch.setattr(json2_adapter.client, "post", lambda *a, **kw: resp_404)
     with pytest.raises(ModelNotFoundError):
         json2_adapter.create("nonexistent.model", {})
+
+    # 422 Parameter Binding Error
+    resp_422 = MagicMock()
+    resp_422.status_code = 422
+    resp_422.text = "missing a required argument: 'vals'"
+    monkeypatch.setattr(json2_adapter.client, "post", lambda *a, **kw: resp_422)
+    with pytest.raises(OdooBridgeError) as exc_422:
+        json2_adapter.write("res.partner", [1], {})
+    assert "parameter binding error" in str(exc_422.value)
 
     # Timeout
     def mock_timeout(*a, **kw):
