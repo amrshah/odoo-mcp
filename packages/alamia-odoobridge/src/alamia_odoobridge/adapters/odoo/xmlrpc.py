@@ -100,6 +100,22 @@ class XmlRpcAdapter(BaseOdooAdapter):
         attrs = attributes or ["string", "type", "required", "readonly", "relation", "help", "selection"]
         return self.execute_kw(model, "fields_get", [], {"attributes": attrs})
 
+    def search(
+        self,
+        model: str,
+        domain: Optional[List[Any]] = None,
+        offset: int = 0,
+        limit: Optional[int] = 50,
+        order: Optional[str] = None,
+    ) -> List[int]:
+        domain = domain or []
+        kwargs: Dict[str, Any] = {"offset": offset}
+        if limit is not None:
+            kwargs["limit"] = limit
+        if order:
+            kwargs["order"] = order
+        return self.execute_kw(model, "search", [domain], kwargs)
+
     def search_read(
         self,
         model: str,

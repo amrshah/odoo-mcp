@@ -87,6 +87,21 @@ class Json2Adapter(BaseOdooAdapter):
         attrs = attributes or ["string", "type", "required", "readonly", "relation", "help", "selection"]
         return self._call(f"/json/2/{model}/fields_get", {"attributes": attrs})
 
+    def search(
+        self,
+        model: str,
+        domain: Optional[List[Any]] = None,
+        offset: int = 0,
+        limit: Optional[int] = 50,
+        order: Optional[str] = None,
+    ) -> List[int]:
+        payload: Dict[str, Any] = {"domain": domain or [], "offset": offset}
+        if limit is not None:
+            payload["limit"] = limit
+        if order:
+            payload["order"] = order
+        return self._call(f"/json/2/{model}/search", payload)
+
     def search_read(
         self,
         model: str,

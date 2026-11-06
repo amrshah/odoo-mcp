@@ -31,6 +31,18 @@ class BaseOdooAdapter(ABC):
         pass
 
     @abstractmethod
+    def search(
+        self,
+        model: str,
+        domain: Optional[List[Any]] = None,
+        offset: int = 0,
+        limit: Optional[int] = 50,
+        order: Optional[str] = None,
+    ) -> List[int]:
+        """Search for record IDs matching domain filter."""
+        pass
+
+    @abstractmethod
     def search_read(
         self,
         model: str,
