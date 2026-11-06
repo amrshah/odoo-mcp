@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "system_version": "0.2.0",
+  "project_name": "odoo-mcp",
+  "stack": {
+    "primary_language": "typescript",
+    "languages": [
+      "python",
+      "javascript",
+      "typescript"
+    ],
+    "frameworks": [
+      "react",
+      "fastapi"
+    ],
+    "package_managers": [
+      "pip",
+      "pnpm"
+    ],
+    "manifests": [
+      "mcp-server/requirements.txt",
+      "zelix-copilot-app/package.json",
+      "zelix-copilot-backend/requirements.txt"
+    ],
+    "containers": [
+      "docker-compose"
+    ]
+  },
+  "testing": {
+    "runner": "pytest",
+    "command": "pytest",
+    "test_dirs": [
+      "tests",
+      "zelix-copilot-backend/tests"
+    ],
+    "has_tests": true
+  },
+  "memory": {
+    "has_memory_system": true,
+    "handoff_dir": ".ai/transient/handoffs",
+    "architecture_dir": ".ai/permanent/architecture",
+    "worklogs": [],
+    "latest_handoff_file": ".ai/transient/handoffs/03-session-handoff-stitch-pwa.md"
+  },
+  "lifecycle": {
+    "groups": [
+      "bootstrap",
+      "implement",
+      "qa",
+      "architecture-review",
+      "session-end"
+    ]
+  }
+}
