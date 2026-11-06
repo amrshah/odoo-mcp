@@ -220,6 +220,12 @@ async def health():
     }
 
 
+@app.get("/api/copilot/parity")
+async def pilot_parity():
+    """Expose real-time parity and latency telemetry for the Odoo Bridge pilot."""
+    return odoo_adapter.get_parity_telemetry()
+
+
 @app.post("/api/copilot/chat")
 @app.post("/api/chat")
 async def chat(payload: ChatPayload):

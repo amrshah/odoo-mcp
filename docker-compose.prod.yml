@@ -60,6 +60,9 @@ services:
       - MCP_TRANSPORT=sse
       - MCP_SERVER_HOST=0.0.0.0
       - MCP_SERVER_PORT=8008
+      - BRIDGE_API_KEY=${BRIDGE_API_KEY:-}
+      - BRIDGE_SIGNING_SECRET=${BRIDGE_SIGNING_SECRET:-}
+      - BRIDGE_EXECUTION_POLICY=${BRIDGE_EXECUTION_POLICY:-read_only}
     restart: unless-stopped
     networks:
       - odoo-net
@@ -79,6 +82,8 @@ services:
       - ODOO_DB=${ODOO_DB:-odoo_hospital}
       - ODOO_USERNAME=${ODOO_USERNAME:-zelix_service}
       - ODOO_PASSWORD=${ODOO_PASSWORD:-zelix_service_secret_key_2026}
+      - ZELIX_ODOO_PILOT_MODE=${ZELIX_ODOO_PILOT_MODE:-dual}
+      - BRIDGE_API_KEY=${BRIDGE_API_KEY:-}
       - ALAMIA_AI_URL=${ALAMIA_AI_URL:-https://ai.alamiaconnect.com}
       - BITNET_API_KEY=${BITNET_API_KEY:-}
       - BITNET_DEFAULT_MODEL=${BITNET_DEFAULT_MODEL:-/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf}
