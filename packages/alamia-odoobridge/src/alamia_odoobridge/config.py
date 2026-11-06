@@ -54,7 +54,7 @@ class BridgeSettings(BaseSettings):
     enforce_remote_auth: bool = Field(default=True, alias="BRIDGE_ENFORCE_REMOTE_AUTH")
     service_scopes: List[str] = Field(default=["read"], alias="BRIDGE_SERVICE_SCOPES")
     execution_policy: ExecutionPolicy = Field(
-        default=ExecutionPolicy.CONTROLLED_WRITES, alias="BRIDGE_EXECUTION_POLICY"
+        default=ExecutionPolicy.READ_ONLY, alias="BRIDGE_EXECUTION_POLICY"
     )
     allow_unlink: bool = Field(default=False, alias="BRIDGE_ALLOW_UNLINK")
     allowed_methods: List[str] = Field(

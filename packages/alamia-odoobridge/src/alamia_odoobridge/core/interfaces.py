@@ -11,8 +11,8 @@ class BaseOdooAdapter(ABC):
     """Abstract interface defining the standardized Odoo operations contract."""
 
     @abstractmethod
-    def authenticate(self) -> int:
-        """Authenticate with Odoo and return user ID."""
+    def authenticate(self) -> Optional[int]:
+        """Authenticate with Odoo and return user ID (or None if identity is token/bearer managed)."""
         pass
 
     @abstractmethod

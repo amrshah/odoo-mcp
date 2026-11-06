@@ -1,7 +1,7 @@
 """
 Policy Engine and Security Guardrails for Alamia OdooBridge.
 Enforces execution modes, delete protection, model-method pair allowlists,
-service-account scope boundaries, and fine-grained human role-action-model matrices.
+service-account scope boundaries, and explicit allowlist-based human role permissions.
 """
 
 import fnmatch
@@ -12,35 +12,34 @@ from .exceptions import PolicyViolationError, PermissionDeniedError
 
 
 def matches_any_pattern(name: str, patterns: List[str]) -> bool:
-    """Check if a string matches any glob pattern in a list."""
+    """Check if a string matches any glob pattern in an explicit allowlist."""
     return any(fnmatch.fnmatch(name, pattern) for pattern in patterns)
 
 
-# Declarative Role / Action / Model Permission Matrix
+# Declarative Role / Action / Model Permission Matrix (Explicit Allowlist-First)
 ROLE_PERMISSIONS: Dict[str, Dict[str, Any]] = {
     "admin": {
-        "description": "System administrator with full operational access",
+        "description": "System administrator with broad operational access (governed by identity issuer)",
         "allowed_actions": ["read", "write", "unlink", "execute"],
-        "allowed_models": ["*"],
-        "denied_models": [],
+        "allowed_read_models": ["*"],
+        "allowed_write_models": ["*"],
         "allowed_methods": ["*"],
     },
     "doctor": {
-        "description": "Veterinarian / Clinician with clinical and patient management access",
+        "description": "Veterinarian / Clinician with clinical patient and appointment access",
         "allowed_actions": ["read", "write", "execute"],
-        "allowed_models": [
+        "allowed_read_models": [
             "vet.*",
             "res.partner",
             "crm.lead",
             "product.*",
-            "calendar.*",
-            "mail.*",
+            "calendar.event",
+            "mail.message",
         ],
-        "denied_models": [
-            "account.move",
-            "account.payment",
-            "res.company",
-            "res.users",
+        "allowed_write_models": [
+            "vet.*",
+            "res.partner",
+            "crm.lead",
         ],
         "allowed_methods": [
             "vet.appointment:action_confirm",
@@ -53,35 +52,35 @@ ROLE_PERMISSIONS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "technician": {
-        "description": "Veterinary technician or clinical assistant",
+        "description": "Veterinary technician or clinical assistant with vitals and inventory access",
         "allowed_actions": ["read", "write"],
-        "allowed_models": [
+        "allowed_read_models": [
             "vet.*",
             "product.*",
-            "stock.*",
+            "stock.picking",
+            "stock.move",
+            "stock.lot",
         ],
-        "denied_models": [
-            "account.*",
-            "sale.*",
-            "res.users",
-            "res.company",
+        "allowed_write_models": [
+            "vet.appointment",
+            "vet.patient",
         ],
         "allowed_methods": [],
     },
     "receptionist": {
         "description": "Front-desk receptionist handling bookings and customer records",
         "allowed_actions": ["read", "write", "execute"],
-        "allowed_models": [
+        "allowed_read_models": [
+            "vet.appointment",
+            "vet.patient",
+            "res.partner",
+            "crm.lead",
+            "product.*",
+        ],
+        "allowed_write_models": [
             "vet.appointment",
             "res.partner",
             "crm.lead",
-        ],
-        "denied_models": [
-            "vet.cm.case",
-            "account.*",
-            "stock.*",
-            "res.users",
-            "res.company",
         ],
         "allowed_methods": [
             "vet.appointment:action_confirm",
@@ -89,13 +88,16 @@ ROLE_PERMISSIONS: Dict[str, Dict[str, Any]] = {
         ],
     },
     "viewer": {
-        "description": "Read-only auditor or guest",
+        "description": "Read-only auditor with strict explicit business-model allowlist",
         "allowed_actions": ["read"],
-        "allowed_models": ["*"],
-        "denied_models": [
-            "account.*",
-            "res.users",
+        "allowed_read_models": [
+            "vet.patient",
+            "vet.appointment",
+            "res.partner",
+            "product.*",
+            "crm.lead",
         ],
+        "allowed_write_models": [],
         "allowed_methods": [],
     },
 }
@@ -127,25 +129,21 @@ class PolicyEngine:
         principal = self._get_principal()
         if principal:
             if principal.is_service_only:
-                # Service identity check: verify service_scopes
                 if "read" not in self.settings.service_scopes and "admin" not in self.settings.service_scopes:
                     raise PermissionDeniedError(
                         f"Service account lacks 'read' scope. Current service scopes: {self.settings.service_scopes}"
                     )
             else:
-                # Human principal check: verify role matrix
                 role_info = self._get_role_config(principal.role)
                 if "read" not in role_info["allowed_actions"]:
                     raise PermissionDeniedError(
                         f"Principal '{principal.sub}' with role '{principal.role}' is not authorized to read records"
                     )
-                if matches_any_pattern(model, role_info.get("denied_models", [])):
+                allowed_models = role_info.get("allowed_read_models", [])
+                if not matches_any_pattern(model, allowed_models):
                     raise PermissionDeniedError(
-                        f"Principal '{principal.sub}' with role '{principal.role}' is prohibited from reading '{model}'"
-                    )
-                if not matches_any_pattern(model, role_info.get("allowed_models", ["*"])):
-                    raise PermissionDeniedError(
-                        f"Principal '{principal.sub}' with role '{principal.role}' cannot read unpermitted model '{model}'"
+                        f"Principal '{principal.sub}' with role '{principal.role}' is not permitted to read '{model}'. "
+                        f"Allowed read models: {allowed_models}"
                     )
 
     def check_write(self, model: str) -> None:
@@ -165,26 +163,22 @@ class PolicyEngine:
         principal = self._get_principal()
         if principal:
             if principal.is_service_only:
-                # Service identity check: verify service_scopes
                 if "write" not in self.settings.service_scopes and "admin" not in self.settings.service_scopes:
                     raise PermissionDeniedError(
                         "Service account is restricted to read-only access. Write operations require 'write' scope "
                         "or a verified human principal token."
                     )
             else:
-                # Human principal check: verify role matrix
                 role_info = self._get_role_config(principal.role)
                 if "write" not in role_info["allowed_actions"]:
                     raise PermissionDeniedError(
                         f"Principal '{principal.sub}' with role '{principal.role}' is not authorized to write to records"
                     )
-                if matches_any_pattern(model, role_info.get("denied_models", [])):
+                allowed_models = role_info.get("allowed_write_models", [])
+                if not matches_any_pattern(model, allowed_models):
                     raise PermissionDeniedError(
-                        f"Principal '{principal.sub}' with role '{principal.role}' is prohibited from writing to '{model}'"
-                    )
-                if not matches_any_pattern(model, role_info.get("allowed_models", ["*"])):
-                    raise PermissionDeniedError(
-                        f"Principal '{principal.sub}' with role '{principal.role}' cannot write to unpermitted model '{model}'"
+                        f"Principal '{principal.sub}' with role '{principal.role}' is not permitted to write to '{model}'. "
+                        f"Allowed write models: {allowed_models}"
                     )
 
     def check_unlink(self, model: str, ids: List[int]) -> None:
@@ -211,26 +205,21 @@ class PolicyEngine:
         principal = self._get_principal()
         if principal:
             if principal.is_service_only:
-                # Service identity check: verify service_scopes
                 if "unlink" not in self.settings.service_scopes and "admin" not in self.settings.service_scopes:
                     raise PermissionDeniedError(
                         "Service account is not permitted to delete records. "
                         "Delete operations require 'unlink' scope and BRIDGE_ALLOW_UNLINK=True."
                     )
             else:
-                # Human principal check: verify role matrix
                 role_info = self._get_role_config(principal.role)
                 if "unlink" not in role_info["allowed_actions"]:
                     raise PermissionDeniedError(
                         f"Principal '{principal.sub}' with role '{principal.role}' is not authorized to delete records"
                     )
-                if matches_any_pattern(model, role_info.get("denied_models", [])):
+                allowed_models = role_info.get("allowed_write_models", [])
+                if not matches_any_pattern(model, allowed_models):
                     raise PermissionDeniedError(
                         f"Principal '{principal.sub}' with role '{principal.role}' cannot delete from '{model}'"
-                    )
-                if not matches_any_pattern(model, role_info.get("allowed_models", ["*"])):
-                    raise PermissionDeniedError(
-                        f"Principal '{principal.sub}' with role '{principal.role}' cannot delete from unpermitted model '{model}'"
                     )
 
     def check_method_execution(self, model: str, method: str) -> None:
@@ -259,14 +248,12 @@ class PolicyEngine:
         principal = self._get_principal()
         if principal:
             if principal.is_service_only:
-                # Service identity check: verify service_scopes
                 if "execute" not in self.settings.service_scopes and "admin" not in self.settings.service_scopes:
                     raise PermissionDeniedError(
                         "Service account is not permitted to execute business methods. "
                         "Requires 'execute' scope or a verified human principal token."
                     )
             else:
-                # Human principal check: verify role matrix
                 role_info = self._get_role_config(principal.role)
                 if "execute" not in role_info["allowed_actions"]:
                     raise PermissionDeniedError(

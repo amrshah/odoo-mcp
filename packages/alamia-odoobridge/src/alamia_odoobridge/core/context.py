@@ -76,12 +76,14 @@ class PrincipalVerifier:
         secret_key: Optional[str] = None,
         expected_iss: str = "alamia-copilot",
         expected_aud: str = "alamia-odoobridge",
+        max_ttl_seconds: float = 86400.0,
     ):
         self.secret_key = secret_key.encode("utf-8") if secret_key else None
         self.expected_iss = expected_iss
         self.expected_aud = expected_aud
+        self.max_ttl_seconds = max_ttl_seconds
         # Replay cache: stores seen jti identifiers alongside their expiration timestamps
-        self._seen_jtis: Dict[str, float] = {}
+        self._seen_jtis: Dict[str, Any] = {}
 
     def _purge_expired_jtis(self, now: float) -> None:
         """Remove expired token IDs from the replay cache."""
@@ -102,11 +104,13 @@ class PrincipalVerifier:
             raise AuthenticationError("Bridge secret key not configured; cannot sign claims")
 
         now = time.time()
+        effective_ttl = min(ttl_seconds, self.max_ttl_seconds)
         payload = dict(claims)
         payload.setdefault("iss", self.expected_iss)
         payload.setdefault("aud", self.expected_aud)
         payload.setdefault("iat", now)
-        payload.setdefault("exp", now + ttl_seconds)
+        payload.setdefault("nbf", now)
+        payload.setdefault("exp", now + effective_ttl)
         payload.setdefault("jti", str(uuid.uuid4()))
 
         payload_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
@@ -160,17 +164,25 @@ class PrincipalVerifier:
 
             claims_data = json.loads(payload_bytes.decode("utf-8"))
 
-            # Expiration validation
+            # Expiration and lifetime validation
             exp = claims_data.get("exp")
             if exp is None:
                 raise AuthenticationError("Principal token missing required expiration (exp) claim")
             if now > exp:
                 raise AuthenticationError(f"Principal token has expired (exp: {exp}, now: {now})")
 
-            # Issued-at / Not-before validation
+            # Issued-at / Not-before / Max TTL validation
             iat = claims_data.get("iat", 0)
             if iat > now + 60:  # Allow 60s clock skew
                 raise AuthenticationError("Principal token issued in the future (clock skew detected)")
+            if exp - iat > self.max_ttl_seconds + 60:
+                raise AuthenticationError(
+                    f"Principal token lifetime ({exp - iat:.1f}s) exceeds maximum allowed duration ({self.max_ttl_seconds}s)"
+                )
+
+            nbf = claims_data.get("nbf")
+            if nbf is not None and now < (nbf - 60):  # Allow 60s clock skew
+                raise AuthenticationError(f"Principal token is not active yet (nbf: {nbf}, now: {now})")
 
             # Issuer and Audience validation
             iss = claims_data.get("iss")

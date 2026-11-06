@@ -42,26 +42,19 @@ class Json2Adapter(BaseOdooAdapter):
             },
         )
 
-    def authenticate(self) -> int:
+    def authenticate(self) -> Optional[int]:
         """
         Verify API key validity against Odoo JSON-2 endpoint.
-        Calls /json/2/res.users/search_read with limit=1 to verify credentials.
+        Under Odoo 19+ Bearer key authentication, access rights are verified
+        directly via check_access_rights. Numeric UID is server-managed and not exposed
+        as an artificial user ID; returns None to explicitly indicate verified Bearer identity.
         """
         if not self.api_key:
             raise AuthenticationError("Odoo JSON-2 credentials missing: API key is required")
 
         try:
-            res = self.client.post(
-                "/json/2/res.users/search_read",
-                json={"domain": [], "fields": ["id"], "limit": 1},
-            )
-            if res.status_code in (401, 403):
-                raise AuthenticationError(f"JSON-2 API key refused by Odoo (HTTP {res.status_code})")
-            res.raise_for_status()
-            data = res.json()
-            if isinstance(data, list) and len(data) > 0 and "id" in data[0]:
-                return int(data[0]["id"])
-            return 1
+            self._call("/json/2/res.partner/check_access_rights", {"operation": "read"})
+            return None
         except AuthenticationError:
             raise
         except httpx.TimeoutException:
@@ -77,7 +70,7 @@ class Json2Adapter(BaseOdooAdapter):
                 result = res.json().get("result", {})
                 if result:
                     return result
-            return {"server_version": "19.0+", "protocol": "json-2"}
+            return {"server_version": "unknown", "protocol": "json-2"}
         except httpx.TimeoutException:
             raise ConnectionError(f"JSON-2 version check timed out after {self.timeout}s")
         except Exception as e:

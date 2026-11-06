@@ -41,8 +41,8 @@ def live_adapter():
 @live_odoo_required
 def test_live_json2_authentication_and_version(live_adapter):
     uid = live_adapter.authenticate()
-    assert isinstance(uid, int)
-    assert uid > 0
+    # In Odoo 19+ JSON-2 Bearer key auth, authenticate verifies access without manufacturing an artificial UID
+    assert uid is None
 
     version_info = live_adapter.get_version()
     assert "server_version" in version_info

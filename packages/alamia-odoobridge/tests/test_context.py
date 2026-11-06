@@ -109,3 +109,60 @@ def test_token_replay_rejected():
     with pytest.raises(AuthenticationError) as exc:
         verifier.verify_token(token)
     assert "Token replay detected" in str(exc.value)
+
+
+def test_max_ttl_exceeded_rejected():
+    verifier = PrincipalVerifier("test_secret", max_ttl_seconds=3600.0)
+    claims = {"sub": "dr_smith", "role": "doctor"}
+
+    # Attempt to forge a token with 48 hours TTL
+    now = time.time()
+    forged_claims = {
+        "sub": "dr_smith",
+        "iss": "alamia-copilot",
+        "aud": "alamia-odoobridge",
+        "iat": now,
+        "nbf": now,
+        "exp": now + 172800.0,  # 48 hours
+        "jti": "custom-jti-123",
+    }
+    # Sign manually using secret
+    import json, base64, hmac, hashlib
+    payload_bytes = json.dumps(forged_claims, sort_keys=True).encode("utf-8")
+    sig = hmac.new(b"test_secret", payload_bytes, hashlib.sha256).digest()
+    token_data = {
+        "payload": base64.b64encode(payload_bytes).decode("ascii"),
+        "sig": base64.b64encode(sig).decode("ascii"),
+    }
+    raw_token = base64.b64encode(json.dumps(token_data).encode("utf-8")).decode("ascii")
+
+    with pytest.raises(AuthenticationError) as exc:
+        verifier.verify_token(raw_token)
+    assert "exceeds maximum allowed duration" in str(exc.value)
+
+
+def test_future_nbf_token_rejected():
+    verifier = PrincipalVerifier("test_secret")
+    now = time.time()
+    forged_claims = {
+        "sub": "dr_smith",
+        "iss": "alamia-copilot",
+        "aud": "alamia-odoobridge",
+        "iat": now,
+        "nbf": now + 300.0,  # Not valid until 5 minutes in future
+        "exp": now + 3600.0,
+        "jti": "custom-jti-nbf",
+    }
+    import json, base64, hmac, hashlib
+    payload_bytes = json.dumps(forged_claims, sort_keys=True).encode("utf-8")
+    sig = hmac.new(b"test_secret", payload_bytes, hashlib.sha256).digest()
+    token_data = {
+        "payload": base64.b64encode(payload_bytes).decode("ascii"),
+        "sig": base64.b64encode(sig).decode("ascii"),
+    }
+    raw_token = base64.b64encode(json.dumps(token_data).encode("utf-8")).decode("ascii")
+
+    with pytest.raises(AuthenticationError) as exc:
+        verifier.verify_token(raw_token)
+    assert "not active yet" in str(exc.value)
+

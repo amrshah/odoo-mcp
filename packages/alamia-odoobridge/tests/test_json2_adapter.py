@@ -32,14 +32,15 @@ def test_json2_headers_and_auth_probe(json2_adapter, monkeypatch):
     assert json2_adapter.client.headers["Authorization"] == "Bearer sec_token_json2_123"
     assert json2_adapter.client.headers["X-Odoo-Database"] == "odoo_test"
 
-    # Mock authenticate probe via /json/2/res.users/search_read
+    # Mock authenticate probe via check_access_rights
     mock_resp = MagicMock()
     mock_resp.status_code = 200
-    mock_resp.json.return_value = [{"id": 7}]
+    mock_resp.json.return_value = None
     monkeypatch.setattr(json2_adapter.client, "post", lambda endpoint, json: mock_resp)
 
-    uid = json2_adapter.authenticate()
-    assert uid == 7
+    auth_result = json2_adapter.authenticate()
+    # Explicitly returns None for Bearer API-key authentication
+    assert auth_result is None
 
 
 def test_json2_named_parameters_search_read(json2_adapter, monkeypatch):

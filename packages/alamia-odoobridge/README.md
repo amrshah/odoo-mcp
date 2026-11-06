@@ -170,23 +170,23 @@ Alamia OdooBridge implements defense-in-depth authorization across service and h
 ### 2. Verified Human Principals & Role Matrix
 - Human user actions are cryptographically authenticated via `X-Bridge-Principal-Token` (HMAC-SHA256) signed with `BRIDGE_SECRET_KEY`.
 - Raw unverified identity headers (e.g., `X-Bridge-Principal`) are strictly rejected.
-- Tokens include `exp` expiry validation, `iss`/`aud` validation, and streaming session-binding replay protection.
-- The policy engine enforces a declarative role/action/model permission matrix:
+- Tokens enforce `exp` expiry validation, `nbf` (not-before) validation, maximum TTL limit (24 hours), `iss`/`aud` validation, and streaming session-binding replay protection for both SSE and Streamable HTTP.
+- The policy engine enforces an explicit allowlist-first role/action/model permission matrix:
 
-| Role | Allowed Actions | Permitted Models | Denied Models | Permitted Methods |
+| Role | Allowed Actions | Permitted Read Models | Permitted Write Models | Permitted Methods |
 |---|---|---|---|---|
-| `admin` | read, write, unlink, execute | `*` | none | `*` |
-| `doctor` | read, write, execute | `vet.*`, `res.partner`, `crm.lead`, `product.*`, `calendar.*`, `mail.*` | `account.move`, `account.payment`, `res.company`, `res.users` | Clinical appointment and case methods |
-| `technician` | read, write | `vet.*`, `product.*`, `stock.*` | `account.*`, `sale.*`, `res.users`, `res.company` | none |
-| `receptionist` | read, write, execute | `vet.appointment`, `res.partner`, `crm.lead` | `vet.cm.case`, `account.*`, `stock.*`, `res.company` | Appointment confirm and cancel |
-| `viewer` | read | `*` | `account.*`, `res.users` | none |
+| `admin` | read, write, unlink, execute | `*` (business models) | `*` (business models) | `*` (allowlisted) |
+| `doctor` | read, write, execute | `vet.*`, `res.partner`, `crm.lead`, `product.*`, `calendar.event`, `mail.message` | `vet.*`, `res.partner`, `crm.lead` | Clinical appointment and case methods |
+| `technician` | read, write | `vet.*`, `product.*`, `stock.picking`, `stock.move`, `stock.lot` | `vet.appointment`, `vet.patient` | None |
+| `receptionist` | read, write, execute | `vet.appointment`, `vet.patient`, `res.partner`, `crm.lead`, `product.*` | `vet.appointment`, `res.partner`, `crm.lead` | Appointment confirm and cancel |
+| `viewer` | read | `vet.patient`, `vet.appointment`, `res.partner`, `product.*`, `crm.lead` | None | None |
 
-*Unknown roles default to the least-privilege `viewer` policy.*
+*Unknown roles default to the least-privilege `viewer` policy. Any model not explicitly allowed for a role is denied by default.*
 
-### 3. Authoritative Odoo ACLs & Record Rules
-The bridge acts as an intelligent pre-flight gatekeeper. When calls are forwarded to Odoo:
-- Multi-company claims (`company_id`) are injected into the Odoo execution context (`allowed_company_ids`).
-- Odoo's internal Access Control Lists (`ir.model.access`) and security record rules (`ir.rule`) remain the final authoritative evaluation boundary.
+### 3. Execution Boundary & Authoritative Odoo Security
+The bridge acts as an intelligent pre-flight gatekeeper:
+- **Caller Claims vs. Execution Identity**: Verified principal claims (`user_id`, `company_id`) reflect the human operator's identity for gatekeeper authorization and audit logging. Calls forward to Odoo under the configured service account identity with multi-company context (`allowed_company_ids`) injected. This is gatekeeper context propagation, not Odoo user impersonation.
+- **Authoritative Odoo Security**: In PostgreSQL and Odoo, internal Access Control Lists (`ir.model.access`) and security record rules (`ir.rule`) evaluate every query against the executing service identity.
 
 ---
 
@@ -245,7 +245,7 @@ All settings can be configured via environment variables or a `.env` file:
 | `BRIDGE_API_KEY` | `None` | Gateway API key required for remote network requests. |
 | `BRIDGE_SECRET_KEY` | `None` | Shared HMAC secret for verifying human caller tokens. |
 | `BRIDGE_SERVICE_SCOPES` | `["read"]` | Allowed scopes for unattributed service identity. |
-| `BRIDGE_EXECUTION_POLICY` | `controlled_writes` | `read_only`, `controlled_writes`, or `workflow_execution`. |
+| `BRIDGE_EXECUTION_POLICY` | `read_only` | `read_only`, `controlled_writes`, or `workflow_execution`. |
 | `BRIDGE_ALLOW_UNLINK` | `false` | Master switch for destructive record deletion. |
 | `BRIDGE_ALLOWED_METHODS` | *Allowlist* | List of allowlisted `model:method` pairs for execution. |
 | `BRIDGE_ENABLE_SCHEMA_CACHE` | `true` | Enables in-memory schema metadata caching. |

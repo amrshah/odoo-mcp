@@ -11,7 +11,7 @@ def test_default_settings():
     assert settings.odoo_db == "odoo_hospital"
     assert settings.odoo_username == "zelix_service"
     assert settings.odoo_password == "secret_password"
-    assert settings.execution_policy == ExecutionPolicy.CONTROLLED_WRITES
+    assert settings.execution_policy == ExecutionPolicy.READ_ONLY
     assert settings.allow_unlink is False
     assert "sale.order:action_confirm" in settings.allowed_methods
     assert "ir.model.access" in settings.disallowed_models

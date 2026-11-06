@@ -1,9 +1,10 @@
 """
 HTTP Authentication & Caller Context Middleware for Alamia OdooBridge.
-Pure ASGI middleware enforcing BRIDGE_API_KEY on remote endpoints,
-binding verified principal tokens, and preserving streaming SSE session compatibility.
+Pure ASGI middleware enforcing BRIDGE_API_KEY on remote endpoints (fail-closed),
+binding verified principal tokens, and preserving streaming SSE & Streamable HTTP session compatibility.
 """
 
+import hmac
 import logging
 from typing import Optional
 from starlette.requests import Request
@@ -19,7 +20,8 @@ class BridgeAuthMiddleware:
     """
     Pure ASGI middleware enforcing API Key authentication on all MCP HTTP routes
     and propagating verified caller principal claims across SSE and HTTP sessions.
-    Avoids BaseHTTPMiddleware response streaming buffering issues with SSE transports.
+    Fails closed when API key enforcement is enabled without a key configured.
+    Uses constant-time comparison to prevent timing attacks.
     """
 
     def __init__(
@@ -41,8 +43,20 @@ class BridgeAuthMiddleware:
 
         request = Request(scope, receive=receive)
 
-        # 1. Enforce Gateway API Key on all incoming requests
-        if self.enforce_api_key and self.api_key:
+        # 1. Enforce Gateway API Key on all incoming requests (fail-closed)
+        if self.enforce_api_key:
+            if not self.api_key:
+                logger.error("API key enforcement is enabled but BRIDGE_API_KEY is not configured")
+                response = JSONResponse(
+                    {
+                        "error": "Server Configuration Error: BRIDGE_API_KEY is required but not configured",
+                        "status": 500,
+                    },
+                    status_code=500,
+                )
+                await response(scope, receive, send)
+                return
+
             auth_header = request.headers.get("Authorization", "")
             x_api_key = request.headers.get("X-Bridge-API-Key", "")
 
@@ -52,7 +66,7 @@ class BridgeAuthMiddleware:
             elif x_api_key:
                 presented_key = x_api_key.strip()
 
-            if not presented_key or presented_key != self.api_key:
+            if not presented_key or not hmac.compare_digest(presented_key, self.api_key):
                 logger.warning(
                     "Remote request rejected from %s: missing or invalid BRIDGE_API_KEY",
                     request.client.host if request.client else "unknown",
@@ -100,8 +114,10 @@ class BridgeAuthMiddleware:
                 return
             try:
                 session_id = request.query_params.get("session_id") or request.headers.get("mcp-session-id")
-                is_handshake = request.method == "GET" and (
-                    request.url.path.endswith("/sse") or "text/event-stream" in request.headers.get("accept", "")
+                # Detect session handshake for SSE (GET /sse) or Streamable HTTP (initial POST /mcp without session header)
+                is_handshake = (
+                    (request.method == "GET" and (request.url.path.endswith("/sse") or "text/event-stream" in request.headers.get("accept", "")))
+                    or (request.method == "POST" and (request.url.path.endswith("/mcp") or request.url.path.endswith("/messages")) and not session_id)
                 )
                 verified_claims = self.verifier.verify_token(
                     principal_token,

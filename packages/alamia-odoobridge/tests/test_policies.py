@@ -1,7 +1,7 @@
 """
 Unit tests for Alamia OdooBridge PolicyEngine and Guardrails,
 including explicit model:method allowlist pairs, service-account scopes,
-and comprehensive role/action/model permission matrices.
+and comprehensive explicit-allowlist role/action/model permission matrices.
 """
 
 import pytest
@@ -12,7 +12,11 @@ from alamia_odoobridge.core.exceptions import PolicyViolationError, PermissionDe
 
 
 def test_disallowed_model_blocks_read_and_write():
-    settings = BridgeSettings(_env_file=None, ODOO_PASSWORD="dummy")
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
+    )
     engine = PolicyEngine(settings)
 
     with pytest.raises(PolicyViolationError) as exc_info:
@@ -46,7 +50,12 @@ def test_read_only_policy_blocks_writes_and_methods():
 
 
 def test_unlink_disabled_by_default():
-    settings = BridgeSettings(_env_file=None, ODOO_PASSWORD="dummy", BRIDGE_ALLOW_UNLINK=False)
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
+        BRIDGE_ALLOW_UNLINK=False,
+    )
     engine = PolicyEngine(settings)
 
     with pytest.raises(PolicyViolationError) as exc_info:
@@ -55,7 +64,12 @@ def test_unlink_disabled_by_default():
 
 
 def test_unlink_permitted_when_explicitly_enabled():
-    settings = BridgeSettings(_env_file=None, ODOO_PASSWORD="dummy", BRIDGE_ALLOW_UNLINK=True)
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
+        BRIDGE_ALLOW_UNLINK=True,
+    )
     engine = PolicyEngine(settings)
 
     engine.check_unlink("crm.lead", [1, 2])
@@ -68,6 +82,7 @@ def test_model_method_pair_allowlist():
     settings = BridgeSettings(
         _env_file=None,
         ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
         BRIDGE_ALLOWED_METHODS=["account.move:action_post", "sale.order:action_confirm"],
     )
     engine = PolicyEngine(settings)
@@ -92,6 +107,7 @@ def test_service_account_restricted_to_read_only_by_default():
     settings = BridgeSettings(
         _env_file=None,
         ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
         BRIDGE_SERVICE_SCOPES=["read"],
         BRIDGE_DISALLOWED_MODELS=[],
         BRIDGE_ALLOW_UNLINK=True,
@@ -128,6 +144,7 @@ def test_service_account_with_configured_write_scope():
     settings = BridgeSettings(
         _env_file=None,
         ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
         BRIDGE_SERVICE_SCOPES=["read", "write", "execute"],
         BRIDGE_ALLOWED_METHODS=["sale.order:action_confirm"],
     )
@@ -148,6 +165,7 @@ def test_doctor_role_matrix_boundaries():
     settings = BridgeSettings(
         _env_file=None,
         ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
         BRIDGE_ALLOW_UNLINK=True,
         BRIDGE_ALLOWED_METHODS=["vet.appointment:action_confirm", "account.move:action_post"],
     )
@@ -162,14 +180,14 @@ def test_doctor_role_matrix_boundaries():
         engine.check_write("res.partner")
         engine.check_method_execution("vet.appointment", "action_confirm")
 
-        # Accounting and administration are denied
+        # Accounting and unlisted models are denied
         with pytest.raises(PermissionDeniedError) as exc_acc:
             engine.check_read("account.move")
-        assert "prohibited from reading 'account.move'" in str(exc_acc.value)
+        assert "is not permitted to read 'account.move'" in str(exc_acc.value)
 
         with pytest.raises(PermissionDeniedError) as exc_acc_w:
             engine.check_write("account.move")
-        assert "prohibited from writing to 'account.move'" in str(exc_acc_w.value)
+        assert "is not permitted to write to 'account.move'" in str(exc_acc_w.value)
 
         # Deletion is denied to doctors
         with pytest.raises(PermissionDeniedError):
@@ -183,6 +201,7 @@ def test_receptionist_role_matrix_boundaries():
     settings = BridgeSettings(
         _env_file=None,
         ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
         BRIDGE_ALLOWED_METHODS=["vet.appointment:action_confirm"],
     )
     engine = PolicyEngine(settings)
@@ -206,15 +225,26 @@ def test_receptionist_role_matrix_boundaries():
         current_principal.reset(token)
 
 
-def test_viewer_role_is_strictly_read_only():
-    """Viewer role cannot write to any model or execute methods."""
-    settings = BridgeSettings(_env_file=None, ODOO_PASSWORD="dummy")
+def test_viewer_role_explicit_business_allowlist():
+    """Viewer role is restricted to explicit business models and strictly cannot write."""
+    settings = BridgeSettings(
+        _env_file=None,
+        ODOO_PASSWORD="dummy",
+        BRIDGE_EXECUTION_POLICY=ExecutionPolicy.CONTROLLED_WRITES,
+    )
     engine = PolicyEngine(settings)
 
     viewer = PrincipalClaims(sub="auditor_jane", role="viewer", is_service_only=False)
     token = current_principal.set(viewer)
     try:
+        # Permitted business models succeed
         engine.check_read("res.partner")
+        engine.check_read("vet.patient")
+
+        # Unpermitted models (such as res.company or account.move) fail explicitly
+        with pytest.raises(PermissionDeniedError) as exc_comp:
+            engine.check_read("res.company")
+        assert "is not permitted to read 'res.company'" in str(exc_comp.value)
 
         with pytest.raises(PermissionDeniedError) as exc_w:
             engine.check_write("res.partner")
